@@ -1,0 +1,12 @@
+package careplan
+
+import (
+	"MedKick-backend/pkg/echo/middleware"
+	"github.com/labstack/echo/v4"
+)
+
+func Routes(r *echo.Group) {
+	r.POST("/careplan", createCareplan, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
+	r.GET("/careplan/:id", getCareplan, middleware.NotGuest)
+	r.DELETE("/careplan/:id", deleteCareplan, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
+}
