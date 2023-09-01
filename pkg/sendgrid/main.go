@@ -20,7 +20,6 @@ func SendEmail(toName string, toEmail string, subject string, body string) error
 
 	message := mail.NewSingleEmail(from, subject, to, "", htmlContent)
 
-	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
 	_, err := client.Send(message)
 	if err != nil {
 		return err

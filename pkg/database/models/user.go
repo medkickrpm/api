@@ -11,7 +11,7 @@ type User struct {
 	ID                *uint        `json:"id" gorm:"primary_key;auto_increment" example:"1"`
 	FirstName         string       `json:"first_name" gorm:"not null" example:"John"`
 	LastName          string       `json:"last_name" gorm:"not null" example:"Doe"`
-	Email             string       `json:"email" gorm:"not null;unique" example:"`
+	Email             string       `json:"email" gorm:"not null;unique"`
 	Phone             string       `json:"phone" gorm:"not null;unique" example:"08123456789"`
 	Password          string       `json:"password" gorm:"not null" example:"123456"`
 	Role              string       `json:"role" gorm:"not null" example:"admin"`

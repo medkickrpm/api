@@ -21,7 +21,7 @@ func main() {
 		&models.PasswordReset{},
 		&models.Organization{},
 		&models.CarePlan{},
-		&models.Interactions{},
+		&models.Interaction{},
 		&models.Device{},
 		&models.DeviceStatusData{},
 		&models.DeviceTelemetryData{},
