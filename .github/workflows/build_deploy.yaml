@@ -31,7 +31,7 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
         with:
-          repository: 'raajpatel229/medkick'
+          repository: 'medkickrpm/gitops'
           path: gitops
           token: ${{ secrets.G_TOKEN }}
       - name: Setup Kustomize
