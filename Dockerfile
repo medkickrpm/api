@@ -24,7 +24,7 @@ COPY --from=builder /app/main .
 
 # Expose port 3000 to the host
 EXPOSE 3000
-ENV GIN_MODE=release
+ENV ENV=production
 
 # Run the application
 CMD ["./main"]
