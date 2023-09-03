@@ -17,6 +17,17 @@ type LoginRequest struct {
 	Password string `json:"password" validate:"required"`
 }
 
+// login godoc
+// @Summary Login
+// @Description Login
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login"
+// @Success 200 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /auth/login [post]
 func login(c echo.Context) error {
 	var request LoginRequest
 	if err := c.Bind(&request); err != nil {
@@ -65,6 +76,16 @@ func login(c echo.Context) error {
 	})
 }
 
+// logout godoc
+// @Summary Logout
+// @Description Logout
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.MessageResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /auth/logout [get]
 func logout(c echo.Context) error {
 	session, err := middleware.Store.Get(c.Request(), "medkick-session")
 	if err != nil {
@@ -98,6 +119,17 @@ type RegisterRequest struct {
 	OrganizationID    uint   `json:"organization_id" validate:"required"`
 }
 
+// register godoc
+// @Summary Register
+// @Description Register
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body RegisterRequest true "Register"
+// @Success 201 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /auth/register [post]
 func register(c echo.Context) error {
 	var request RegisterRequest
 	if err := c.Bind(&request); err != nil {
@@ -167,6 +199,18 @@ type ResetPasswordRequest struct {
 	Email string `json:"email" validate:"required,email"`
 }
 
+// resetPassword godoc
+// @Summary Request a Password Reset
+// @Description Request a password reset for the given email
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body ResetPasswordRequest true "Reset Password"
+// @Success 200 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /auth/reset-password [post]
 func resetPassword(c echo.Context) error {
 	var request ResetPasswordRequest
 	if err := c.Bind(&request); err != nil {
@@ -221,6 +265,17 @@ type VerifyResetPasswordRequest struct {
 	UUID     string `json:"uuid" validate:"required"`
 }
 
+// verifyResetPassword godoc
+// @Summary Reset Password
+// @Description Validate Password Reset Token and Reset Password
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body VerifyResetPasswordRequest true "Verify Reset Password"
+// @Success 200 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /auth/verify-reset-password [post]
 func verifyResetPassword(c echo.Context) error {
 	var request VerifyResetPasswordRequest
 	if err := c.Bind(&request); err != nil {

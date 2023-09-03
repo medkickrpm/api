@@ -1,0 +1,539 @@
+basePath: /v1
+definitions:
+  dto.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  dto.MessageResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.Organization:
+    properties:
+      address:
+        example: 123 Main St
+        type: string
+      address2:
+        example: Apt 1
+        type: string
+      city:
+        example: Baltimore
+        type: string
+      country:
+        example: USA
+        type: string
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: John Hopkins
+        type: string
+      phone:
+        example: "08123456789"
+        type: string
+      state:
+        example: MD
+        type: string
+      updated_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      zip:
+        example: "12345"
+        type: string
+    type: object
+  models.User:
+    properties:
+      Location:
+        example: Dallas, TX
+        type: string
+      avatar_src:
+        example: https://cdn.med-kick.com/xxx.jpg
+        type: string
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      dob:
+        example: "2000-01-01"
+        type: string
+      email:
+        type: string
+      first_name:
+        example: John
+        type: string
+      id:
+        example: 1
+        type: integer
+      insurance_id:
+        example: "123456789"
+        type: string
+      insurance_provider:
+        example: Aetna
+        type: string
+      last_name:
+        example: Doe
+        type: string
+      organization:
+        $ref: '#/definitions/models.Organization'
+      organization_id:
+        example: 1
+        type: integer
+      password:
+        example: "123456"
+        type: string
+      phone:
+        example: "08123456789"
+        type: string
+      role:
+        example: admin
+        type: string
+      updated_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+    type: object
+  user.CreateRequest:
+    properties:
+      dob:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      insurance_id:
+        type: string
+      insurance_provider:
+        type: string
+      last_name:
+        type: string
+      location:
+        type: string
+      organization_id:
+        type: integer
+      password:
+        type: string
+      phone:
+        type: string
+      role:
+        description: 'Roles: admin, doctor, patient, doctornv, patientnv (nv = not
+          verified email)'
+        type: string
+    required:
+    - dob
+    - email
+    - first_name
+    - insurance_id
+    - insurance_provider
+    - last_name
+    - location
+    - organization_id
+    - password
+    - phone
+    - role
+    type: object
+  user.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  user.RegisterRequest:
+    properties:
+      dob:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      insurance_id:
+        type: string
+      insurance_provider:
+        type: string
+      last_name:
+        type: string
+      location:
+        type: string
+      organization_id:
+        type: integer
+      password:
+        type: string
+      phone:
+        type: string
+    required:
+    - dob
+    - email
+    - first_name
+    - insurance_id
+    - insurance_provider
+    - last_name
+    - location
+    - organization_id
+    - password
+    - phone
+    type: object
+  user.ResetPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  user.VerifyResetPasswordRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      uuid:
+        type: string
+    required:
+    - email
+    - password
+    - uuid
+    type: object
+host: api.medkick.raajpatel.dev
+info:
+  contact:
+    email: the@raajpatel.dev
+    name: Medkick API Support
+    url: https://api.medkick.raajpatel.dev
+  description: Medkick API Documentation
+  title: Medkick API
+  version: 0.1-dev
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: Check if API is online
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+      summary: Check if API is online
+      tags:
+      - General
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: Login
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Login
+      tags:
+      - Auth
+  /auth/logout:
+    get:
+      consumes:
+      - application/json
+      description: Logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Logout
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register
+      parameters:
+      - description: Register
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Register
+      tags:
+      - Auth
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Request a password reset for the given email
+      parameters:
+      - description: Reset Password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Request a Password Reset
+      tags:
+      - Auth
+  /auth/verify-reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Validate Password Reset Token and Reset Password
+      parameters:
+      - description: Verify Reset Password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.VerifyResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Reset Password
+      tags:
+      - Auth
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: ADMIN ONLY - Create User
+      parameters:
+      - description: Create Request
+        in: body
+        name: create
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Create User
+      tags:
+      - User
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Admin & Doctor ONLY - Delete User
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Delete User
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: Gets users, if ID is specified, gets specific user, if ID is "all",
+        gets all users
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get User(s)
+      tags:
+      - User
+    patch:
+      consumes:
+      - application/json
+      description: Updates user, if ID is specified, updates specific user, if ID
+        is not specified, updates self
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Update User
+      tags:
+      - User
+  /user/org/{id}:
+    get:
+      consumes:
+      - application/json
+      description: ADMIN & DOCTOR ONLY - if ID is specified, gets users in that organization,
+        if ID is not specified, gets users in self's organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Users in Organization
+      tags:
+      - User
+schemes:
+- https
+swagger: "2.0"

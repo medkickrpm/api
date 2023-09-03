@@ -18,7 +18,7 @@ type CreateRequest struct {
 	Email             string `json:"email" validate:"required,email"`
 	Phone             string `json:"phone" validate:"required"`
 	Password          string `json:"password" validate:"required"`
-	Role              string `json:"role" validate:"required"`
+	Role              string `json:"role" validate:"required"` // Roles: admin, doctor, patient, doctornv, patientnv (nv = not verified email)
 	DOB               string `json:"dob" validate:"required"`
 	Location          string `json:"location" validate:"required"`
 	InsuranceProvider string `json:"insurance_provider" validate:"required"`
@@ -26,7 +26,17 @@ type CreateRequest struct {
 	OrganizationID    uint   `json:"organization_id" validate:"required"`
 }
 
-// Roles: admin, doctor, patient, doctornv, patientnv (nv = not verified email)
+// createUser godoc
+// @Summary Create User
+// @Description ADMIN ONLY - Create User
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param create body CreateRequest true "Create Request"
+// @Success 201 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /user [post]
 func createUser(c echo.Context) error {
 	var request CreateRequest
 	if err := c.Bind(&request); err != nil {
@@ -98,6 +108,18 @@ func createUser(c echo.Context) error {
 	})
 }
 
+// getUser godoc
+// @Summary Get User(s)
+// @Description Gets users, if ID is specified, gets specific user, if ID is "all", gets all users
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path string false "User ID"
+// @Success 200 {object} []models.User
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /user/{id} [get]
 func getUser(c echo.Context) error {
 	id := c.Param("id")
 
@@ -115,7 +137,7 @@ func getUser(c echo.Context) error {
 				Error: "Failed to get users",
 			})
 		}
-		return c.JSON(http.StatusCreated, users)
+		return c.JSON(http.StatusOK, users)
 	}
 	if id == "" {
 		return c.JSON(http.StatusCreated, self)
@@ -138,7 +160,7 @@ func getUser(c echo.Context) error {
 	}
 
 	if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) {
-		return c.JSON(http.StatusCreated, u)
+		return c.JSON(http.StatusOK, u)
 	}
 
 	return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
@@ -146,6 +168,18 @@ func getUser(c echo.Context) error {
 	})
 }
 
+// getUsersInOrg godoc
+// @Summary Get Users in Organization
+// @Description ADMIN & DOCTOR ONLY - if ID is specified, gets users in that organization, if ID is not specified, gets users in self's organization
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path int false "Organization ID"
+// @Success 200 {object} []models.User
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /user/org/{id} [get]
 func getUsersInOrg(c echo.Context) error {
 	orgId := c.Param("id")
 
@@ -202,6 +236,18 @@ type UpdateRequest struct {
 	OrganizationID    *uint  `json:"organization_id"`
 }
 
+// updateUser godoc
+// @Summary Update User
+// @Description Updates user, if ID is specified, updates specific user, if ID is not specified, updates self
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path string false "User ID"
+// @Success 200 {object} models.User
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /user/{id} [patch]
 func updateUser(c echo.Context) error {
 	id := c.Param("id")
 
@@ -335,6 +381,18 @@ func updateUser(c echo.Context) error {
 	})
 }
 
+// deleteUser godoc
+// @Summary Delete User
+// @Description Admin & Doctor ONLY - Delete User
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /user/{id} [delete]
 func deleteUser(c echo.Context) error {
 	id := c.Param("id")
 	idInt, err := strconv.ParseUint(id, 10, 32)

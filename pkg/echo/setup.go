@@ -1,10 +1,14 @@
 package echo
 
 import (
+	"MedKick-backend/pkg/echo/dto"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"net/http"
 	"os"
+
+	_ "MedKick-backend/docs"
 )
 
 func Engine() *echo.Echo {
@@ -26,8 +30,20 @@ func Engine() *echo.Echo {
 	return e
 }
 
+func Swagger(e *echo.Echo) {
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+}
+
+// OnlineCheck godoc
+// @Summary Check if API is online
+// @Description Check if API is online
+// @Tags General
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.MessageResponse
+// @Router / [get]
 func OnlineCheck(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "MedKick API is online",
+	return c.JSON(http.StatusOK, dto.MessageResponse{
+		Message: "MedKick API is online",
 	})
 }

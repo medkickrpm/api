@@ -7,7 +7,7 @@ import (
 
 func Routes(r *echo.Group) {
 	r.POST("/auth/login", login)
-	r.POST("/auth/logout", logout, middleware.NotGuest)
+	r.GET("/auth/logout", logout, middleware.NotGuest)
 	r.POST("/auth/register", register)
 	r.POST("/auth/reset-password", resetPassword)
 	r.POST("/auth/verify-reset-password", verifyResetPassword)

@@ -15,6 +15,17 @@ import (
 	"os"
 )
 
+// @title Medkick API
+// @version 0.1-dev
+// @description Medkick API Documentation
+
+// @contact.name Medkick API Support
+// @contact.url https://api.medkick.raajpatel.dev
+// @contact.email the@raajpatel.dev
+
+// @host api.medkick.raajpatel.dev
+// @BasePath /v1
+// @schemes https
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -26,6 +37,9 @@ func main() {
 	sendgrid.Setup()
 
 	e := echo.Engine()
+
+	// Add Swagger
+	echo.Swagger(e)
 
 	// Add Auth
 	e.Use(middleware.Auth)
