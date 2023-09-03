@@ -14,7 +14,16 @@ type Request struct {
 	Token string `json:"token" validate:"required"`
 }
 
-// clearPasswordResetTokens clears all password reset tokens that are older than 24 hours
+// clearPasswordResetTokens godoc
+// @Summary Clear old password reset tokens
+// @Description CRON ONLY - Clears all password reset tokens that are older than 24 hours
+// @Tags CRON
+// @Accept json
+// @Produce json
+// @Success 204
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /cron/clear-pwd-reset [get]
 func clearPasswordResetTokens(c echo.Context) error {
 	var req Request
 	if err := c.Bind(&req); err != nil {
@@ -53,7 +62,5 @@ func clearPasswordResetTokens(c echo.Context) error {
 		}
 	}
 
-	return c.JSON(http.StatusOK, dto.MessageResponse{
-		Message: "Successfully cleared password resets",
-	})
+	return c.NoContent(http.StatusNoContent)
 }

@@ -243,6 +243,7 @@ type UpdateRequest struct {
 // @Accept json
 // @Produce json
 // @Param id path string false "User ID"
+// @Param update body UpdateRequest true "Update Request"
 // @Success 200 {object} models.User
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse

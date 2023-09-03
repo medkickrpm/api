@@ -21,6 +21,17 @@ type CreateRequest struct {
 	Phone    string `json:"phone" validate:"required"`
 }
 
+// createOrganization godoc
+// @Summary Create Organization
+// @Description ADMIN ONLY - Create Organization
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Param create body CreateRequest true "Create Request"
+// @Success 201 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /organization [post]
 func createOrganization(c echo.Context) error {
 	var req CreateRequest
 	if err := c.Bind(&req); err != nil {
@@ -57,6 +68,17 @@ func createOrganization(c echo.Context) error {
 	})
 }
 
+// getOrganization godoc
+// @Summary Create Organization
+// @Description Get Organization by ID
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Param id path int true "Organization ID"
+// @Success 200 {object} []models.Organization
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /organization/{id} [get]
 func getOrganization(c echo.Context) error {
 	self := middleware.GetSelf(c)
 
@@ -97,6 +119,18 @@ type UpdateRequest struct {
 	Phone    string `json:"phone" validate:"required"`
 }
 
+// updateOrganization godoc
+// @Summary update Organization
+// @Description DOCTOR/ADMIN ONLY - Update Organization
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Param id path int true "Organization ID"
+// @Param update body UpdateRequest true "Update Request"
+// @Success 200 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /organization/{id} [patch]
 func updateOrganization(c echo.Context) error {
 	var req UpdateRequest
 	if err := c.Bind(&req); err != nil {
@@ -172,6 +206,17 @@ func updateOrganization(c echo.Context) error {
 	})
 }
 
+// deleteOrganization godoc
+// @Summary Delete Organization
+// @Description ADMIN ONLY - Delete Organization
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Param id path int true "Organization ID"
+// @Success 200 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /organization/{id} [delete]
 func deleteOrganization(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

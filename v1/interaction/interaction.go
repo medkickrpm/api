@@ -19,6 +19,17 @@ type CreateRequest struct {
 	SessionDate string `json:"session_date" validate:"required" example:"2021-01-01T00:00:00Z"`
 }
 
+// createInteraction godoc
+// @Summary Create Interaction
+// @Description Create an interaction
+// @Tags Interaction
+// @Accept json
+// @Produce json
+// @Param create body CreateRequest true "Create Request"
+// @Success 201 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /interaction [post]
 func createInteraction(c echo.Context) error {
 	var request CreateRequest
 	if err := c.Bind(&request); err != nil {
@@ -85,11 +96,23 @@ func createInteraction(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, dto.MessageResponse{
+	return c.JSON(http.StatusCreated, dto.MessageResponse{
 		Message: "Successfully created interaction",
 	})
 }
 
+// getInteraction godoc
+// @Summary Get Interaction(s)
+// @Description Get interaction(s)
+// @Tags Interaction
+// @Accept json
+// @Produce json
+// @Param id path int false "ID"
+// @Success 200 {object} []models.Interaction
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /interaction/{id} [get]
 func getInteraction(c echo.Context) error {
 	id := c.Param("id")
 
@@ -154,6 +177,19 @@ type UpdateRequest struct {
 	SessionDate string `json:"session_date" example:"2021-01-01T00:00:00Z"`
 }
 
+// updateInteraction godoc
+// @Summary Update an Interaction
+// @Description Update an interaction
+// @Tags Interaction
+// @Accept json
+// @Produce json
+// @Param id path int true "ID"
+// @Param update body UpdateRequest true "Update Request"
+// @Success 200 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /interaction/{id} [patch]
 func updateInteraction(c echo.Context) error {
 	var request UpdateRequest
 	if err := c.Bind(&request); err != nil {
@@ -222,6 +258,18 @@ func updateInteraction(c echo.Context) error {
 	})
 }
 
+// deleteInteraction godoc
+// @Summary Delete an Interaction
+// @Description Delete an interaction
+// @Tags Interaction
+// @Accept json
+// @Produce json
+// @Param id path int true "ID"
+// @Success 200 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /interaction/{id} [delete]
 func deleteInteraction(c echo.Context) error {
 	id := c.Param("id")
 	idUint, err := strconv.ParseUint(id, 10, 32)

@@ -15,7 +15,18 @@ type CreateRequest struct {
 	DoctorID *uint `json:"doctor_id"`
 }
 
-// Returns a presigned URL for the user to upload their care plan
+// TODO - Update docs to return presigned URL instead of dto.MessageResponse
+// createCareplan godoc
+// @Summary Create a care plan
+// @Description Returns a presigned URL for the user to upload their care plan
+// @Tags Careplan
+// @Accept json
+// @Produce json
+// @Param create body CreateRequest true "Create Request"
+// @Success 201 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /careplan [post]
 func createCareplan(c echo.Context) error {
 	var request CreateRequest
 	if err := c.Bind(&request); err != nil {
@@ -61,6 +72,18 @@ func createCareplan(c echo.Context) error {
 	})
 }
 
+// getCareplan godoc
+// @Summary Get Careplan(s)
+// @Description Returns a list of careplans if no ID is provided, otherwise returns the careplan with the provided ID
+// @Tags Careplan
+// @Accept json
+// @Produce json
+// @Param id path int false "Careplan ID"
+// @Success 200 {object} []models.CarePlan
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /careplan/{id} [get]
 func getCareplan(c echo.Context) error {
 	id := c.Param("id")
 
@@ -137,6 +160,17 @@ func getCareplan(c echo.Context) error {
 	})
 }
 
+// deleteCareplan godoc
+// @Summary Delete a Careplan
+// @Description Deletes the careplan with the provided ID
+// @Tags Careplan
+// @Accept json
+// @Produce json
+// @Param id path int true "Careplan ID"
+// @Success 200 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /careplan/{id} [delete]
 func deleteCareplan(c echo.Context) error {
 	id := c.Param("id")
 

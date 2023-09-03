@@ -1,5 +1,14 @@
 basePath: /v1
 definitions:
+  careplan.CreateRequest:
+    properties:
+      doctor_id:
+        type: integer
+      user_id:
+        type: integer
+    required:
+    - user_id
+    type: object
   dto.ErrorResponse:
     properties:
       error:
@@ -9,6 +18,95 @@ definitions:
     properties:
       message:
         type: string
+    type: object
+  interaction.CreateRequest:
+    properties:
+      doctor_id:
+        type: integer
+      duration:
+        type: integer
+      notes:
+        type: string
+      session_date:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      user_id:
+        type: integer
+    required:
+    - duration
+    - notes
+    - session_date
+    - user_id
+    type: object
+  interaction.UpdateRequest:
+    properties:
+      doctor_id:
+        type: integer
+      duration:
+        type: integer
+      notes:
+        type: string
+      session_date:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      user_id:
+        type: integer
+    type: object
+  models.CarePlan:
+    properties:
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      doctor:
+        $ref: '#/definitions/models.User'
+      doctor_id:
+        example: 1
+        type: integer
+      id:
+        example: 1
+        type: integer
+      updated_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      url:
+        example: https://cdn.med-kick.com/xxx.pdf
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  models.Interaction:
+    properties:
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      doctor:
+        $ref: '#/definitions/models.User'
+      doctor_id:
+        example: 1
+        type: integer
+      duration:
+        example: 30
+        type: integer
+      id:
+        example: 1
+        type: integer
+      notes:
+        example: Patient is doing well
+        type: string
+      session_date:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      updated_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        example: 1
+        type: integer
     type: object
   models.Organization:
     properties:
@@ -94,6 +192,60 @@ definitions:
       updated_at:
         example: "2021-01-01T00:00:00Z"
         type: string
+    type: object
+  organization.CreateRequest:
+    properties:
+      address:
+        type: string
+      address2:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      state:
+        type: string
+      zip:
+        type: string
+    required:
+    - address
+    - city
+    - country
+    - name
+    - phone
+    - state
+    - zip
+    type: object
+  organization.UpdateRequest:
+    properties:
+      address:
+        type: string
+      address2:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      state:
+        type: string
+      zip:
+        type: string
+    required:
+    - address
+    - city
+    - country
+    - name
+    - phone
+    - state
+    - zip
     type: object
   user.CreateRequest:
     properties:
@@ -184,6 +336,31 @@ definitions:
         type: string
     required:
     - email
+    type: object
+  user.UpdateRequest:
+    properties:
+      dob:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      insurance_id:
+        type: string
+      insurance_provider:
+        type: string
+      last_name:
+        type: string
+      location:
+        type: string
+      organization_id:
+        type: integer
+      password:
+        type: string
+      phone:
+        type: string
+      role:
+        type: string
     type: object
   user.VerifyResetPasswordRequest:
     properties:
@@ -370,6 +547,378 @@ paths:
       summary: Reset Password
       tags:
       - Auth
+  /careplan:
+    post:
+      consumes:
+      - application/json
+      description: Returns a presigned URL for the user to upload their care plan
+      parameters:
+      - description: Create Request
+        in: body
+        name: create
+        required: true
+        schema:
+          $ref: '#/definitions/careplan.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Create a care plan
+      tags:
+      - Careplan
+  /careplan/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes the careplan with the provided ID
+      parameters:
+      - description: Careplan ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Delete a Careplan
+      tags:
+      - Careplan
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of careplans if no ID is provided, otherwise returns
+        the careplan with the provided ID
+      parameters:
+      - description: Careplan ID
+        in: path
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CarePlan'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Careplan(s)
+      tags:
+      - Careplan
+  /cron/clear-pwd-reset:
+    get:
+      consumes:
+      - application/json
+      description: CRON ONLY - Clears all password reset tokens that are older than
+        24 hours
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Clear old password reset tokens
+      tags:
+      - CRON
+  /interaction:
+    post:
+      consumes:
+      - application/json
+      description: Create an interaction
+      parameters:
+      - description: Create Request
+        in: body
+        name: create
+        required: true
+        schema:
+          $ref: '#/definitions/interaction.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Create Interaction
+      tags:
+      - Interaction
+  /interaction/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an interaction
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Delete an Interaction
+      tags:
+      - Interaction
+    get:
+      consumes:
+      - application/json
+      description: Get interaction(s)
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Interaction'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Interaction(s)
+      tags:
+      - Interaction
+    patch:
+      consumes:
+      - application/json
+      description: Update an interaction
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Request
+        in: body
+        name: update
+        required: true
+        schema:
+          $ref: '#/definitions/interaction.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Update an Interaction
+      tags:
+      - Interaction
+  /organization:
+    post:
+      consumes:
+      - application/json
+      description: ADMIN ONLY - Create Organization
+      parameters:
+      - description: Create Request
+        in: body
+        name: create
+        required: true
+        schema:
+          $ref: '#/definitions/organization.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Create Organization
+      tags:
+      - Organization
+  /organization/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: ADMIN ONLY - Delete Organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Delete Organization
+      tags:
+      - Organization
+    get:
+      consumes:
+      - application/json
+      description: Get Organization by ID
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Organization'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Create Organization
+      tags:
+      - Organization
+    patch:
+      consumes:
+      - application/json
+      description: DOCTOR/ADMIN ONLY - Update Organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Request
+        in: body
+        name: update
+        required: true
+        schema:
+          $ref: '#/definitions/organization.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: update Organization
+      tags:
+      - Organization
   /user:
     post:
       consumes:
@@ -477,6 +1026,12 @@ paths:
         in: path
         name: id
         type: string
+      - description: Update Request
+        in: body
+        name: update
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateRequest'
       produces:
       - application/json
       responses:
