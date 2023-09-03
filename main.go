@@ -47,7 +47,7 @@ func main() {
 	e.GET("/", echo.OnlineCheck)
 
 	v1 := e.Group("/v1")
-	e.GET("/v1", echo.OnlineCheck)
+	v1.GET("/", echo.OnlineCheck)
 
 	// System routes
 	cron.Routes(v1)
