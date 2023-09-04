@@ -270,7 +270,7 @@ const docTemplate = `{
         },
         "/careplan": {
             "post": {
-                "description": "Returns a presigned URL for the user to upload their care plan",
+                "description": "Creates a care plan for the provided user",
                 "consumes": [
                     "application/json"
                 ],
@@ -296,7 +296,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/dto.MessageResponse"
+                            "$ref": "#/definitions/models.CarePlan"
                         }
                     },
                     "400": {
@@ -365,6 +365,58 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "description": "Uploads a careplan for the provided user",
+                "tags": [
+                    "Careplan"
+                ],
+                "summary": "Upload Careplan",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Careplan ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "File",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CarePlan"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Deletes the careplan with the provided ID",
                 "consumes": [
@@ -395,6 +447,59 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/careplan/{id}/file": {
+            "get": {
+                "description": "Download the careplan with the provided ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Careplan"
+                ],
+                "summary": "Download Careplan",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Careplan ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }

@@ -551,7 +551,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Returns a presigned URL for the user to upload their care plan
+      description: Creates a care plan for the provided user
       parameters:
       - description: Create Request
         in: body
@@ -565,7 +565,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/dto.MessageResponse'
+            $ref: '#/definitions/models.CarePlan'
         "400":
           description: Bad Request
           schema:
@@ -597,6 +597,10 @@ paths:
             $ref: '#/definitions/dto.MessageResponse'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
         "500":
@@ -638,6 +642,72 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Get Careplan(s)
+      tags:
+      - Careplan
+    put:
+      description: Uploads a careplan for the provided user
+      parameters:
+      - description: Careplan ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: File
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CarePlan'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Upload Careplan
+      tags:
+      - Careplan
+  /careplan/{id}/file:
+    get:
+      consumes:
+      - application/json
+      description: Download the careplan with the provided ID
+      parameters:
+      - description: Careplan ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Download Careplan
       tags:
       - Careplan
   /cron/clear-pwd-reset:
