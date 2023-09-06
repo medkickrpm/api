@@ -21,8 +21,8 @@ type DeviceTelemetryData struct {
 	//Blood Glucose Meter
 	BloodGlucose uint   `json:"blood_glucose" gorm:"null" example:"80"`
 	Unit         string `json:"unit" gorm:"null" example:"mg/dL"`
-	Sample       string `json:"sample" gorm:"null" example:"1. GOD; 2. GDH"`
-	Target       string `json:"target" gorm:"null" example:"1. Blood or Resistance; 2. Quality Control Liquid; 3. Sample is invalid"`
+	TestPaper    string `json:"test_paper" gorm:"null" example:"1. GOD; 2. GDH"`
+	SampleType   string `json:"sample_type" gorm:"null" example:"1. Blood or Resistance; 2. Quality Control Liquid; 3. Sample is invalid"`
 	Meal         string `json:"meal" gorm:"null" example:"1. Before Meal; 2. After Meal"`
 
 	DeviceID   uint      `json:"device_id" gorm:"not null" example:"1"`

@@ -11,7 +11,7 @@ type Device struct {
 	ModelNumber    string    `json:"model_number" gorm:"not null" example:"123456"`
 	IMEI           string    `json:"imei" gorm:"not null" example:"123456789"`
 	SerialNumber   string    `json:"serial_number" gorm:"not null" example:"123456789"`
-	BatteryLevel   string    `json:"battery_level" gorm:"not null" example:"100"`
+	BatteryLevel   uint      `json:"battery_level" gorm:"not null" example:"100"`
 	SignalStrength string    `json:"signal_strength" gorm:"not null" example:"100"`
 	UserID         uint      `json:"user_id" gorm:"not null" example:"1"`
 	User           User      `json:"user" gorm:"foreignKey:UserID"`
@@ -44,6 +44,13 @@ func GetDevicesByUser(userId uint) ([]Device, error) {
 	return devices, nil
 }
 
+func (d *Device) GetDeviceByIMEI() error {
+	if err := database.DB.Where("imei = ?", d.IMEI).First(&d).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (d *Device) GetDevice() error {
 	if err := database.DB.Where("id = ?", d.ID).First(&d).Error; err != nil {
 		return err
@@ -60,6 +67,13 @@ func (d *Device) UpdateDevice() error {
 
 func (d *Device) DeleteDevice() error {
 	if err := database.DB.Delete(&d).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *Device) UpdateBattery(batteryLevel uint) error {
+	if err := database.DB.Model(&d).Update("battery_level", batteryLevel).Error; err != nil {
 		return err
 	}
 	return nil
