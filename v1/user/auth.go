@@ -45,7 +45,7 @@ func login(c echo.Context) error {
 	u := models.User{
 		Email: request.Email,
 	}
-	if err := u.GetUser(); err != nil {
+	if err := u.GetUserRaw(); err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "User not found",
 		})

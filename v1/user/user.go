@@ -67,6 +67,16 @@ func createUser(c echo.Context) error {
 		})
 	}
 
+	// Check if organization exists
+	org := models.Organization{
+		ID: request.OrganizationID,
+	}
+	if err := org.GetOrganization(); err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Organization does not exist",
+		})
+	}
+
 	u := models.User{
 		FirstName:         request.FirstName,
 		LastName:          request.LastName,

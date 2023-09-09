@@ -74,6 +74,19 @@ func (u *User) GetUser() error {
 	return nil
 }
 
+func (u *User) GetUserRaw() error {
+	if u.Email != "" {
+		if err := database.DB.Where("email = ?", u.Email).First(&u).Error; err != nil {
+			return err
+		}
+		return nil
+	}
+	if err := database.DB.Where("id = ?", u.ID).First(&u).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (u *User) UpdateUser() error {
 	if err := database.DB.Save(&u).Error; err != nil {
 		return err
