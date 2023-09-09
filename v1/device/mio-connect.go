@@ -57,7 +57,7 @@ type MioStatus struct {
 
 type Request struct {
 	DeviceID    string    `json:"deviceId" validate:"required"`
-	isTest      bool      `json:"isTest" validate:"required"`
+	IsTest      bool      `json:"isTest" validate:"required"`
 	ModelNumber string    `json:"modelNumber" validate:"required"`
 	Data        MioData   `json:"data"`
 	Status      MioStatus `json:"status"`
@@ -82,7 +82,7 @@ func IngestData(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if req.isTest {
+	if req.IsTest {
 		fmt.Printf("Test data received: %+v\n", req)
 		return c.NoContent(http.StatusNoContent)
 	}
