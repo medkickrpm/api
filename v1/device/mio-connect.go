@@ -15,7 +15,7 @@ import (
 type MioData struct {
 	DataType           string `json:"dataType" validate:"required"`
 	IMEI               string `json:"imei" validate:"required"`
-	SerialNumber       string `json:"sn""`
+	SerialNumber       string `json:"sn"`
 	Iccid              string `json:"iccid" validate:"required"`
 	User               uint   `json:"user"`
 	SystolicBP         uint   `json:"sys"`
@@ -80,6 +80,11 @@ func IngestData(c echo.Context) error {
 
 	if err := validator.Validate.Struct(req); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	if req.isTest {
+		fmt.Printf("Test data received: %+v\n", req)
+		return c.NoContent(http.StatusNoContent)
 	}
 
 	// TODO - get device id from imei
