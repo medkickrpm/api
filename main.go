@@ -31,7 +31,7 @@ import (
 // @contact.url https://api.medkick.raajpatel.dev
 // @contact.email the@raajpatel.dev
 
-// @host api.medkick.raajpatel.dev
+// @host api.medkick.air.business
 // @BasePath /v1
 // @schemes https
 func main() {

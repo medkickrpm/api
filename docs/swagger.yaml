@@ -375,7 +375,7 @@ definitions:
     - password
     - uuid
     type: object
-host: api.medkick.raajpatel.dev
+host: api.medkick.air.business
 info:
   contact:
     email: the@raajpatel.dev

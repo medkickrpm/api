@@ -13,7 +13,7 @@
         },
         "version": "0.1-dev"
     },
-    "host": "api.medkick.raajpatel.dev",
+    "host": "api.medkick.air.business",
     "basePath": "/v1",
     "paths": {
         "/": {
