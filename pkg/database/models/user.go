@@ -35,7 +35,7 @@ func (u *User) CreateUser() error {
 
 func GetUsers() ([]User, error) {
 	var users []User
-	if err := database.DB.Find(&users).Error; err != nil {
+	if err := database.DB.Preload("Organization").Find(&users).Error; err != nil {
 		return nil, err
 	}
 
@@ -48,7 +48,7 @@ func GetUsers() ([]User, error) {
 
 func GetUsersInOrg(orgId *uint) ([]User, error) {
 	var users []User
-	if err := database.DB.Where("organization_id = ?", orgId).Find(&users).Error; err != nil {
+	if err := database.DB.Where("organization_id = ?", orgId).Preload("Organization").Find(&users).Error; err != nil {
 		return nil, err
 	}
 
@@ -61,13 +61,13 @@ func GetUsersInOrg(orgId *uint) ([]User, error) {
 
 func (u *User) GetUser() error {
 	if u.Email != "" {
-		if err := database.DB.Where("email = ?", u.Email).First(&u).Error; err != nil {
+		if err := database.DB.Where("email = ?", u.Email).Preload("Organization").First(&u).Error; err != nil {
 			return err
 		}
 		u.SanitizeUser()
 		return nil
 	}
-	if err := database.DB.Where("id = ?", u.ID).First(&u).Error; err != nil {
+	if err := database.DB.Where("id = ?", u.ID).Preload("Organization").First(&u).Error; err != nil {
 		return err
 	}
 	u.SanitizeUser()
@@ -76,12 +76,12 @@ func (u *User) GetUser() error {
 
 func (u *User) GetUserRaw() error {
 	if u.Email != "" {
-		if err := database.DB.Where("email = ?", u.Email).First(&u).Error; err != nil {
+		if err := database.DB.Where("email = ?", u.Email).Preload("Organization").First(&u).Error; err != nil {
 			return err
 		}
 		return nil
 	}
-	if err := database.DB.Where("id = ?", u.ID).First(&u).Error; err != nil {
+	if err := database.DB.Where("id = ?", u.ID).Preload("Organization").First(&u).Error; err != nil {
 		return err
 	}
 	return nil
