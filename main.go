@@ -45,6 +45,8 @@ func main() {
 	sendgrid.Setup()
 	s3.Setup()
 
+	middleware.Setup()
+
 	e := echo.Engine()
 
 	// Add Swagger
