@@ -127,6 +127,7 @@ func createUser(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string false "User ID"
+// @Param filter query string false "Role Filter" Enums(admin, doctor, patient, doctornv, patientnv)
 // @Success 200 {object} []models.User
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
@@ -136,6 +137,8 @@ func createUser(c echo.Context) error {
 func getUser(c echo.Context) error {
 	id := c.Param("id")
 
+	filter := c.QueryParam("filter")
+
 	self := middleware.GetSelf(c)
 	if id == "all" {
 		if self.Role != "admin" {
@@ -144,13 +147,23 @@ func getUser(c echo.Context) error {
 			})
 		}
 
-		users, err := models.GetUsers()
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-				Error: "Failed to get users",
-			})
+		if filter != "" {
+			users, err := models.GetUsers()
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get users",
+				})
+			}
+			return c.JSON(http.StatusOK, users)
+		} else {
+			users, err := models.GetUsersWithRole(filter)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get users",
+				})
+			}
+			return c.JSON(http.StatusOK, users)
 		}
-		return c.JSON(http.StatusOK, users)
 	}
 	if id == "" {
 		return c.JSON(http.StatusCreated, self)

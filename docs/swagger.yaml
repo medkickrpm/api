@@ -375,7 +375,7 @@ definitions:
     - password
     - uuid
     type: object
-host: api.medkick.raajpatel.dev
+host: api.medkick.air.business
 info:
   contact:
     email: the@raajpatel.dev
@@ -1091,6 +1091,16 @@ paths:
       - description: User ID
         in: path
         name: id
+        type: string
+      - description: Role Filter
+        enum:
+        - admin
+        - doctor
+        - patient
+        - doctornv
+        - patientnv
+        in: query
+        name: filter
         type: string
       produces:
       - application/json

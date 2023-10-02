@@ -15,7 +15,7 @@ func Engine() *echo.Echo {
 	e := echo.New()
 
 	corsConfig := middleware.CORSConfig{
-		AllowOrigins:     []string{os.Getenv("FRONTEND_URL")},
+		AllowOrigins:     []string{os.Getenv("FRONTEND_URL"), os.Getenv("FRONTEND_URL_DEV")},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowMethods:     []string{echo.GET, echo.PUT, echo.PATCH, echo.POST, echo.DELETE, echo.OPTIONS},
 		ExposeHeaders:    []string{echo.HeaderContentLength},

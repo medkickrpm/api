@@ -1101,6 +1101,19 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "id",
                         "in": "path"
+                    },
+                    {
+                        "enum": [
+                            "admin",
+                            "doctor",
+                            "patient",
+                            "doctornv",
+                            "patientnv"
+                        ],
+                        "type": "string",
+                        "description": "Role Filter",
+                        "name": "filter",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1788,7 +1801,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "0.1-dev",
-	Host:             "api.medkick.raajpatel.dev",
+	Host:             "api.medkick.air.business",
 	BasePath:         "/v1",
 	Schemes:          []string{"https"},
 	Title:            "Medkick API",
