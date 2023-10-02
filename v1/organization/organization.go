@@ -129,10 +129,6 @@ func getOrganization(c echo.Context) error {
 
 		return c.JSON(http.StatusOK, o)
 	}
-
-	return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-		Error: "A strange error occurred, please contact an administrator.",
-	})
 }
 
 type UpdateRequest struct {
