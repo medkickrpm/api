@@ -100,13 +100,7 @@ func getOrganization(c echo.Context) error {
 
 		return c.JSON(http.StatusOK, organizations)
 	} else if idStr == "" {
-		if self.Role == "patient" || self.Role == "doctor" {
-			idStr = strconv.Itoa(int(*self.OrganizationID))
-		} else {
-			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-				Error: "ID required",
-			})
-		}
+		return c.JSON(http.StatusOK, self.Organization)
 	} else {
 		if self.Role != "admin" {
 			return c.JSON(http.StatusForbidden, dto.ErrorResponse{
