@@ -69,8 +69,8 @@ func createOrganization(c echo.Context) error {
 }
 
 // getOrganization godoc
-// @Summary Create Organization
-// @Description Get Organization by ID
+// @Summary Get Organization
+// @Description Get Organization by ID, if ID is not provided, get self Organization, if admin "all" gets all
 // @Tags Organization
 // @Accept json
 // @Produce json
@@ -82,30 +82,63 @@ func createOrganization(c echo.Context) error {
 func getOrganization(c echo.Context) error {
 	self := middleware.GetSelf(c)
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-			Error: err.Error(),
-		})
+	idStr := c.Param("id")
+
+	if idStr == "all" {
+		if self.Role != "admin" {
+			return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+				Error: "Forbidden",
+			})
+		}
+
+		organizations, err := models.GetOrganizations()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to get organizations",
+			})
+		}
+
+		return c.JSON(http.StatusOK, organizations)
+	} else if idStr == "" {
+		if self.Role == "patient" || self.Role == "doctor" {
+			idStr = strconv.Itoa(int(*self.OrganizationID))
+		} else {
+			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Error: "ID required",
+			})
+		}
+	} else {
+		if self.Role != "admin" {
+			return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+				Error: "Forbidden",
+			})
+		}
+
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Error: err.Error(),
+			})
+		}
+
+		idUint := uint(id)
+
+		o := models.Organization{
+			ID: idUint,
+		}
+
+		if err := o.GetOrganization(); err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to get organization",
+			})
+		}
+
+		return c.JSON(http.StatusOK, o)
 	}
 
-	idUint := uint(id)
-
-	if self.Role == "patient" || self.Role == "doctor" {
-		idUint = *self.OrganizationID
-	}
-
-	o := models.Organization{
-		ID: idUint,
-	}
-
-	if err := o.GetOrganization(); err != nil {
-		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to get organization",
-		})
-	}
-
-	return c.JSON(http.StatusOK, o)
+	return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+		Error: "A strange error occurred, please contact an administrator.",
+	})
 }
 
 type UpdateRequest struct {

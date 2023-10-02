@@ -69,7 +69,7 @@ func HasRole(roles ...string) echo.MiddlewareFunc {
 					return next(c)
 				}
 			}
-			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "You do not have permission to perform this action."})
+			return c.JSON(http.StatusForbidden, map[string]string{"message": "You do not have permission to perform this action."})
 		}
 	}
 }

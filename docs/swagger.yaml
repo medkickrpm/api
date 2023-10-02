@@ -732,6 +732,27 @@ paths:
       summary: Clear old password reset tokens
       tags:
       - CRON
+  /cron/sync-devices:
+    get:
+      consumes:
+      - application/json
+      description: CRON ONLY - Pulls and Syncs devices from Mio-Connect
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Sync Devices from Mio Connect
+      tags:
+      - CRON
   /interaction:
     post:
       consumes:
@@ -928,7 +949,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get Organization by ID
+      description: Get Organization by ID, if ID is not provided, get self Organization,
+        if admin "all" gets all
       parameters:
       - description: Organization ID
         in: path
@@ -952,7 +974,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
-      summary: Create Organization
+      summary: Get Organization
       tags:
       - Organization
     patch:
@@ -1010,6 +1032,14 @@ paths:
             $ref: '#/definitions/dto.MessageResponse'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
         "500":
@@ -1079,6 +1109,10 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -1117,6 +1151,10 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -1150,6 +1188,10 @@ paths:
             $ref: '#/definitions/dto.ErrorResponse'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
         "500":

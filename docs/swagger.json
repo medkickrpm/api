@@ -541,6 +541,38 @@
                 }
             }
         },
+        "/cron/sync-devices": {
+            "get": {
+                "description": "CRON ONLY - Pulls and Syncs devices from Mio-Connect",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CRON"
+                ],
+                "summary": "Sync Devices from Mio Connect",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/interaction": {
             "post": {
                 "description": "Create an interaction",
@@ -792,7 +824,7 @@
         },
         "/organization/{id}": {
             "get": {
-                "description": "Get Organization by ID",
+                "description": "Get Organization by ID, if ID is not provided, get self Organization, if admin \"all\" gets all",
                 "consumes": [
                     "application/json"
                 ],
@@ -802,7 +834,7 @@
                 "tags": [
                     "Organization"
                 ],
-                "summary": "Create Organization",
+                "summary": "Get Organization",
                 "parameters": [
                     {
                         "type": "integer",
@@ -967,6 +999,18 @@
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1019,6 +1063,12 @@
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1067,6 +1117,12 @@
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -1171,6 +1227,12 @@
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }

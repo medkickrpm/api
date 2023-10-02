@@ -35,6 +35,8 @@ type CreateRequest struct {
 // @Param create body CreateRequest true "Create Request"
 // @Success 201 {object} dto.MessageResponse
 // @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 403 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /user [post]
 func createUser(c echo.Context) error {
@@ -128,6 +130,7 @@ func createUser(c echo.Context) error {
 // @Success 200 {object} []models.User
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
+// @Failure 403 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /user/{id} [get]
 func getUser(c echo.Context) error {
@@ -136,7 +139,7 @@ func getUser(c echo.Context) error {
 	self := middleware.GetSelf(c)
 	if id == "all" {
 		if self.Role != "admin" {
-			return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			return c.JSON(http.StatusForbidden, dto.ErrorResponse{
 				Error: "Unauthorized",
 			})
 		}
@@ -173,7 +176,7 @@ func getUser(c echo.Context) error {
 		return c.JSON(http.StatusOK, u)
 	}
 
-	return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+	return c.JSON(http.StatusForbidden, dto.ErrorResponse{
 		Error: "Unauthorized",
 	})
 }
@@ -188,6 +191,7 @@ func getUser(c echo.Context) error {
 // @Success 200 {object} []models.User
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
+// @Failure 403 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /user/org/{id} [get]
 func getUsersInOrg(c echo.Context) error {
@@ -218,7 +222,7 @@ func getUsersInOrg(c echo.Context) error {
 	}
 	orgUint := uint(orgInt)
 	if self.OrganizationID != &orgUint && self.Role != "admin" {
-		return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+		return c.JSON(http.StatusForbidden, dto.ErrorResponse{
 			Error: "Unauthorized",
 		})
 	}
@@ -257,6 +261,7 @@ type UpdateRequest struct {
 // @Success 200 {object} models.User
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
+// @Failure 403 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /user/{id} [patch]
 func updateUser(c echo.Context) error {
@@ -373,8 +378,8 @@ func updateUser(c echo.Context) error {
 			if self.Role == "admin" {
 				u.OrganizationID = request.OrganizationID
 			} else {
-				return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
-					Error: "Unauthorized",
+				return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+					Error: "Forbidden",
 				})
 			}
 		}
@@ -387,8 +392,8 @@ func updateUser(c echo.Context) error {
 		return c.JSON(http.StatusOK, u)
 	}
 
-	return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
-		Error: "Unauthorized",
+	return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+		Error: "Forbidden",
 	})
 }
 
