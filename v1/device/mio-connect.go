@@ -64,7 +64,19 @@ type Request struct {
 	CreatedAt   string    `json:"createdAt" validate:"required"`
 }
 
-func IngestData(c echo.Context) error {
+// ingestData godoc
+// @Summary Ingest Data
+// @Description Mio Connect Data Ingestion Endpoint (Webhook)
+// @Tags Mio
+// @Accept json
+// @Produce json
+// @Param create body Request true "Request"
+// @Success 204
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /connect [post]
+func ingestData(c echo.Context) error {
 	//Verify API Key from header
 	apiKey := c.Request().Header.Get("X-MIO-KEY")
 	if apiKey != os.Getenv("MIO_API_KEY") {

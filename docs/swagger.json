@@ -509,6 +509,55 @@
                 }
             }
         },
+        "/connect": {
+            "post": {
+                "description": "Mio Connect Data Ingestion Endpoint (Webhook)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mio"
+                ],
+                "summary": "Ingest Data",
+                "parameters": [
+                    {
+                        "description": "Request",
+                        "name": "create",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/device.Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/cron/clear-pwd-reset": {
             "get": {
                 "description": "CRON ONLY - Clears all password reset tokens that are older than 24 hours",
@@ -560,6 +609,58 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/device/{id}": {
+            "get": {
+                "description": "if no ID is provided get all devices",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Get Devices",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device ID",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Device"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -1275,6 +1376,170 @@
                 }
             }
         },
+        "device.MioData": {
+            "type": "object",
+            "required": [
+                "bat",
+                "dataType",
+                "iccid",
+                "imei",
+                "sig",
+                "tz"
+            ],
+            "properties": {
+                "bat": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "integer"
+                },
+                "dataType": {
+                    "type": "string"
+                },
+                "dia": {
+                    "type": "integer"
+                },
+                "hand": {
+                    "type": "boolean"
+                },
+                "iccid": {
+                    "type": "string"
+                },
+                "ihb": {
+                    "type": "boolean"
+                },
+                "imei": {
+                    "type": "string"
+                },
+                "lts": {
+                    "type": "integer"
+                },
+                "meal": {
+                    "type": "integer"
+                },
+                "pul": {
+                    "type": "integer"
+                },
+                "sample": {
+                    "type": "integer"
+                },
+                "sample_type": {
+                    "type": "integer"
+                },
+                "sig": {
+                    "type": "integer"
+                },
+                "sig_lvl": {
+                    "type": "integer"
+                },
+                "sn": {
+                    "type": "string"
+                },
+                "sys": {
+                    "type": "integer"
+                },
+                "tri": {
+                    "type": "boolean"
+                },
+                "ts": {
+                    "type": "integer"
+                },
+                "tz": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "integer"
+                },
+                "upload_time": {
+                    "type": "integer"
+                },
+                "uptime": {
+                    "type": "integer"
+                },
+                "user": {
+                    "type": "integer"
+                },
+                "wet": {
+                    "type": "integer"
+                },
+                "wt": {
+                    "type": "integer"
+                }
+            }
+        },
+        "device.MioStatus": {
+            "type": "object",
+            "required": [
+                "bat",
+                "dataType",
+                "imei",
+                "tz"
+            ],
+            "properties": {
+                "at_t": {
+                    "type": "integer"
+                },
+                "bat": {
+                    "type": "integer"
+                },
+                "dataType": {
+                    "type": "string"
+                },
+                "imei": {
+                    "type": "string"
+                },
+                "me_num": {
+                    "type": "integer"
+                },
+                "net": {
+                    "type": "string"
+                },
+                "ops": {
+                    "type": "string"
+                },
+                "sig": {
+                    "type": "integer"
+                },
+                "tp": {
+                    "type": "integer"
+                },
+                "tz": {
+                    "type": "string"
+                }
+            }
+        },
+        "device.Request": {
+            "type": "object",
+            "required": [
+                "createdAt",
+                "deviceId",
+                "isTest",
+                "modelNumber"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/device.MioData"
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "isTest": {
+                    "type": "boolean"
+                },
+                "modelNumber": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/device.MioStatus"
+                }
+            }
+        },
         "dto.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -1364,6 +1629,62 @@
                 "url": {
                     "type": "string",
                     "example": "https://cdn.med-kick.com/xxx.pdf"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "models.Device": {
+            "type": "object",
+            "properties": {
+                "battery_level": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "device_id": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "firmware_version": {
+                    "type": "string",
+                    "example": "1.0.0"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "imei": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "model_number": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Sphygmomanometer/Weight Scale/Blood Glucose Meter"
+                },
+                "serial_number": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "signal_strength": {
+                    "type": "string",
+                    "example": "100"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 },
                 "user": {
                     "$ref": "#/definitions/models.User"

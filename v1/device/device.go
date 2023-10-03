@@ -1,0 +1,77 @@
+package device
+
+import (
+	"MedKick-backend/pkg/database/models"
+	"MedKick-backend/pkg/echo/dto"
+	"MedKick-backend/pkg/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"net/http"
+	"strconv"
+)
+
+// getDevice godoc
+// @Summary Get Devices
+// @Description if no ID is provided get all devices
+// @Tags Devices
+// @Accept json
+// @Produce json
+// @Param id path string false "Device ID"
+// @Success 200 {object} []models.Device
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /device/{id} [get]
+func getDevice(c echo.Context) error {
+	self := middleware.GetSelf(c)
+
+	id := c.Param("id")
+
+	if id == "" {
+		if self.Role == "admin" {
+			devices, err := models.GetDevices()
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get devices",
+				})
+			}
+			return c.JSON(http.StatusOK, devices)
+		} else if self.Role == "doctor" {
+			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Error: "Doctors cannot get all devices",
+			})
+		} else {
+			devices, err := models.GetDevicesByUser(*self.ID)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get devices by user",
+				})
+			}
+			return c.JSON(http.StatusOK, devices)
+		}
+	}
+
+	// Convert id to uint
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to convert id to uint",
+		})
+	}
+
+	device := &models.Device{
+		ID: uint(idInt),
+	}
+	if err := device.GetDevice(); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get device by device id",
+		})
+	}
+
+	if self.Role == "patient" && device.UserID != *self.ID {
+		return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+			Error: "Forbidden",
+		})
+	}
+
+	return c.JSON(http.StatusOK, device)
+}

@@ -9,6 +9,118 @@ definitions:
     required:
     - user_id
     type: object
+  device.MioData:
+    properties:
+      bat:
+        type: integer
+      data:
+        type: integer
+      dataType:
+        type: string
+      dia:
+        type: integer
+      hand:
+        type: boolean
+      iccid:
+        type: string
+      ihb:
+        type: boolean
+      imei:
+        type: string
+      lts:
+        type: integer
+      meal:
+        type: integer
+      pul:
+        type: integer
+      sample:
+        type: integer
+      sample_type:
+        type: integer
+      sig:
+        type: integer
+      sig_lvl:
+        type: integer
+      sn:
+        type: string
+      sys:
+        type: integer
+      tri:
+        type: boolean
+      ts:
+        type: integer
+      tz:
+        type: string
+      uid:
+        type: string
+      unit:
+        type: integer
+      upload_time:
+        type: integer
+      uptime:
+        type: integer
+      user:
+        type: integer
+      wet:
+        type: integer
+      wt:
+        type: integer
+    required:
+    - bat
+    - dataType
+    - iccid
+    - imei
+    - sig
+    - tz
+    type: object
+  device.MioStatus:
+    properties:
+      at_t:
+        type: integer
+      bat:
+        type: integer
+      dataType:
+        type: string
+      imei:
+        type: string
+      me_num:
+        type: integer
+      net:
+        type: string
+      ops:
+        type: string
+      sig:
+        type: integer
+      tp:
+        type: integer
+      tz:
+        type: string
+    required:
+    - bat
+    - dataType
+    - imei
+    - tz
+    type: object
+  device.Request:
+    properties:
+      createdAt:
+        type: string
+      data:
+        $ref: '#/definitions/device.MioData'
+      deviceId:
+        type: string
+      isTest:
+        type: boolean
+      modelNumber:
+        type: string
+      status:
+        $ref: '#/definitions/device.MioStatus'
+    required:
+    - createdAt
+    - deviceId
+    - isTest
+    - modelNumber
+    type: object
   dto.ErrorResponse:
     properties:
       error:
@@ -70,6 +182,47 @@ definitions:
         type: string
       url:
         example: https://cdn.med-kick.com/xxx.pdf
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  models.Device:
+    properties:
+      battery_level:
+        example: 100
+        type: integer
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      device_id:
+        example: "123456789"
+        type: string
+      firmware_version:
+        example: 1.0.0
+        type: string
+      id:
+        example: 1
+        type: integer
+      imei:
+        example: "123456789"
+        type: string
+      model_number:
+        example: "123456"
+        type: string
+      name:
+        example: Sphygmomanometer/Weight Scale/Blood Glucose Meter
+        type: string
+      serial_number:
+        example: "123456789"
+        type: string
+      signal_strength:
+        example: "100"
+        type: string
+      updated_at:
+        example: "2021-01-01T00:00:00Z"
         type: string
       user:
         $ref: '#/definitions/models.User'
@@ -710,6 +863,38 @@ paths:
       summary: Download Careplan
       tags:
       - Careplan
+  /connect:
+    post:
+      consumes:
+      - application/json
+      description: Mio Connect Data Ingestion Endpoint (Webhook)
+      parameters:
+      - description: Request
+        in: body
+        name: create
+        required: true
+        schema:
+          $ref: '#/definitions/device.Request'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Ingest Data
+      tags:
+      - Mio
   /cron/clear-pwd-reset:
     get:
       consumes:
@@ -753,6 +938,40 @@ paths:
       summary: Sync Devices from Mio Connect
       tags:
       - CRON
+  /device/{id}:
+    get:
+      consumes:
+      - application/json
+      description: if no ID is provided get all devices
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Device'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Devices
+      tags:
+      - Devices
   /interaction:
     post:
       consumes:

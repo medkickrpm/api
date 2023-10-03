@@ -9,6 +9,7 @@ import (
 	"MedKick-backend/pkg/validator"
 	"MedKick-backend/v1/careplan"
 	"MedKick-backend/v1/cron"
+	"MedKick-backend/v1/device"
 	"MedKick-backend/v1/interaction"
 	"MedKick-backend/v1/organization"
 	"MedKick-backend/v1/user"
@@ -68,6 +69,7 @@ func main() {
 	organization.Routes(v1)
 	interaction.Routes(v1)
 	careplan.Routes(v1)
+	device.Routes(v1)
 
 	go func() {
 		if err := e.Start(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil && !errors.Is(err, http.ErrServerClosed) {
