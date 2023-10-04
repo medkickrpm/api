@@ -100,6 +100,7 @@ type UpdateRequest struct {
 // @Failure 401 {object} dto.ErrorResponse
 // @Failure 403 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
+// @Router /device/{id} [patch]
 func updateDevice(c echo.Context) error {
 	self := middleware.GetSelf(c)
 
@@ -183,6 +184,7 @@ func updateDevice(c echo.Context) error {
 // @Failure 401 {object} dto.ErrorResponse
 // @Failure 403 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
+// @Router /device/{id} [delete]
 func deleteDevice(c echo.Context) error {
 	self := middleware.GetSelf(c)
 
