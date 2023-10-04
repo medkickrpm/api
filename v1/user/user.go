@@ -106,8 +106,7 @@ func createUser(c echo.Context) error {
 		})
 	}
 
-	// TODO - Send verification email
-	body := "Please verify your email by clicking this link: https://med-kick.com/verify-email"
+	body := "<p>Please verify your email by clicking this link: https://med-kick.com/verify-email<p>"
 	subject := "MedKick Email Verification"
 	if err := sendgrid.SendEmail(fmt.Sprintf("%s %s", u.FirstName, u.LastName), u.Email, subject, body); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{

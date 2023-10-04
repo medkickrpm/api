@@ -11,7 +11,7 @@ var from *mail.Email
 
 func Setup() {
 	client = sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
-	from = mail.NewEmail("MedKick Mailman", "mailman@mail.med-kick.com")
+	from = mail.NewEmail("MedKick Robot", "robot@air.business")
 }
 
 func SendEmail(toName string, toEmail string, subject string, body string) error {
