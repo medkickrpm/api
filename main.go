@@ -54,6 +54,7 @@ func main() {
 	echo.Swagger(e)
 
 	// Add Auth
+	// TODO - Performance task for Raaj later
 	e.Use(middleware.Auth)
 
 	e.GET("/", echo.OnlineCheck)
