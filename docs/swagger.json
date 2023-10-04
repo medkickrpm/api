@@ -1540,6 +1540,35 @@
                 }
             }
         },
+        "device.UpdateRequest": {
+            "type": "object",
+            "properties": {
+                "battery_level": {
+                    "type": "integer"
+                },
+                "firmware_version": {
+                    "type": "string"
+                },
+                "imei": {
+                    "type": "string"
+                },
+                "model_number": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "serial_number": {
+                    "type": "string"
+                },
+                "signal_strength": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.ErrorResponse": {
             "type": "object",
             "properties": {
