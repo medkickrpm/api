@@ -7,7 +7,7 @@ import (
 
 func Routes(r *echo.Group) {
 	r.POST("/connect", ingestData)
-	r.GET("/device", getDevice, middleware.NotGuest)
+	r.GET("/device/:id", getDevice, middleware.NotGuest)
 	r.PATCH("/device/:id", updateDevice, middleware.NotGuest)
 	r.DELETE("/device/:id", deleteDevice, middleware.NotGuest, middleware.HasRole("admin"))
 }
