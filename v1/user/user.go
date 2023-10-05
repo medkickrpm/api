@@ -146,7 +146,9 @@ func getUser(c echo.Context) error {
 			})
 		}
 
-		if filter != "" {
+		fmt.Println(filter)
+
+		if filter == "" {
 			users, err := models.GetUsers()
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
