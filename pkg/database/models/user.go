@@ -104,6 +104,8 @@ func (u *User) UpdateUser() error {
 	if err := database.DB.Save(&u).Error; err != nil {
 		return err
 	}
+
+	u.SanitizeUser()
 	return nil
 }
 
