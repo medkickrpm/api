@@ -71,7 +71,7 @@ func syncDevices(c echo.Context) error {
 			device.Name = ""
 			device.BatteryLevel = 0
 			device.SignalStrength = ""
-			device.UserID = 0
+			device.UserID = 2
 
 			if err := device.CreateDevice(); err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{

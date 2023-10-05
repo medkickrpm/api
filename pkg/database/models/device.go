@@ -29,7 +29,7 @@ func (d *Device) CreateDevice() error {
 
 func GetDevices() ([]Device, error) {
 	var devices []Device
-	if err := database.DB.Find(&devices).Error; err != nil {
+	if err := database.DB.Preload("User").Find(&devices).Error; err != nil {
 		return nil, err
 	}
 
@@ -39,7 +39,7 @@ func GetDevices() ([]Device, error) {
 func GetDevicesByOrganization(organizationId uint) ([]Device, error) {
 	var devices []Device
 
-	if err := database.DB.Joins("JOIN users on devices.user_id = users.id").Where("users.organization_id = ?", organizationId).Find(&devices).Error; err != nil {
+	if err := database.DB.Preload("User").Joins("JOIN users on devices.user_id = users.id").Where("users.organization_id = ?", organizationId).Find(&devices).Error; err != nil {
 		return nil, err
 	}
 
@@ -48,7 +48,7 @@ func GetDevicesByOrganization(organizationId uint) ([]Device, error) {
 
 func GetDevicesByUser(userId uint) ([]Device, error) {
 	var devices []Device
-	if err := database.DB.Where("user_id = ?", userId).Find(&devices).Error; err != nil {
+	if err := database.DB.Preload("User").Where("user_id = ?", userId).Find(&devices).Error; err != nil {
 		return nil, err
 	}
 
@@ -56,14 +56,14 @@ func GetDevicesByUser(userId uint) ([]Device, error) {
 }
 
 func (d *Device) GetDeviceByIMEI() error {
-	if err := database.DB.Where("imei = ?", d.IMEI).First(&d).Error; err != nil {
+	if err := database.DB.Preload("User").Where("imei = ?", d.IMEI).First(&d).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
 func (d *Device) GetDevice() error {
-	if err := database.DB.Where("id = ?", d.ID).First(&d).Error; err != nil {
+	if err := database.DB.Preload("User").Where("id = ?", d.ID).First(&d).Error; err != nil {
 		return err
 	}
 	return nil
