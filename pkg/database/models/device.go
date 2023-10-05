@@ -7,7 +7,6 @@ import (
 
 type Device struct {
 	ID              uint      `json:"id" gorm:"primary_key;auto_increment" example:"1"`
-	DeviceID        string    `json:"device_id" gorm:"not null" example:"123456789"`
 	Name            string    `json:"name" gorm:"not null" example:"Sphygmomanometer/Weight Scale/Blood Glucose Meter"`
 	ModelNumber     string    `json:"model_number" gorm:"not null" example:"123456"`
 	IMEI            string    `json:"imei" gorm:"not null" example:"123456789"`
@@ -31,6 +30,16 @@ func (d *Device) CreateDevice() error {
 func GetDevices() ([]Device, error) {
 	var devices []Device
 	if err := database.DB.Find(&devices).Error; err != nil {
+		return nil, err
+	}
+
+	return devices, nil
+}
+
+func GetDevicesByOrganization(organizationId uint) ([]Device, error) {
+	var devices []Device
+
+	if err := database.DB.Joins("JOIN users on devices.user_id = users.id").Where("users.organization_id = ?", organizationId).Find(&devices).Error; err != nil {
 		return nil, err
 	}
 

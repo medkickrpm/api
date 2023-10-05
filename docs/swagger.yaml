@@ -216,9 +216,6 @@ definitions:
       created_at:
         example: "2021-01-01T00:00:00Z"
         type: string
-      device_id:
-        example: "123456789"
-        type: string
       firmware_version:
         example: 1.0.0
         type: string
@@ -1327,6 +1324,37 @@ paths:
       summary: update Organization
       tags:
       - Organization
+  /organization/{id}/devices:
+    get:
+      consumes:
+      - application/json
+      description: Get Devices in Organization
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Device'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Devices in Organization
+      tags:
+      - Organization
   /user:
     post:
       consumes:
@@ -1486,6 +1514,123 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Update User
+      tags:
+      - User
+  /user/{id}/careplans:
+    get:
+      consumes:
+      - application/json
+      description: If ID is specified, gets care plans in that user, if ID is not
+        specified, gets care plans in self
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CarePlan'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get care plans in User
+      tags:
+      - User
+  /user/{id}/devices:
+    get:
+      consumes:
+      - application/json
+      description: If ID is specified, gets devices in that user, if ID is not specified,
+        gets devices in self
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Device'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Devices in User
+      tags:
+      - User
+  /user/{id}/interactions:
+    get:
+      consumes:
+      - application/json
+      description: If ID is specified, gets interactions in that user, if ID is not
+        specified, gets interactions in self
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Interaction'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Interactions in User
       tags:
       - User
   /user/org/{id}:

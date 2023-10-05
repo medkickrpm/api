@@ -131,6 +131,37 @@ func getOrganization(c echo.Context) error {
 	}
 }
 
+// getDevicesInOrganization godoc
+// @Summary Get Devices in Organization
+// @Description Get Devices in Organization
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Param id path int true "Organization ID"
+// @Success 200 {object} []models.Device
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /organization/{id}/devices [get]
+func getDevicesInOrganization(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to convert id to uint",
+		})
+	}
+
+	idUint := uint(id)
+
+	devices, err := models.GetDevicesByOrganization(idUint)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get devices by organization",
+		})
+	}
+
+	return c.JSON(http.StatusOK, devices)
+}
+
 type UpdateRequest struct {
 	Name     string `json:"name" validate:"required"`
 	Address  string `json:"address" validate:"required"`

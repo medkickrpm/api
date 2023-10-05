@@ -10,4 +10,6 @@ func Routes(r *echo.Group) {
 	r.GET("/organization/:id", getOrganization, middleware.NotGuest)
 	r.PATCH("/organization/:id", updateOrganization, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
 	r.DELETE("/organization/:id", deleteOrganization, middleware.NotGuest, middleware.HasRole("admin"))
+
+	r.GET("/organization/:id/devices", getDevicesInOrganization, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
 }

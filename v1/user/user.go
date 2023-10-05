@@ -49,7 +49,7 @@ func createUser(c echo.Context) error {
 
 	if err := validator.Validate.Struct(request); err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-			Error: err.Error(),
+			Error: "Failed to validate request, make sure all fields are filled out correctly",
 		})
 	}
 
@@ -145,8 +145,6 @@ func getUser(c echo.Context) error {
 				Error: "Unauthorized",
 			})
 		}
-
-		fmt.Println(filter)
 
 		if filter == "" {
 			users, err := models.GetUsers()
@@ -248,6 +246,195 @@ func getUsersInOrg(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, users)
+}
+
+// getDevicesInUser godoc
+// @Summary Get Devices in User
+// @Description If ID is specified, gets devices in that user, if ID is not specified, gets devices in self
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path int false "User ID"
+// @Success 200 {object} []models.Device
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 403 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /user/{id}/devices [get]
+func getDevicesInUser(c echo.Context) error {
+	id := c.Param("id")
+	self := middleware.GetSelf(c)
+
+	if id == "" {
+		devices, err := models.GetDevicesByUser(*self.ID)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to get devices",
+			})
+		}
+
+		return c.JSON(http.StatusOK, devices)
+	} else {
+		idInt, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Error: "Failed to convert id to uint",
+			})
+		}
+
+		idUint := uint(idInt)
+
+		u := models.User{
+			ID: &idUint,
+		}
+
+		if err := u.GetUser(); err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to get user",
+			})
+		}
+
+		if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+			devices, err := models.GetDevicesByUser(idUint)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get devices",
+				})
+			}
+
+			return c.JSON(http.StatusOK, devices)
+		}
+	}
+
+	return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+		Error: "Unauthorized",
+	})
+}
+
+// getInteractionsInUser godoc
+// @Summary Get Interactions in User
+// @Description If ID is specified, gets interactions in that user, if ID is not specified, gets interactions in self
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path int false "User ID"
+// @Success 200 {object} []models.Interaction
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 403 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /user/{id}/interactions [get]
+func getInteractionsInUser(c echo.Context) error {
+	id := c.Param("id")
+	self := middleware.GetSelf(c)
+
+	if id == "" {
+		interactions, err := models.GetInteractionsByUser(*self.ID)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to get interactions",
+			})
+		}
+
+		return c.JSON(http.StatusOK, interactions)
+	} else {
+		idInt, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Error: "Failed to convert id to uint",
+			})
+		}
+
+		idUint := uint(idInt)
+
+		u := models.User{
+			ID: &idUint,
+		}
+
+		if err := u.GetUser(); err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to get user",
+			})
+		}
+
+		if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+			interactions, err := models.GetInteractionsByUser(idUint)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get interactions",
+				})
+			}
+
+			return c.JSON(http.StatusOK, interactions)
+		}
+	}
+
+	return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+		Error: "Unauthorized",
+	})
+}
+
+// getCarePlans godoc
+// @Summary Get care plans in User
+// @Description If ID is specified, gets care plans in that user, if ID is not specified, gets care plans in self
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path int false "User ID"
+// @Success 200 {object} []models.CarePlan
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 403 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /user/{id}/careplans [get]
+func getCarePlansInUser(c echo.Context) error {
+	id := c.Param("id")
+	self := middleware.GetSelf(c)
+
+	if id == "" {
+		carePlans, err := models.GetCarePlansByUserID(*self.ID)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to get care plans",
+			})
+		}
+
+		return c.JSON(http.StatusOK, carePlans)
+	} else {
+		idInt, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Error: "Failed to convert id to uint",
+			})
+		}
+
+		idUint := uint(idInt)
+
+		u := models.User{
+			ID: &idUint,
+		}
+
+		if err := u.GetUser(); err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to get user",
+			})
+		}
+
+		if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+			carePlans, err := models.GetCarePlansByUserID(idUint)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get care plans",
+				})
+			}
+
+			return c.JSON(http.StatusOK, carePlans)
+		}
+	}
+
+	return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+		Error: "Unauthorized",
+	})
 }
 
 type UpdateRequest struct {

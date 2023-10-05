@@ -63,7 +63,6 @@ func syncDevices(c echo.Context) error {
 			}
 
 			device.ModelNumber = fetchDevice.ModelNumber
-			device.DeviceID = fetchDevice.DeviceID
 			device.SerialNumber = fetchDevice.SerialNumber
 			device.CreatedAt = fetchDevice.CreatedAt
 			device.FirmwareVersion = fetchDevice.FirmwareVersion

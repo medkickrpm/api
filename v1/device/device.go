@@ -26,7 +26,7 @@ func getDevice(c echo.Context) error {
 
 	id := c.Param("id")
 
-	if id == "" {
+	if id == "all" || id == "" {
 		if self.Role == "admin" {
 			devices, err := models.GetDevices()
 			if err != nil {
