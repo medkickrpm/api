@@ -919,7 +919,7 @@ paths:
       tags:
       - Mio
   /cron/clear-pwd-reset:
-    get:
+    post:
       consumes:
       - application/json
       description: CRON ONLY - Clears all password reset tokens that are older than
@@ -948,7 +948,7 @@ paths:
       tags:
       - CRON
   /cron/sync-devices:
-    get:
+    post:
       consumes:
       - application/json
       description: CRON ONLY - Pulls and Syncs devices from Mio-Connect

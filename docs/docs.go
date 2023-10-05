@@ -563,7 +563,7 @@ const docTemplate = `{
             }
         },
         "/cron/clear-pwd-reset": {
-            "get": {
+            "post": {
                 "description": "CRON ONLY - Clears all password reset tokens that are older than 24 hours",
                 "consumes": [
                     "application/json"
@@ -606,7 +606,7 @@ const docTemplate = `{
             }
         },
         "/cron/sync-devices": {
-            "get": {
+            "post": {
                 "description": "CRON ONLY - Pulls and Syncs devices from Mio-Connect",
                 "consumes": [
                     "application/json"

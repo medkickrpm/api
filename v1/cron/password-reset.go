@@ -24,7 +24,7 @@ type Request struct {
 // @Success 204
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
-// @Router /cron/clear-pwd-reset [get]
+// @Router /cron/clear-pwd-reset [post]
 func clearPasswordResetTokens(c echo.Context) error {
 	var req Request
 	if err := c.Bind(&req); err != nil {

@@ -21,7 +21,7 @@ import (
 // @Success 200
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
-// @Router /cron/sync-devices [get]
+// @Router /cron/sync-devices [post]
 func syncDevices(c echo.Context) error {
 	var req Request
 	if err := c.Bind(&req); err != nil {
