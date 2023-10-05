@@ -575,6 +575,17 @@ const docTemplate = `{
                     "CRON"
                 ],
                 "summary": "Clear old password reset tokens",
+                "parameters": [
+                    {
+                        "description": "Token Request",
+                        "name": "CronToken",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cron.Request"
+                        }
+                    }
+                ],
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -607,6 +618,17 @@ const docTemplate = `{
                     "CRON"
                 ],
                 "summary": "Sync Devices from Mio Connect",
+                "parameters": [
+                    {
+                        "description": "Token Request",
+                        "name": "CronToken",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cron.Request"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -1715,6 +1737,17 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "cron.Request": {
+            "type": "object",
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
+                    "type": "string"
                 }
             }
         },

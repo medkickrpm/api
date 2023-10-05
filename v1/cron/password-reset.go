@@ -20,6 +20,7 @@ type Request struct {
 // @Tags CRON
 // @Accept json
 // @Produce json
+// @Param CronToken body Request true "Token Request"
 // @Success 204
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse

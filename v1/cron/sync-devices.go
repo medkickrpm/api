@@ -17,6 +17,7 @@ import (
 // @Tags CRON
 // @Accept json
 // @Produce json
+// @Param CronToken body Request true "Token Request"
 // @Success 200
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse

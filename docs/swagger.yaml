@@ -9,6 +9,13 @@ definitions:
     required:
     - user_id
     type: object
+  cron.Request:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
   device.MioData:
     properties:
       bat:
@@ -917,6 +924,13 @@ paths:
       - application/json
       description: CRON ONLY - Clears all password reset tokens that are older than
         24 hours
+      parameters:
+      - description: Token Request
+        in: body
+        name: CronToken
+        required: true
+        schema:
+          $ref: '#/definitions/cron.Request'
       produces:
       - application/json
       responses:
@@ -938,6 +952,13 @@ paths:
       consumes:
       - application/json
       description: CRON ONLY - Pulls and Syncs devices from Mio-Connect
+      parameters:
+      - description: Token Request
+        in: body
+        name: CronToken
+        required: true
+        schema:
+          $ref: '#/definitions/cron.Request'
       produces:
       - application/json
       responses:
