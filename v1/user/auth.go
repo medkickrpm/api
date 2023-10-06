@@ -245,7 +245,7 @@ func resetPassword(c echo.Context) error {
 	}
 
 	// TODO - Send password reset email
-	body := "<p>Please reset your password by clicking this link: https://med-kick.com/reset-password/" + pwdReset.UUID + "</p>"
+	body := "<p>Please reset your password by clicking this link: https://www.medkick.air.business/reset-password/" + pwdReset.UUID + "</p>"
 	subject := "MedKick Password Reset"
 	if err := sendgrid.SendEmail(fmt.Sprintf("%s %s", u.FirstName, u.LastName), u.Email, subject, body); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
