@@ -1,15 +1,11 @@
 package device
 
 import (
-	"MedKick-backend/pkg/database/models"
 	"MedKick-backend/pkg/echo/dto"
-	"MedKick-backend/pkg/validator"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 	"net/http"
 	"os"
-	"time"
 )
 
 type MioData struct {
@@ -90,144 +86,148 @@ func ingestData(c echo.Context) error {
 		return err
 	}
 
-	if err := validator.Validate.Struct(req); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+	fmt.Printf("Mio Data Received for device:\n\t\t DeviceID:%s\n\t\tIMEI:%s \n", req.DeviceID, req.Status.IMEI)
 
-	if req.IsTest {
-		fmt.Printf("Test data received: %+v\n", req)
-		return c.NoContent(http.StatusNoContent)
-	}
-
-	// TODO - get device id from imei
-	device := &models.Device{
-		IMEI: req.Data.IMEI,
-	}
-	if err := device.GetDeviceByIMEI(); err != nil {
-		log.Errorf("Failed to get device by IMEI: %s", err)
-		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to get device by IMEI",
-		})
-	}
-
-	if err := device.UpdateBattery(req.Data.Battery); err != nil {
-		log.Errorf("Failed to update device battery: %s", err)
-		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to update device battery",
-		})
-	}
-
-	if req.Data.DataType == "bpm_gen2_measure" {
-		t := time.Unix(int64(req.Data.Timestamp), 0)
-		dtd := &models.DeviceTelemetryData{
-			SystolicBP:         req.Data.SystolicBP,
-			DiastolicBP:        req.Data.DiastolicBP,
-			Pulse:              req.Data.Pulse,
-			IrregularHeartBeat: req.Data.IrregularHeartBeat,
-			HandShaking:        req.Data.HandShaking,
-			TripleMeasurement:  req.Data.TripleMeasure,
-			DeviceID:           device.ID,
-			MeasuredAt:         t,
-		}
-		if err := dtd.CreateDeviceTelemetryData(); err != nil {
-			log.Errorf("Failed to create device telemetry data: %s", err)
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-				Error: "Failed to create device telemetry data",
-			})
-		}
-		return c.NoContent(http.StatusNoContent)
-	}
-	if req.Data.DataType == "scale_gen2_measure" {
-		t := time.Unix(int64(req.Data.UploadTime), 0)
-		dtd := &models.DeviceTelemetryData{
-			Weight:           req.Data.Weight,
-			WeightStableTime: req.Data.WeightStableTime,
-			WeightLockCount:  req.Data.WeightLockCount,
-			DeviceID:         device.ID,
-			MeasuredAt:       t,
-		}
-		if err := dtd.CreateDeviceTelemetryData(); err != nil {
-			log.Errorf("Failed to create device telemetry data: %s", err)
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-				Error: "Failed to create device telemetry data",
-			})
-		}
-		return c.NoContent(http.StatusNoContent)
-	}
-	if req.Data.DataType == "bgm_gen1_measure" {
-		t := time.Unix(int64(req.Data.Uptime), 0)
-		unit := ""
-		if req.Data.Unit == 1 {
-			unit = "mmol/L"
-		} else if req.Data.Unit == 2 {
-			unit = "mg/dL"
-		} else {
-			unit = "Unknown"
-		}
-
-		testPaper := ""
-		if req.Data.TestPaperType == 1 {
-			testPaper = "GOD"
-		} else if req.Data.TestPaperType == 2 {
-			testPaper = "GDH"
-		} else {
-			testPaper = "Unknown"
-		}
-
-		sampleType := ""
-		if req.Data.SampleType == 1 {
-			sampleType = "blood or resistance"
-		} else if req.Data.SampleType == 2 {
-			sampleType = "quality control liquid"
-		} else {
-			sampleType = "sample is invalid"
-		}
-
-		meal := ""
-		if req.Data.Meal == 1 {
-			meal = "before meal"
-		} else if req.Data.Meal == 2 {
-			meal = "after meal"
-		} else {
-			meal = "Unknown"
-		}
-
-		dtd := &models.DeviceTelemetryData{
-			BloodGlucose: req.Data.BloodGlucose,
-			Unit:         unit,
-			TestPaper:    testPaper,
-			SampleType:   sampleType,
-			Meal:         meal,
-			DeviceID:     device.ID,
-			MeasuredAt:   t,
-		}
-
-		if err := dtd.CreateDeviceTelemetryData(); err != nil {
-			log.Errorf("Failed to create device telemetry data: %s", err)
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-				Error: "Failed to create device telemetry data",
-			})
-		}
-		return c.NoContent(http.StatusNoContent)
-	}
-	if req.Data.DataType == "bpm_gen2_status" {
-		return c.NoContent(http.StatusNoContent)
-	}
-	if req.Data.DataType == "scale_gen2_status" {
-		return c.NoContent(http.StatusNoContent)
-	}
-	if req.Data.DataType == "bgm_gen1_status" {
-		return c.NoContent(http.StatusNoContent)
-	}
-	if req.Data.DataType == "bpm_gen2_log" {
-		return c.NoContent(http.StatusNoContent)
-	}
-	if req.Data.DataType == "bgm_gen1_heartbeat" {
-		return c.NoContent(http.StatusNoContent)
-	}
-
-	log.Warnf("Unknown data type: %s", req.Data.DataType)
-	return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-		Error: fmt.Sprintf("Unknown data type, %s", req.Data.DataType),
-	})
+	return c.NoContent(http.StatusOK)
+	//
+	//if err := validator.Validate.Struct(req); err != nil {
+	//	return c.JSON(http.StatusBadRequest, err.Error())
+	//}
+	//
+	//if req.IsTest {
+	//	fmt.Printf("Test data received: %+v\n", req)
+	//	return c.NoContent(http.StatusNoContent)
+	//}
+	//
+	//// TODO - get device id from imei
+	//device := &models.Device{
+	//	IMEI: req.Data.IMEI,
+	//}
+	//if err := device.GetDeviceByIMEI(); err != nil {
+	//	log.Errorf("Failed to get device by IMEI: %s", err)
+	//	return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+	//		Error: "Failed to get device by IMEI",
+	//	})
+	//}
+	//
+	//if err := device.UpdateBattery(req.Data.Battery); err != nil {
+	//	log.Errorf("Failed to update device battery: %s", err)
+	//	return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+	//		Error: "Failed to update device battery",
+	//	})
+	//}
+	//
+	//if req.Data.DataType == "bpm_gen2_measure" {
+	//	t := time.Unix(int64(req.Data.Timestamp), 0)
+	//	dtd := &models.DeviceTelemetryData{
+	//		SystolicBP:         req.Data.SystolicBP,
+	//		DiastolicBP:        req.Data.DiastolicBP,
+	//		Pulse:              req.Data.Pulse,
+	//		IrregularHeartBeat: req.Data.IrregularHeartBeat,
+	//		HandShaking:        req.Data.HandShaking,
+	//		TripleMeasurement:  req.Data.TripleMeasure,
+	//		DeviceID:           device.ID,
+	//		MeasuredAt:         t,
+	//	}
+	//	if err := dtd.CreateDeviceTelemetryData(); err != nil {
+	//		log.Errorf("Failed to create device telemetry data: %s", err)
+	//		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+	//			Error: "Failed to create device telemetry data",
+	//		})
+	//	}
+	//	return c.NoContent(http.StatusNoContent)
+	//}
+	//if req.Data.DataType == "scale_gen2_measure" {
+	//	t := time.Unix(int64(req.Data.UploadTime), 0)
+	//	dtd := &models.DeviceTelemetryData{
+	//		Weight:           req.Data.Weight,
+	//		WeightStableTime: req.Data.WeightStableTime,
+	//		WeightLockCount:  req.Data.WeightLockCount,
+	//		DeviceID:         device.ID,
+	//		MeasuredAt:       t,
+	//	}
+	//	if err := dtd.CreateDeviceTelemetryData(); err != nil {
+	//		log.Errorf("Failed to create device telemetry data: %s", err)
+	//		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+	//			Error: "Failed to create device telemetry data",
+	//		})
+	//	}
+	//	return c.NoContent(http.StatusNoContent)
+	//}
+	//if req.Data.DataType == "bgm_gen1_measure" {
+	//	t := time.Unix(int64(req.Data.Uptime), 0)
+	//	unit := ""
+	//	if req.Data.Unit == 1 {
+	//		unit = "mmol/L"
+	//	} else if req.Data.Unit == 2 {
+	//		unit = "mg/dL"
+	//	} else {
+	//		unit = "Unknown"
+	//	}
+	//
+	//	testPaper := ""
+	//	if req.Data.TestPaperType == 1 {
+	//		testPaper = "GOD"
+	//	} else if req.Data.TestPaperType == 2 {
+	//		testPaper = "GDH"
+	//	} else {
+	//		testPaper = "Unknown"
+	//	}
+	//
+	//	sampleType := ""
+	//	if req.Data.SampleType == 1 {
+	//		sampleType = "blood or resistance"
+	//	} else if req.Data.SampleType == 2 {
+	//		sampleType = "quality control liquid"
+	//	} else {
+	//		sampleType = "sample is invalid"
+	//	}
+	//
+	//	meal := ""
+	//	if req.Data.Meal == 1 {
+	//		meal = "before meal"
+	//	} else if req.Data.Meal == 2 {
+	//		meal = "after meal"
+	//	} else {
+	//		meal = "Unknown"
+	//	}
+	//
+	//	dtd := &models.DeviceTelemetryData{
+	//		BloodGlucose: req.Data.BloodGlucose,
+	//		Unit:         unit,
+	//		TestPaper:    testPaper,
+	//		SampleType:   sampleType,
+	//		Meal:         meal,
+	//		DeviceID:     device.ID,
+	//		MeasuredAt:   t,
+	//	}
+	//
+	//	if err := dtd.CreateDeviceTelemetryData(); err != nil {
+	//		log.Errorf("Failed to create device telemetry data: %s", err)
+	//		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+	//			Error: "Failed to create device telemetry data",
+	//		})
+	//	}
+	//	return c.NoContent(http.StatusNoContent)
+	//}
+	//if req.Data.DataType == "bpm_gen2_status" {
+	//	return c.NoContent(http.StatusNoContent)
+	//}
+	//if req.Data.DataType == "scale_gen2_status" {
+	//	return c.NoContent(http.StatusNoContent)
+	//}
+	//if req.Data.DataType == "bgm_gen1_status" {
+	//	return c.NoContent(http.StatusNoContent)
+	//}
+	//if req.Data.DataType == "bpm_gen2_log" {
+	//	return c.NoContent(http.StatusNoContent)
+	//}
+	//if req.Data.DataType == "bgm_gen1_heartbeat" {
+	//	return c.NoContent(http.StatusNoContent)
+	//}
+	//
+	//log.Warnf("Unknown data type: %s", req.Data.DataType)
+	//return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+	//	Error: fmt.Sprintf("Unknown data type, %s", req.Data.DataType),
+	//})
 }
