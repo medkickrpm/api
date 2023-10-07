@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"os"
+	"time"
 )
 
 type MioData struct {
@@ -57,7 +58,7 @@ type Request struct {
 	ModelNumber string    `json:"modelNumber" validate:"required"`
 	Data        MioData   `json:"data"`
 	Status      MioStatus `json:"status"`
-	CreatedAt   string    `json:"createdAt" validate:"required"`
+	CreatedAt   time.Time `json:"createdAt" validate:"required"`
 }
 
 // ingestData godoc
