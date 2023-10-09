@@ -6,7 +6,7 @@ import (
 )
 
 func Routes(r *echo.Group) {
-	r.POST("/mio/forwardtelemetry", ingestData)
+	r.POST("/mio/forwardtelemetry", ingestTelemetry)
 
 	r.GET("/device/:id", getDevice, middleware.NotGuest)
 	r.PATCH("/device/:id", updateDevice, middleware.NotGuest)

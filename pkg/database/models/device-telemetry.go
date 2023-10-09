@@ -57,6 +57,15 @@ func GetDeviceTelemetryDataByDevice(deviceId uint) ([]DeviceTelemetryData, error
 	return deviceTelemetryData, nil
 }
 
+func GetDeviceTelemetryDataByDeviceBetweenDates(deviceId uint, startDate, endDate time.Time) ([]DeviceTelemetryData, error) {
+	var deviceTelemetryData []DeviceTelemetryData
+	if err := database.DB.Where("device_id = ? AND measured_at BETWEEN ? AND ?", deviceId, startDate, endDate).Find(&deviceTelemetryData).Error; err != nil {
+		return nil, err
+	}
+
+	return deviceTelemetryData, nil
+}
+
 func (d *DeviceTelemetryData) GetDeviceTelemetryData() error {
 	if err := database.DB.Where("id = ?", d.ID).First(&d).Error; err != nil {
 		return err
