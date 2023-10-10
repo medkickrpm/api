@@ -10,21 +10,21 @@ import (
 	"time"
 )
 
-// getTelemetry godoc
-// @Summary Get Telemetry Data
-// @Description Get Telemetry Data for given ID
+// getStatus godoc
+// @Summary Get Status Data
+// @Description Get Status Data for given ID
 // @Tags Mio
 // @Accept json
 // @Produce json
 // @Param id path string false "Device ID"
 // @Param start_date query string false "Start Date (YYYY-MM-DD)"
 // @Param end_date query string false "End Date (YYYY-MM-DD)"
-// @Success 200 {object} []models.DeviceTelemetryData
+// @Success 200 {object} []models.DeviceStatusData
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
-// @Router /mio/telemetry/{id} [get]
-func getTelemetry(c echo.Context) error {
+// @Router /mio/status/{id} [get]
+func getStatus(c echo.Context) error {
 	self := middleware.GetSelf(c)
 
 	id := c.Param("id")
@@ -90,12 +90,12 @@ func getTelemetry(c echo.Context) error {
 		})
 	}
 
-	telemetry, err := models.GetDeviceTelemetryDataByDeviceBetweenDates(device.ID, startDate, endDate)
+	statuses, err := models.GetDeviceStatusDataByDeviceBetweenDates(device.ID, startDate, endDate)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to get device telemetry data by device id",
 		})
 	}
 
-	return c.JSON(http.StatusOK, telemetry)
+	return c.JSON(http.StatusOK, statuses)
 }

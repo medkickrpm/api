@@ -253,6 +253,45 @@ definitions:
         example: 1
         type: integer
     type: object
+  models.DeviceStatusData:
+    properties:
+      attach_time:
+        example: "100"
+        type: string
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      device:
+        $ref: '#/definitions/models.Device'
+      device_id:
+        example: 1
+        type: integer
+      id:
+        example: 1
+        type: integer
+      measure_count:
+        example: 100
+        type: integer
+      network_format:
+        example: GSM;eMTC;NB-IoT
+        type: string
+      network_ops:
+        example: T-Mobile;Verizon
+        type: string
+      signal:
+        example: 100
+        type: integer
+      temperature:
+        example: 100
+        type: integer
+      timezone:
+        description: Device
+        example: UTC+6
+        type: string
+      updated_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+    type: object
   models.DeviceTelemetryData:
     properties:
       blood_glucose:
@@ -1254,6 +1293,38 @@ paths:
       summary: Update an Interaction
       tags:
       - Interaction
+  /mio/forwardstatus:
+    post:
+      consumes:
+      - application/json
+      description: Mio Connect Status Ingestion Endpoint (Webhook)
+      parameters:
+      - description: Request
+        in: body
+        name: create
+        required: true
+        schema:
+          $ref: '#/definitions/device.Request'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Ingest Status
+      tags:
+      - Mio
   /mio/forwardtelemetry:
     post:
       consumes:
@@ -1284,6 +1355,48 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Ingest Data
+      tags:
+      - Mio
+  /mio/status/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get Status Data for given ID
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        type: string
+      - description: Start Date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End Date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DeviceStatusData'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Status Data
       tags:
       - Mio
   /mio/telemetry/{id}:

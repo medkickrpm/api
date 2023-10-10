@@ -50,9 +50,9 @@ type MioStatus struct {
 	NetworkOperators string `json:"ops"`
 	NetworkFormat    string `json:"net"`
 	Signal           uint   `json:"sig"`
-	SOCTemperature   uint   `json:"tp"`
+	SOCTemperature   int    `json:"tp"`
 	MeasureCount     uint   `json:"me_num"`
-	AttachTime       uint   `json:"at_t"`
+	AttachTime       int64  `json:"at_t"`
 }
 
 type Request struct {
@@ -64,7 +64,7 @@ type Request struct {
 	CreatedAt   uint      `json:"createdAt" validate:"required"`
 }
 
-// ingestData godoc
+// ingestTelemetry godoc
 // @Summary Ingest Data
 // @Description Mio Connect Data Ingestion Endpoint (Webhook)
 // @Tags Mio
@@ -90,10 +90,6 @@ func ingestTelemetry(c echo.Context) error {
 		return err
 	}
 
-	//fmt.Printf("Mio Data Received for device:\n\t\t DeviceID:%s\n\t\tIMEI:%s \n", req.DeviceID, req.Status.IMEI)
-	//
-	//return c.NoContent(http.StatusOK)
-
 	if err := validator.Validate.Struct(req); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -103,7 +99,6 @@ func ingestTelemetry(c echo.Context) error {
 		return c.NoContent(http.StatusNoContent)
 	}
 
-	// TODO - get device id from imei
 	device := &models.Device{
 		IMEI: req.Data.IMEI,
 	}
@@ -212,6 +207,125 @@ func ingestTelemetry(c echo.Context) error {
 				Error: "Failed to create device telemetry data",
 			})
 		}
+		return c.NoContent(http.StatusNoContent)
+	}
+
+	log.Warnf("Unknown data type: %s", req.Data.DataType)
+	return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+		Error: fmt.Sprintf("Unknown data type, %s", req.Data.DataType),
+	})
+}
+
+// ingestStatus godoc
+// @Summary Ingest Status
+// @Description Mio Connect Status Ingestion Endpoint (Webhook)
+// @Tags Mio
+// @Accept json
+// @Produce json
+// @Param create body Request true "Request"
+// @Success 204
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /mio/forwardstatus [post]
+func ingestStatus(c echo.Context) error {
+	//Verify API Key from header
+	apiKey := c.Request().Header.Get("X-MIO-KEY")
+	if apiKey != os.Getenv("MIO_API_KEY") {
+		return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Error: "Unauthorized",
+		})
+	}
+
+	var req Request
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	if err := validator.Validate.Struct(req); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	if req.IsTest {
+		fmt.Printf("Test data received: %+v\n", req)
+		return c.NoContent(http.StatusNoContent)
+	}
+
+	device := &models.Device{
+		IMEI: req.Data.IMEI,
+	}
+	if err := device.GetDeviceByIMEI(); err != nil {
+		log.Errorf("Failed to get device by IMEI: %s", err)
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get device by IMEI",
+		})
+	}
+
+	if err := device.UpdateBattery(req.Status.Battery); err != nil {
+		log.Errorf("Failed to update device battery: %s", err)
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to update device battery",
+		})
+	}
+
+	if req.Data.DataType == "bpm_gen2_status" {
+		t := time.Unix(req.Status.AttachTime, 0)
+		dsd := &models.DeviceStatusData{
+			Timezone:      req.Status.Timezone,
+			NetworkOps:    req.Status.NetworkOperators,
+			NetworkFormat: req.Status.NetworkFormat,
+			Signal:        req.Status.Signal,
+			Temperature:   req.Status.SOCTemperature,
+			AttachTime:    t,
+		}
+
+		if err := dsd.CreateDeviceStatusData(); err != nil {
+			log.Errorf("Failed to create device status data: %s", err)
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to create device status data",
+			})
+		}
+
+		return c.NoContent(http.StatusNoContent)
+	}
+	if req.Data.DataType == "scale_gen2_status" {
+		t := time.Unix(req.Status.AttachTime, 0)
+		dsd := &models.DeviceStatusData{
+			Timezone:      req.Status.Timezone,
+			NetworkOps:    req.Status.NetworkOperators,
+			NetworkFormat: req.Status.NetworkFormat,
+			Signal:        req.Status.Signal,
+			Temperature:   req.Status.SOCTemperature,
+			AttachTime:    t,
+		}
+
+		if err := dsd.CreateDeviceStatusData(); err != nil {
+			log.Errorf("Failed to create device status data: %s", err)
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to create device status data",
+			})
+		}
+
+		return c.NoContent(http.StatusNoContent)
+	}
+	if req.Data.DataType == "bgm_gen1_status" {
+		t := time.Unix(req.Status.AttachTime, 0)
+		dsd := &models.DeviceStatusData{
+			Timezone:      req.Status.Timezone,
+			NetworkOps:    req.Status.NetworkOperators,
+			NetworkFormat: req.Status.NetworkFormat,
+			Signal:        req.Status.Signal,
+			Temperature:   req.Status.SOCTemperature,
+			AttachTime:    t,
+		}
+
+		if err := dsd.CreateDeviceStatusData(); err != nil {
+			log.Errorf("Failed to create device status data: %s", err)
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to create device status data",
+			})
+		}
+
 		return c.NoContent(http.StatusNoContent)
 	}
 

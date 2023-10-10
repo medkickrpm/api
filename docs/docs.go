@@ -971,6 +971,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/mio/forwardstatus": {
+            "post": {
+                "description": "Mio Connect Status Ingestion Endpoint (Webhook)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mio"
+                ],
+                "summary": "Ingest Status",
+                "parameters": [
+                    {
+                        "description": "Request",
+                        "name": "create",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/device.Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/mio/forwardtelemetry": {
             "post": {
                 "description": "Mio Connect Data Ingestion Endpoint (Webhook)",
@@ -998,6 +1047,70 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/mio/status/{id}": {
+            "get": {
+                "description": "Get Status Data for given ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mio"
+                ],
+                "summary": "Get Status Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device ID",
+                        "name": "id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start Date (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End Date (YYYY-MM-DD)",
+                        "name": "end_date",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DeviceStatusData"
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -2156,6 +2269,59 @@ const docTemplate = `{
                 "user_id": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "models.DeviceStatusData": {
+            "type": "object",
+            "properties": {
+                "attach_time": {
+                    "type": "string",
+                    "example": "100"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "device": {
+                    "$ref": "#/definitions/models.Device"
+                },
+                "device_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "measure_count": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "network_format": {
+                    "type": "string",
+                    "example": "GSM;eMTC;NB-IoT"
+                },
+                "network_ops": {
+                    "type": "string",
+                    "example": "T-Mobile;Verizon"
+                },
+                "signal": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "temperature": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "timezone": {
+                    "description": "Device",
+                    "type": "string",
+                    "example": "UTC+6"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 }
             }
         },

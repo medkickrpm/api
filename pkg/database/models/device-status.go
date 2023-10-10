@@ -47,6 +47,15 @@ func GetDeviceStatusDataByDevice(deviceId uint) ([]DeviceStatusData, error) {
 	return deviceStatusData, nil
 }
 
+func GetDeviceStatusDataByDeviceBetweenDates(deviceId uint, startDate, endDate time.Time) ([]DeviceStatusData, error) {
+	var deviceStatusData []DeviceStatusData
+	if err := database.DB.Where("device_id = ? AND created_at BETWEEN ? AND ?", deviceId, startDate, endDate).Find(&deviceStatusData).Error; err != nil {
+		return nil, err
+	}
+
+	return deviceStatusData, nil
+}
+
 func (d *DeviceStatusData) GetDeviceStatusData() error {
 	if err := database.DB.Where("id = ?", d.ID).First(&d).Error; err != nil {
 		return err
