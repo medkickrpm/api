@@ -513,55 +513,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/connect": {
-            "post": {
-                "description": "Mio Connect Data Ingestion Endpoint (Webhook)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Mio"
-                ],
-                "summary": "Ingest Data",
-                "parameters": [
-                    {
-                        "description": "Request",
-                        "name": "create",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/device.Request"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/cron/clear-pwd-reset": {
             "post": {
                 "description": "CRON ONLY - Clears all password reset tokens that are older than 24 hours",
@@ -997,6 +948,119 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/mio/forwardtelemetry": {
+            "post": {
+                "description": "Mio Connect Data Ingestion Endpoint (Webhook)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mio"
+                ],
+                "summary": "Ingest Data",
+                "parameters": [
+                    {
+                        "description": "Request",
+                        "name": "create",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/device.Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/mio/telemetry/{id}": {
+            "get": {
+                "description": "Get Telemetry Data for given ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mio"
+                ],
+                "summary": "Get Telemetry Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device ID",
+                        "name": "id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start Date (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End Date (YYYY-MM-DD)",
+                        "name": "end_date",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DeviceTelemetryData"
+                            }
                         }
                     },
                     "400": {
@@ -1896,7 +1960,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "createdAt": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "data": {
                     "$ref": "#/definitions/device.MioData"
@@ -2092,6 +2156,93 @@ const docTemplate = `{
                 "user_id": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "models.DeviceTelemetryData": {
+            "type": "object",
+            "properties": {
+                "blood_glucose": {
+                    "description": "Blood Glucose Meter",
+                    "type": "integer",
+                    "example": 80
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "device": {
+                    "$ref": "#/definitions/models.Device"
+                },
+                "device_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "diastolic_bp": {
+                    "type": "integer",
+                    "example": 80
+                },
+                "hand_shaking": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "irregular_heartbeat": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "meal": {
+                    "type": "string",
+                    "example": "1. Before Meal; 2. After Meal"
+                },
+                "measured_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "pulse": {
+                    "type": "integer",
+                    "example": 80
+                },
+                "sample_type": {
+                    "type": "string",
+                    "example": "1. Blood or Resistance; 2. Quality Control Liquid; 3. Sample is invalid"
+                },
+                "systolic_bp": {
+                    "description": "Sphygmomanometer",
+                    "type": "integer",
+                    "example": 120
+                },
+                "test_paper": {
+                    "type": "string",
+                    "example": "1. GOD; 2. GDH"
+                },
+                "triple_measurement": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "unit": {
+                    "type": "string",
+                    "example": "mg/dL"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "weight": {
+                    "description": "Weight Scale",
+                    "type": "integer",
+                    "example": 80
+                },
+                "weight_lock_count": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "weight_stable_time": {
+                    "type": "integer",
+                    "example": 5
                 }
             }
         },

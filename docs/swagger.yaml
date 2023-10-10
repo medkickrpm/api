@@ -111,7 +111,7 @@ definitions:
   device.Request:
     properties:
       createdAt:
-        type: string
+        type: integer
       data:
         $ref: '#/definitions/device.MioData'
       deviceId:
@@ -251,6 +251,71 @@ definitions:
         $ref: '#/definitions/models.User'
       user_id:
         example: 1
+        type: integer
+    type: object
+  models.DeviceTelemetryData:
+    properties:
+      blood_glucose:
+        description: Blood Glucose Meter
+        example: 80
+        type: integer
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      device:
+        $ref: '#/definitions/models.Device'
+      device_id:
+        example: 1
+        type: integer
+      diastolic_bp:
+        example: 80
+        type: integer
+      hand_shaking:
+        example: false
+        type: boolean
+      id:
+        example: 1
+        type: integer
+      irregular_heartbeat:
+        example: false
+        type: boolean
+      meal:
+        example: 1. Before Meal; 2. After Meal
+        type: string
+      measured_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      pulse:
+        example: 80
+        type: integer
+      sample_type:
+        example: 1. Blood or Resistance; 2. Quality Control Liquid; 3. Sample is invalid
+        type: string
+      systolic_bp:
+        description: Sphygmomanometer
+        example: 120
+        type: integer
+      test_paper:
+        example: 1. GOD; 2. GDH
+        type: string
+      triple_measurement:
+        example: false
+        type: boolean
+      unit:
+        example: mg/dL
+        type: string
+      updated_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      weight:
+        description: Weight Scale
+        example: 80
+        type: integer
+      weight_lock_count:
+        example: 3
+        type: integer
+      weight_stable_time:
+        example: 5
         type: integer
     type: object
   models.Interaction:
@@ -886,38 +951,6 @@ paths:
       summary: Download Careplan
       tags:
       - Careplan
-  /connect:
-    post:
-      consumes:
-      - application/json
-      description: Mio Connect Data Ingestion Endpoint (Webhook)
-      parameters:
-      - description: Request
-        in: body
-        name: create
-        required: true
-        schema:
-          $ref: '#/definitions/device.Request'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      summary: Ingest Data
-      tags:
-      - Mio
   /cron/clear-pwd-reset:
     post:
       consumes:
@@ -1221,6 +1254,80 @@ paths:
       summary: Update an Interaction
       tags:
       - Interaction
+  /mio/forwardtelemetry:
+    post:
+      consumes:
+      - application/json
+      description: Mio Connect Data Ingestion Endpoint (Webhook)
+      parameters:
+      - description: Request
+        in: body
+        name: create
+        required: true
+        schema:
+          $ref: '#/definitions/device.Request'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Ingest Data
+      tags:
+      - Mio
+  /mio/telemetry/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get Telemetry Data for given ID
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        type: string
+      - description: Start Date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End Date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DeviceTelemetryData'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Telemetry Data
+      tags:
+      - Mio
   /organization:
     post:
       consumes:
