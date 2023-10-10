@@ -66,7 +66,7 @@ func getTelemetry(c echo.Context) error {
 	var endDate time.Time
 
 	if endDateRaw == "" {
-		endDateRaw = time.Now().Format("2006-01-02")
+		endDate = time.Now()
 	} else {
 		endDate, err = time.Parse("2006-01-02", endDateRaw)
 		if err != nil {
