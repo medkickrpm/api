@@ -977,7 +977,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Mio"
+                    "Mio (DO NOT USE)"
                 ],
                 "summary": "Ingest Status",
                 "parameters": [
@@ -1026,7 +1026,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Mio"
+                    "Mio (DO NOT USE)"
                 ],
                 "summary": "Ingest Data",
                 "parameters": [

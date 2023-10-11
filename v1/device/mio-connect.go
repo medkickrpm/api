@@ -67,7 +67,7 @@ type Request struct {
 // ingestTelemetry godoc
 // @Summary Ingest Data
 // @Description Mio Connect Data Ingestion Endpoint (Webhook)
-// @Tags Mio
+// @Tags Mio (DO NOT USE)
 // @Accept json
 // @Produce json
 // @Param create body Request true "Request"
@@ -219,7 +219,7 @@ func ingestTelemetry(c echo.Context) error {
 // ingestStatus godoc
 // @Summary Ingest Status
 // @Description Mio Connect Status Ingestion Endpoint (Webhook)
-// @Tags Mio
+// @Tags Mio (DO NOT USE)
 // @Accept json
 // @Produce json
 // @Param create body Request true "Request"

@@ -981,7 +981,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Mio"
+                    "Mio (DO NOT USE)"
                 ],
                 "summary": "Ingest Status",
                 "parameters": [
@@ -1030,7 +1030,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Mio"
+                    "Mio (DO NOT USE)"
                 ],
                 "summary": "Ingest Data",
                 "parameters": [

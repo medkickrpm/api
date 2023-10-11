@@ -1324,7 +1324,7 @@ paths:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Ingest Status
       tags:
-      - Mio
+      - Mio (DO NOT USE)
   /mio/forwardtelemetry:
     post:
       consumes:
@@ -1356,7 +1356,7 @@ paths:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Ingest Data
       tags:
-      - Mio
+      - Mio (DO NOT USE)
   /mio/status/{id}:
     get:
       consumes:
