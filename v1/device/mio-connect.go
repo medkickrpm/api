@@ -57,7 +57,7 @@ type MioStatus struct {
 
 type RequestTelemetry struct {
 	DeviceID    string  `json:"deviceId" validate:"required"`
-	IsTest      bool    `json:"isTest" validate:"required"`
+	IsTest      bool    `json:"isTest"`
 	ModelNumber string  `json:"modelNumber" validate:"required"`
 	Data        MioData `json:"data"`
 	CreatedAt   uint    `json:"createdAt" validate:"required"`
@@ -65,7 +65,7 @@ type RequestTelemetry struct {
 
 type RequestStatus struct {
 	DeviceID    string    `json:"deviceId" validate:"required"`
-	IsTest      bool      `json:"isTest" validate:"required"`
+	IsTest      bool      `json:"isTest"`
 	ModelNumber string    `json:"modelNumber" validate:"required"`
 	Status      MioStatus `json:"status"`
 	CreatedAt   uint      `json:"createdAt" validate:"required"`
@@ -250,10 +250,14 @@ func ingestStatus(c echo.Context) error {
 
 	var req RequestStatus
 	if err := c.Bind(&req); err != nil {
+		fmt.Println("1")
+		fmt.Println(err.Error())
 		return err
 	}
 
 	if err := validator.Validate.Struct(req); err != nil {
+		fmt.Println("2")
+		println(err.Error())
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
