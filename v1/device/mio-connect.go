@@ -55,11 +55,18 @@ type MioStatus struct {
 	AttachTime       int64  `json:"at_t"`
 }
 
-type Request struct {
+type RequestTelemetry struct {
+	DeviceID    string  `json:"deviceId" validate:"required"`
+	IsTest      bool    `json:"isTest" validate:"required"`
+	ModelNumber string  `json:"modelNumber" validate:"required"`
+	Data        MioData `json:"data"`
+	CreatedAt   uint    `json:"createdAt" validate:"required"`
+}
+
+type RequestStatus struct {
 	DeviceID    string    `json:"deviceId" validate:"required"`
 	IsTest      bool      `json:"isTest" validate:"required"`
 	ModelNumber string    `json:"modelNumber" validate:"required"`
-	Data        MioData   `json:"data"`
 	Status      MioStatus `json:"status"`
 	CreatedAt   uint      `json:"createdAt" validate:"required"`
 }
@@ -85,7 +92,7 @@ func ingestTelemetry(c echo.Context) error {
 		})
 	}
 
-	var req Request
+	var req RequestTelemetry
 	if err := c.Bind(&req); err != nil {
 		fmt.Println("1")
 		fmt.Println(err.Error())
@@ -241,7 +248,7 @@ func ingestStatus(c echo.Context) error {
 		})
 	}
 
-	var req Request
+	var req RequestStatus
 	if err := c.Bind(&req); err != nil {
 		return err
 	}
@@ -256,7 +263,7 @@ func ingestStatus(c echo.Context) error {
 	}
 
 	device := &models.Device{
-		IMEI: req.Data.IMEI,
+		IMEI: req.Status.IMEI,
 	}
 	if err := device.GetDeviceByIMEI(); err != nil {
 		log.Errorf("Failed to get device by IMEI: %s", err)
@@ -272,7 +279,7 @@ func ingestStatus(c echo.Context) error {
 		})
 	}
 
-	if req.Data.DataType == "bpm_gen2_status" {
+	if req.Status.DataType == "bpm_gen2_status" {
 		t := time.Unix(req.Status.AttachTime, 0)
 		dsd := &models.DeviceStatusData{
 			Timezone:      req.Status.Timezone,
@@ -292,7 +299,7 @@ func ingestStatus(c echo.Context) error {
 
 		return c.NoContent(http.StatusNoContent)
 	}
-	if req.Data.DataType == "scale_gen2_status" {
+	if req.Status.DataType == "scale_gen2_status" {
 		t := time.Unix(req.Status.AttachTime, 0)
 		dsd := &models.DeviceStatusData{
 			Timezone:      req.Status.Timezone,
@@ -312,7 +319,7 @@ func ingestStatus(c echo.Context) error {
 
 		return c.NoContent(http.StatusNoContent)
 	}
-	if req.Data.DataType == "bgm_gen1_status" {
+	if req.Status.DataType == "bgm_gen1_status" {
 		t := time.Unix(req.Status.AttachTime, 0)
 		dsd := &models.DeviceStatusData{
 			Timezone:      req.Status.Timezone,
@@ -333,8 +340,8 @@ func ingestStatus(c echo.Context) error {
 		return c.NoContent(http.StatusNoContent)
 	}
 
-	log.Warnf("Unknown data type: %s", req.Data.DataType)
+	log.Warnf("Unknown data type: %s", req.Status.DataType)
 	return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-		Error: fmt.Sprintf("Unknown data type, %s", req.Data.DataType),
+		Error: fmt.Sprintf("Unknown data type, %s", req.Status.DataType),
 	})
 }
