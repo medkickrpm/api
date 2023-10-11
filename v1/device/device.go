@@ -11,7 +11,7 @@ import (
 
 // getDevice godoc
 // @Summary Get Devices
-// @Description if no ID is provided get all devices
+// @Description Get devices by id, set id to 'all' to get all devices
 // @Tags Devices
 // @Accept json
 // @Produce json

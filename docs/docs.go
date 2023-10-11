@@ -601,7 +601,7 @@ const docTemplate = `{
         },
         "/device/{id}": {
             "get": {
-                "description": "if no ID is provided get all devices",
+                "description": "Get devices by id, set id to 'all' to get all devices",
                 "consumes": [
                     "application/json"
                 ],
