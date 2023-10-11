@@ -13,7 +13,7 @@ import (
 )
 
 type MioData struct {
-	DataType           string `json:"data_type"`
+	DataType           string `json:"data_type" validate:"required"`
 	IMEI               string `json:"imei" validate:"required"`
 	SerialNumber       string `json:"sn"`
 	Iccid              string `json:"iccid" validate:"required"`
@@ -87,10 +87,12 @@ func ingestTelemetry(c echo.Context) error {
 
 	var req Request
 	if err := c.Bind(&req); err != nil {
+		println(err.Error())
 		return err
 	}
 
 	if err := validator.Validate.Struct(req); err != nil {
+		println(err.Error())
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
