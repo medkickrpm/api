@@ -13,7 +13,7 @@ import (
 )
 
 type MioData struct {
-	DataType           string `json:"dataType" validate:"required"`
+	DataType           string `json:"data_type"`
 	IMEI               string `json:"imei" validate:"required"`
 	SerialNumber       string `json:"sn"`
 	Iccid              string `json:"iccid" validate:"required"`
