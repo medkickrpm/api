@@ -1507,6 +1507,19 @@ const docTemplate = `{
                         "description": "Organization ID",
                         "name": "id",
                         "in": "path"
+                    },
+                    {
+                        "enum": [
+                            "admin",
+                            "doctor",
+                            "patient",
+                            "doctornv",
+                            "patientnv"
+                        ],
+                        "type": "string",
+                        "description": "Role Filter",
+                        "name": "filter",
+                        "in": "query"
                     }
                 ],
                 "responses": {

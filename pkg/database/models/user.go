@@ -72,6 +72,19 @@ func GetUsersInOrg(orgId *uint) ([]User, error) {
 	return users, nil
 }
 
+func GetUsersInOrgWithRole(orgId *uint, role string) ([]User, error) {
+	var users []User
+	if err := database.DB.Where("organization_id = ? AND role = ?", orgId, role).Preload("Organization").Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	for i := range users {
+		users[i].SanitizeUser()
+	}
+
+	return users, nil
+}
+
 func (u *User) GetUser() error {
 	if u.Email != "" {
 		if err := database.DB.Where("email = ?", u.Email).Preload("Organization").First(&u).Error; err != nil {

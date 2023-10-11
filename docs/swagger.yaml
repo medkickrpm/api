@@ -1885,6 +1885,16 @@ paths:
         in: path
         name: id
         type: integer
+      - description: Role Filter
+        enum:
+        - admin
+        - doctor
+        - patient
+        - doctornv
+        - patientnv
+        in: query
+        name: filter
+        type: string
       produces:
       - application/json
       responses:

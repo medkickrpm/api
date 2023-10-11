@@ -138,6 +138,12 @@ func getUser(c echo.Context) error {
 
 	filter := c.QueryParam("filter")
 
+	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "doctornv" && filter != "patientnv" {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid filter",
+		})
+	}
+
 	self := middleware.GetSelf(c)
 	if id == "all" {
 		if self.Role != "admin" {
@@ -200,6 +206,7 @@ func getUser(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int false "Organization ID"
+// @Param filter query string false "Role Filter" Enums(admin, doctor, patient, doctornv, patientnv)
 // @Success 200 {object} []models.User
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
@@ -209,6 +216,14 @@ func getUser(c echo.Context) error {
 func getUsersInOrg(c echo.Context) error {
 	orgId := c.Param("id")
 
+	filter := c.QueryParam("filter")
+
+	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "doctornv" && filter != "patientnv" {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid filter",
+		})
+	}
+
 	self := middleware.GetSelf(c)
 
 	if orgId == "" {
@@ -217,13 +232,23 @@ func getUsersInOrg(c echo.Context) error {
 				Error: "Must specify organization ID",
 			})
 		}
-		users, err := models.GetUsersInOrg(self.OrganizationID)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-				Error: "Failed to get users",
-			})
+		if filter == "" {
+			users, err := models.GetUsersInOrg(self.OrganizationID)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get users",
+				})
+			}
+			return c.JSON(http.StatusOK, users)
+		} else {
+			users, err := models.GetUsersInOrgWithRole(self.OrganizationID, filter)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get users",
+				})
+			}
+			return c.JSON(http.StatusOK, users)
 		}
-		return c.JSON(http.StatusOK, users)
 	}
 
 	orgInt, err := strconv.ParseUint(orgId, 10, 32)
@@ -239,13 +264,23 @@ func getUsersInOrg(c echo.Context) error {
 		})
 	}
 
-	users, err := models.GetUsersInOrg(&orgUint)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to get users",
-		})
+	if filter == "" {
+		users, err := models.GetUsersInOrg(&orgUint)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to get users",
+			})
+		}
+		return c.JSON(http.StatusOK, users)
+	} else {
+		users, err := models.GetUsersInOrgWithRole(&orgUint, filter)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to get users",
+			})
+		}
+		return c.JSON(http.StatusOK, users)
 	}
-	return c.JSON(http.StatusOK, users)
 }
 
 // getDevicesInUser godoc
