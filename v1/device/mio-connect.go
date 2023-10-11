@@ -43,7 +43,7 @@ type MioData struct {
 }
 
 type MioStatus struct {
-	DataType         string `json:"dataType" validate:"required"`
+	DataType         string `json:"data_type" validate:"required"`
 	IMEI             string `json:"imei" validate:"required"`
 	Battery          uint   `json:"bat" validate:"required"`
 	Timezone         string `json:"tz" validate:"required"`
