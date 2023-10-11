@@ -45,8 +45,8 @@ type MioData struct {
 type MioStatus struct {
 	DataType         string `json:"data_type" validate:"required"`
 	IMEI             string `json:"imei" validate:"required"`
-	Battery          uint   `json:"bat" validate:"required"`
-	Timezone         string `json:"tz" validate:"required"`
+	Battery          uint   `json:"bat"`
+	Timezone         string `json:"tz"`
 	NetworkOperators string `json:"ops"`
 	NetworkFormat    string `json:"net"`
 	Signal           uint   `json:"sig"`
@@ -273,13 +273,6 @@ func ingestStatus(c echo.Context) error {
 		log.Errorf("Failed to get device by IMEI: %s", err)
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to get device by IMEI",
-		})
-	}
-
-	if err := device.UpdateBattery(req.Status.Battery); err != nil {
-		log.Errorf("Failed to update device battery: %s", err)
-		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to update device battery",
 		})
 	}
 
