@@ -165,8 +165,7 @@ func ingestTelemetry(c echo.Context) error {
 		return c.NoContent(http.StatusNoContent)
 	}
 	if req.Data.DataType == "scale_gen2_measure" {
-		fmt.Printf("Scale data received Upload Time: %d\n", req.Data.UploadTime)
-		t := time.Unix(req.Data.UploadTime, 0)
+		t := time.Unix(req.Data.Timestamp, 0)
 		dtd := &models.DeviceTelemetryData{
 			Weight:           req.Data.Weight,
 			WeightStableTime: req.Data.WeightStableTime,
@@ -183,7 +182,7 @@ func ingestTelemetry(c echo.Context) error {
 		return c.NoContent(http.StatusNoContent)
 	}
 	if req.Data.DataType == "bgm_gen1_measure" {
-		t := time.Unix(req.Data.Uptime, 0)
+		t := time.Unix(req.Data.Timestamp, 0)
 		unit := ""
 		if req.Data.Unit == 1 {
 			unit = "mmol/L"
