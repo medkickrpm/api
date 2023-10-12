@@ -77,7 +77,7 @@ type RequestStatus struct {
 // @Tags Mio (DO NOT USE)
 // @Accept json
 // @Produce json
-// @Param create body Request true "Request"
+// @Param create body RequestTelemetry true "Request"
 // @Success 204
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
@@ -250,7 +250,7 @@ func ingestTelemetry(c echo.Context) error {
 // @Tags Mio (DO NOT USE)
 // @Accept json
 // @Produce json
-// @Param create body Request true "Request"
+// @Param create body RequestStatus true "Request"
 // @Success 204
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse

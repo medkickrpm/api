@@ -987,7 +987,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/device.Request"
+                            "$ref": "#/definitions/device.RequestStatus"
                         }
                     }
                 ],
@@ -1036,7 +1036,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/device.Request"
+                            "$ref": "#/definitions/device.RequestTelemetry"
                         }
                     }
                 ],
@@ -1147,7 +1147,8 @@
                         "type": "string",
                         "description": "Device ID",
                         "name": "id",
-                        "in": "path"
+                        "in": "path",
+                        "required": true
                     },
                     {
                         "type": "string",
@@ -1170,6 +1171,56 @@
                             "items": {
                                 "$ref": "#/definitions/models.DeviceTelemetryData"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/mio/telemetry/{id}/latest": {
+            "get": {
+                "description": "Get Latest Telemetry Data for given ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mio"
+                ],
+                "summary": "Get Latest Telemetry Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceTelemetryData"
                         }
                     },
                     "400": {
@@ -1941,7 +1992,7 @@
             "type": "object",
             "required": [
                 "bat",
-                "dataType",
+                "data_type",
                 "iccid",
                 "imei",
                 "sig",
@@ -1954,7 +2005,7 @@
                 "data": {
                     "type": "integer"
                 },
-                "dataType": {
+                "data_type": {
                     "type": "string"
                 },
                 "dia": {
@@ -2034,10 +2085,8 @@
         "device.MioStatus": {
             "type": "object",
             "required": [
-                "bat",
-                "dataType",
-                "imei",
-                "tz"
+                "data_type",
+                "imei"
             ],
             "properties": {
                 "at_t": {
@@ -2046,7 +2095,7 @@
                 "bat": {
                     "type": "integer"
                 },
-                "dataType": {
+                "data_type": {
                     "type": "string"
                 },
                 "imei": {
@@ -2072,12 +2121,36 @@
                 }
             }
         },
-        "device.Request": {
+        "device.RequestStatus": {
             "type": "object",
             "required": [
                 "createdAt",
                 "deviceId",
-                "isTest",
+                "modelNumber"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "integer"
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "isTest": {
+                    "type": "boolean"
+                },
+                "modelNumber": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/device.MioStatus"
+                }
+            }
+        },
+        "device.RequestTelemetry": {
+            "type": "object",
+            "required": [
+                "createdAt",
+                "deviceId",
                 "modelNumber"
             ],
             "properties": {
@@ -2095,9 +2168,6 @@
                 },
                 "modelNumber": {
                     "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/device.MioStatus"
                 }
             }
         },

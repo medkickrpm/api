@@ -22,7 +22,7 @@ definitions:
         type: integer
       data:
         type: integer
-      dataType:
+      data_type:
         type: string
       dia:
         type: integer
@@ -74,7 +74,7 @@ definitions:
         type: integer
     required:
     - bat
-    - dataType
+    - data_type
     - iccid
     - imei
     - sig
@@ -86,7 +86,7 @@ definitions:
         type: integer
       bat:
         type: integer
-      dataType:
+      data_type:
         type: string
       imei:
         type: string
@@ -103,17 +103,13 @@ definitions:
       tz:
         type: string
     required:
-    - bat
-    - dataType
+    - data_type
     - imei
-    - tz
     type: object
-  device.Request:
+  device.RequestStatus:
     properties:
       createdAt:
         type: integer
-      data:
-        $ref: '#/definitions/device.MioData'
       deviceId:
         type: string
       isTest:
@@ -125,7 +121,23 @@ definitions:
     required:
     - createdAt
     - deviceId
-    - isTest
+    - modelNumber
+    type: object
+  device.RequestTelemetry:
+    properties:
+      createdAt:
+        type: integer
+      data:
+        $ref: '#/definitions/device.MioData'
+      deviceId:
+        type: string
+      isTest:
+        type: boolean
+      modelNumber:
+        type: string
+    required:
+    - createdAt
+    - deviceId
     - modelNumber
     type: object
   device.UpdateRequest:
@@ -1304,7 +1316,7 @@ paths:
         name: create
         required: true
         schema:
-          $ref: '#/definitions/device.Request'
+          $ref: '#/definitions/device.RequestStatus'
       produces:
       - application/json
       responses:
@@ -1336,7 +1348,7 @@ paths:
         name: create
         required: true
         schema:
-          $ref: '#/definitions/device.Request'
+          $ref: '#/definitions/device.RequestTelemetry'
       produces:
       - application/json
       responses:
@@ -1408,6 +1420,7 @@ paths:
       - description: Device ID
         in: path
         name: id
+        required: true
         type: string
       - description: Start Date (YYYY-MM-DD)
         in: query
@@ -1439,6 +1452,39 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Get Telemetry Data
+      tags:
+      - Mio
+  /mio/telemetry/{id}/latest:
+    get:
+      consumes:
+      - application/json
+      description: Get Latest Telemetry Data for given ID
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeviceTelemetryData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Latest Telemetry Data
       tags:
       - Mio
   /organization:
