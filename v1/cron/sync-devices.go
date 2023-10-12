@@ -63,6 +63,15 @@ func syncDevices(c echo.Context) error {
 				})
 			}
 
+			switch fetchDevice.ModelNumber {
+			case "TBM-2092-G":
+				device.Name = "Sphygmomanometer"
+			case "GBS-2104-G":
+				device.Name = "Weight Scale"
+			case "TBM-2282-G":
+				device.Name = "Blood Glucose Meter"
+			}
+
 			device.ModelNumber = fetchDevice.ModelNumber
 			device.SerialNumber = fetchDevice.SerialNumber
 			device.CreatedAt = fetchDevice.CreatedAt
@@ -86,6 +95,17 @@ func syncDevices(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 				Error: "Failed to get device from Mio Connect",
 			})
+		}
+
+		if device.Name == "" {
+			switch fetchDevice.ModelNumber {
+			case "TBM-2092-G":
+				device.Name = "Sphygmomanometer"
+			case "GBS-2104-G":
+				device.Name = "Weight Scale"
+			case "TBM-2282-G":
+				device.Name = "Blood Glucose Meter"
+			}
 		}
 
 		device.FirmwareVersion = fetchDevice.FirmwareVersion
