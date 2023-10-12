@@ -120,6 +120,23 @@ func ingestTelemetry(c echo.Context) error {
 		})
 	}
 
+	if device.Name == "" {
+		switch req.Data.DataType {
+		case "bpm_gen2_measure":
+			device.Name = "Sphygmomanometer"
+		case "scale_gen2_measure":
+			device.Name = "Weight Scale"
+		case "bgm_gen1_measure":
+			device.Name = "Blood Glucose Meter"
+		}
+
+		if err := device.UpdateDevice(); err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to update device",
+			})
+		}
+	}
+
 	if err := device.UpdateBattery(req.Data.Battery); err != nil {
 		log.Errorf("Failed to update device battery: %s", err)
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -274,6 +291,23 @@ func ingestStatus(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to get device by IMEI",
 		})
+	}
+
+	if device.Name == "" {
+		switch req.Status.DataType {
+		case "bpm_gen2_status":
+			device.Name = "Sphygmomanometer"
+		case "scale_gen2_status":
+			device.Name = "Weight Scale"
+		case "bgm_gen1_status":
+			device.Name = "Blood Glucose Meter"
+		}
+
+		if err := device.UpdateDevice(); err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to update device",
+			})
+		}
 	}
 
 	if req.Status.DataType == "bpm_gen2_status" {
