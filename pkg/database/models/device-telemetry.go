@@ -41,7 +41,7 @@ func (d *DeviceTelemetryData) CreateDeviceTelemetryData() error {
 
 func GetDeviceTelemetryData() ([]DeviceTelemetryData, error) {
 	var deviceTelemetryData []DeviceTelemetryData
-	if err := database.DB.Find(&deviceTelemetryData).Error; err != nil {
+	if err := database.DB.Preload("Device").Find(&deviceTelemetryData).Error; err != nil {
 		return nil, err
 	}
 
@@ -50,7 +50,7 @@ func GetDeviceTelemetryData() ([]DeviceTelemetryData, error) {
 
 func GetDeviceTelemetryDataByDevice(deviceId uint) ([]DeviceTelemetryData, error) {
 	var deviceTelemetryData []DeviceTelemetryData
-	if err := database.DB.Where("device_id = ?", deviceId).Find(&deviceTelemetryData).Error; err != nil {
+	if err := database.DB.Preload("Device").Where("device_id = ?", deviceId).Find(&deviceTelemetryData).Error; err != nil {
 		return nil, err
 	}
 
@@ -59,7 +59,7 @@ func GetDeviceTelemetryDataByDevice(deviceId uint) ([]DeviceTelemetryData, error
 
 func GetDeviceTelemetryDataByDeviceBetweenDates(deviceId uint, startDate, endDate time.Time) ([]DeviceTelemetryData, error) {
 	var deviceTelemetryData []DeviceTelemetryData
-	if err := database.DB.Where("device_id = ? AND measured_at BETWEEN ? AND ?", deviceId, startDate, endDate).Find(&deviceTelemetryData).Error; err != nil {
+	if err := database.DB.Preload("Device").Where("device_id = ? AND measured_at BETWEEN ? AND ?", deviceId, startDate, endDate).Find(&deviceTelemetryData).Error; err != nil {
 		return nil, err
 	}
 
@@ -68,7 +68,7 @@ func GetDeviceTelemetryDataByDeviceBetweenDates(deviceId uint, startDate, endDat
 
 func GetLatestDeviceTelemetryDataByDevice(deviceId uint) (DeviceTelemetryData, error) {
 	var deviceTelemetryData DeviceTelemetryData
-	if err := database.DB.Where("device_id = ?", deviceId).Last(&deviceTelemetryData).Error; err != nil {
+	if err := database.DB.Preload("Device").Where("device_id = ?", deviceId).Last(&deviceTelemetryData).Error; err != nil {
 		return deviceTelemetryData, err
 	}
 
@@ -76,10 +76,19 @@ func GetLatestDeviceTelemetryDataByDevice(deviceId uint) (DeviceTelemetryData, e
 }
 
 func (d *DeviceTelemetryData) GetDeviceTelemetryData() error {
-	if err := database.DB.Where("id = ?", d.ID).First(&d).Error; err != nil {
+	if err := database.DB.Preload("Device").Where("id = ?", d.ID).First(&d).Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+func GetNumberOfTelemetryEntriesThisWeek(deviceId uint) (int64, error) {
+	var count int64
+	if err := database.DB.Model(&DeviceTelemetryData{}).Where("device_id = ? AND measured_at BETWEEN ? AND ?", deviceId, time.Now().AddDate(0, 0, -7), time.Now()).Count(&count).Error; err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (d *DeviceTelemetryData) UpdateDeviceTelemetryData() error {
