@@ -10,6 +10,7 @@ func Routes(r *echo.Group) {
 	r.POST("/mio/forwardstatus", ingestStatus)
 
 	r.GET("/mio/telemetry/:id", getTelemetry, middleware.NotGuest)
+	r.GET("/mio/telemetry/:id/latest", getLatestTelemetry, middleware.NotGuest)
 	r.GET("/mio/status/:id", getStatus, middleware.NotGuest)
 
 	r.GET("/device/:id", getDevice, middleware.NotGuest)

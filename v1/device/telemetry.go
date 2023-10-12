@@ -16,7 +16,7 @@ import (
 // @Tags Mio
 // @Accept json
 // @Produce json
-// @Param id path string false "Device ID"
+// @Param id path string true "Device ID"
 // @Param start_date query string false "Start Date (YYYY-MM-DD)"
 // @Param end_date query string false "End Date (YYYY-MM-DD)"
 // @Success 200 {object} []models.DeviceTelemetryData
@@ -94,6 +94,56 @@ func getTelemetry(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to get device telemetry data by device id",
+		})
+	}
+
+	return c.JSON(http.StatusOK, telemetry)
+}
+
+// getLatestTelemetry godoc
+// @Summary Get Latest Telemetry Data
+// @Description Get Latest Telemetry Data for given ID
+// @Tags Mio
+// @Accept json
+// @Produce json
+// @Param id path string true "Device ID"
+// @Success 200 {object} models.DeviceTelemetryData
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /mio/telemetry/{id}/latest [get]
+func getLatestTelemetry(c echo.Context) error {
+	self := middleware.GetSelf(c)
+
+	id := c.Param("id")
+
+	// Convert id to uint
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to convert id to uint",
+		})
+	}
+
+	device := &models.Device{
+		ID: uint(idInt),
+	}
+	if err := device.GetDevice(); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get device by device id",
+		})
+	}
+
+	if self.Role == "patient" && device.UserID != *self.ID {
+		return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+			Error: "Forbidden",
+		})
+	}
+
+	telemetry, err := models.GetLatestDeviceTelemetryDataByDevice(device.ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get latest device telemetry data by device id",
 		})
 	}
 
