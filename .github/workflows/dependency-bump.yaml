@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          repository: 'medkickrpm/api'
+          token: ${{ secrets.G_TOKEN }}
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
