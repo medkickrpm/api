@@ -809,6 +809,19 @@ paths:
       summary: Request a Password Reset
       tags:
       - Auth
+  /auth/validate/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Validates user
+      produces:
+      - application/json
+      responses:
+        "307":
+          description: Temporary Redirect
+      summary: Validate User
+      tags:
+      - User
   /auth/verify-reset-password:
     post:
       consumes:

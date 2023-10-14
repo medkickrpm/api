@@ -26,6 +26,7 @@ func main() {
 		&models.DeviceStatusData{},
 		&models.DeviceTelemetryData{},
 		&models.DeviceLogData{},
+		&models.UserVerification{},
 	)
 	if err != nil {
 		panic("Could not migrate database")

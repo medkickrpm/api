@@ -12,6 +12,8 @@ func Routes(r *echo.Group) {
 	r.POST("/auth/reset-password", resetPassword)
 	r.POST("/auth/verify-reset-password", verifyResetPassword)
 
+	r.GET("/auth/validate/:id", validateUser)
+
 	r.POST("/user", createUser, middleware.NotGuest, middleware.HasRole("admin"))
 	r.GET("/user/:id", getUser, middleware.NotGuest)
 	r.GET("/user", getUser, middleware.NotGuest)

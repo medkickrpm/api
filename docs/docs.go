@@ -222,6 +222,26 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/validate/{id}": {
+            "get": {
+                "description": "Validates user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Validate User",
+                "responses": {
+                    "307": {
+                        "description": "Temporary Redirect"
+                    }
+                }
+            }
+        },
         "/auth/verify-reset-password": {
             "post": {
                 "description": "Validate Password Reset Token and Reset Password",

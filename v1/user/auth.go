@@ -181,7 +181,18 @@ func register(c echo.Context) error {
 		})
 	}
 
-	body := "<p>Please verify your email by clicking this link: https://www.medkick.air.business/reset-password/485fff66-a6d0-46c5-a197-78f62a6207b8<p>"
+	// Create User Verification
+	uv := models.UserVerification{
+		UUID:   uuid.NewString(),
+		UserID: u.ID,
+	}
+	if err := uv.CreateUserVerification(); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to create user verification",
+		})
+	}
+
+	body := fmt.Sprintf("<p>Please verify your email by clicking this link: <a href=\"https://api.medkick.air.business/v1/auth/validate/%s\">Click Me</a><p>", uv.UUID)
 	subject := "MedKick Email Verification"
 	if err := sendgrid.SendEmail(fmt.Sprintf("%s %s", u.FirstName, u.LastName), u.Email, subject, body); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{

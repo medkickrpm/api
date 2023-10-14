@@ -7,6 +7,7 @@ import (
 	"MedKick-backend/pkg/sendgrid"
 	"MedKick-backend/pkg/validator"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
@@ -106,7 +107,18 @@ func createUser(c echo.Context) error {
 		})
 	}
 
-	body := "<p>Please verify your email by clicking this link: https://www.medkick.air.business/reset-password/485fff66-a6d0-46c5-a197-78f62a6207b8<p>"
+	// Create User Verification
+	uv := models.UserVerification{
+		UUID:   uuid.NewString(),
+		UserID: u.ID,
+	}
+	if err := uv.CreateUserVerification(); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to create user verification",
+		})
+	}
+
+	body := fmt.Sprintf("<p>Please verify your email by clicking this link: <a href=\"https://api.medkick.air.business/v1/auth/validate/%s\">Click Me</a><p>", uv.UUID)
 	subject := "MedKick Email Verification"
 	if err := sendgrid.SendEmail(fmt.Sprintf("%s %s", u.FirstName, u.LastName), u.Email, subject, body); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -631,6 +643,39 @@ func updateUser(c echo.Context) error {
 	return c.JSON(http.StatusForbidden, dto.ErrorResponse{
 		Error: "Forbidden",
 	})
+}
+
+// validateUser godoc
+// @Summary Validate User
+// @Description Validates user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Success 307
+// @Failure 307
+// @Router /auth/validate/{id} [get]
+func validateUser(c echo.Context) error {
+	uuid := c.Param("id")
+
+	uv := models.UserVerification{
+		UUID: uuid,
+	}
+	if err := uv.GetUserVerification(); err != nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "https://www.medkick.air.business/user/failed")
+	}
+
+	u := uv.User
+	u.Role = u.Role[:len(u.Role)-2] // Remove the nv
+
+	if err := u.UpdateUser(); err != nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "https://www.medkick.air.business/user/failed")
+	}
+
+	if err := uv.DeleteUserVerification(); err != nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "https://www.medkick.air.business/user/failed")
+	}
+
+	return c.Redirect(http.StatusTemporaryRedirect, "https://www.medkick.air.business/user/verified")
 }
 
 // deleteUser godoc
