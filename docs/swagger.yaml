@@ -1202,7 +1202,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/dto.MessageResponse'
+            $ref: '#/definitions/models.Interaction'
         "400":
           description: Bad Request
           schema:
@@ -1937,7 +1937,16 @@ paths:
       - description: User ID
         in: path
         name: id
+        required: true
         type: integer
+      - description: Start Date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End Date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        type: string
       produces:
       - application/json
       responses:

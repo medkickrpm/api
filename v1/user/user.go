@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type CreateRequest struct {
@@ -396,7 +397,9 @@ func getDevicesInUser(c echo.Context) error {
 // @Tags User
 // @Accept json
 // @Produce json
-// @Param id path int false "User ID"
+// @Param id path int true "User ID"
+// @Param start_date query string false "Start Date (YYYY-MM-DD)"
+// @Param end_date query string false "End Date (YYYY-MM-DD)"
 // @Success 200 {object} []models.Interaction
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
@@ -404,39 +407,76 @@ func getDevicesInUser(c echo.Context) error {
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /user/{id}/interactions [get]
 func getInteractionsInUser(c echo.Context) error {
-	id := c.Param("id")
 	self := middleware.GetSelf(c)
 
-	if id == "" {
-		interactions, err := models.GetInteractionsByUser(*self.ID)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-				Error: "Failed to get interactions",
-			})
-		}
+	startDateRaw := c.QueryParam("start_date")
+	endDateRaw := c.QueryParam("end_date")
 
-		return c.JSON(http.StatusOK, interactions)
+	//convert start_date and end_date to time.Time
+	startDate, err := time.Parse("2006-01-02", startDateRaw)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to parse start_date",
+		})
+	}
+
+	var endDate time.Time
+
+	if endDateRaw == "" {
+		endDate = time.Now()
 	} else {
-		idInt, err := strconv.Atoi(c.Param("id"))
+		endDate, err = time.Parse("2006-01-02", endDateRaw)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-				Error: "Failed to convert id to uint",
+				Error: "Failed to parse end_date",
 			})
 		}
+	}
 
-		idUint := uint(idInt)
+	// Make sure startDate is before endDate
+	if startDate.After(endDate) {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Start date must be before end date",
+		})
+	}
 
-		u := models.User{
-			ID: &idUint,
-		}
+	// Make sure startDate is before present day
+	if startDate.After(time.Now()) {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Start date must be before present day",
+		})
+	}
 
-		if err := u.GetUser(); err != nil {
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-				Error: "Failed to get user",
-			})
-		}
+	idInt, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to convert id to uint",
+		})
+	}
 
-		if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+	idUint := uint(idInt)
+
+	u := models.User{
+		ID: &idUint,
+	}
+
+	if err := u.GetUser(); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get user",
+		})
+	}
+
+	if self.Role == "admin" || ((self.Role == "doctor" || self.Role == "nurse") && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+		if startDateRaw != "" {
+			interactions, err := models.GetInteractionsByUserBetweenDates(idUint, startDate, endDate)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get interactions",
+				})
+			}
+
+			return c.JSON(http.StatusOK, interactions)
+		} else {
 			interactions, err := models.GetInteractionsByUser(idUint)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{

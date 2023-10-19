@@ -52,6 +52,15 @@ func GetInteractionsByDoctor(doctorId uint) ([]Interaction, error) {
 	return interactions, nil
 }
 
+func GetInteractionsByUserBetweenDates(id uint, startDate time.Time, endDate time.Time) ([]Interaction, error) {
+	var interactions []Interaction
+	if err := database.DB.Where("user_id = ? AND session_date BETWEEN ? AND ?", id, startDate, endDate).Find(&interactions).Error; err != nil {
+		return nil, err
+	}
+
+	return interactions, nil
+}
+
 func (i *Interaction) GetInteraction() error {
 	if err := database.DB.Where("id = ?", i.ID).First(&i).Error; err != nil {
 		return err
