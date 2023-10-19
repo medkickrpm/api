@@ -26,7 +26,7 @@ type CreateRequest struct {
 // @Accept json
 // @Produce json
 // @Param create body CreateRequest true "Create Request"
-// @Success 201 {object} dto.MessageResponse
+// @Success 201 {object} models.Interaction
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /interaction [post]
@@ -96,9 +96,7 @@ func createInteraction(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusCreated, dto.MessageResponse{
-		Message: "Successfully created interaction",
-	})
+	return c.JSON(http.StatusCreated, i)
 }
 
 // getInteraction godoc
