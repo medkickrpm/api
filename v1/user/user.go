@@ -261,7 +261,7 @@ func getUsersInOrg(c echo.Context) error {
 				}
 			}
 
-			return c.JSON(http.StatusOK, users)
+			return c.JSON(http.StatusOK, filteredUsers)
 		} else {
 			if filter == "admin" {
 				return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
