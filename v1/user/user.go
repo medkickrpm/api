@@ -54,9 +54,9 @@ func createUser(c echo.Context) error {
 		})
 	}
 
-	if request.Role != "admin" && request.Role != "doctor" && request.Role != "patient" && request.Role != "doctornv" && request.Role != "patientnv" {
+	if request.Role != "admin" && request.Role != "doctor" && request.Role != "nurse" && request.Role != "patient" && request.Role != "doctornv" && request.Role != "nursenv" && request.Role != "patientnv" {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-			Error: "Invalid role, must be 'admin', 'doctor', 'patient', 'doctornv', or 'patientnv'.",
+			Error: "Invalid role, must be 'admin', 'doctor', 'nurse', 'patient', 'doctornv', 'nursenv', or 'patientnv'.",
 		})
 	}
 
@@ -150,7 +150,7 @@ func getUser(c echo.Context) error {
 
 	filter := c.QueryParam("filter")
 
-	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "doctornv" && filter != "patientnv" {
+	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "nurse" && filter != "doctornv" && filter != "nursenv" && filter != "patientnv" {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Invalid filter",
 		})
@@ -183,7 +183,7 @@ func getUser(c echo.Context) error {
 		}
 	}
 	if id == "" {
-		return c.JSON(http.StatusCreated, self)
+		return c.JSON(http.StatusOK, self)
 	}
 
 	idInt, err := strconv.ParseUint(id, 10, 32)
@@ -230,7 +230,7 @@ func getUsersInOrg(c echo.Context) error {
 
 	filter := c.QueryParam("filter")
 
-	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "doctornv" && filter != "patientnv" {
+	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "nurse" && filter != "doctornv" && filter != "nursenv" && filter != "patientnv" {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Invalid filter",
 		})
@@ -251,8 +251,23 @@ func getUsersInOrg(c echo.Context) error {
 					Error: "Failed to get users",
 				})
 			}
+
+			// Filter out admin
+			var filteredUsers []models.User
+			for _, user := range users {
+				if user.Role != "admin" {
+					filteredUsers = append(filteredUsers, user)
+				}
+			}
+
 			return c.JSON(http.StatusOK, users)
 		} else {
+			if filter == "admin" {
+				return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+					Error: "Unauthorized",
+				})
+			}
+
 			users, err := models.GetUsersInOrgWithRole(self.OrganizationID, filter)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -283,8 +298,25 @@ func getUsersInOrg(c echo.Context) error {
 				Error: "Failed to get users",
 			})
 		}
-		return c.JSON(http.StatusOK, users)
+
+		// Filter out admin
+		var filteredUsers []models.User
+		for _, user := range users {
+			if user.Role != "admin" {
+				filteredUsers = append(filteredUsers, user)
+			}
+		}
+
+		return c.JSON(http.StatusOK, filteredUsers)
 	} else {
+		if filter == "admin" {
+			if self.Role != "admin" {
+				return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+					Error: "Unauthorized",
+				})
+			}
+		}
+
 		users, err := models.GetUsersInOrgWithRole(&orgUint, filter)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -519,6 +551,12 @@ func updateUser(c echo.Context) error {
 	if err := c.Bind(&request); err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: err.Error(),
+		})
+	}
+
+	if request.Role != "admin" && request.Role != "doctor" && request.Role != "nurse" && request.Role != "patient" && request.Role != "doctornv" && request.Role != "nursenv" && request.Role != "patientnv" {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid role, must be 'admin', 'doctor', 'nurse', 'patient', 'doctornv', 'nursenv', or 'patientnv'.",
 		})
 	}
 
