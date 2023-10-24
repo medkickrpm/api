@@ -52,7 +52,7 @@ func createInteraction(c echo.Context) error {
 	}
 
 	self := middleware.GetSelf(c)
-	if self.Role == "doctor" {
+	if self.Role == "doctor" || self.Role == "nurse" {
 		request.DoctorID = self.ID
 	}
 
@@ -124,7 +124,7 @@ func getInteraction(c echo.Context) error {
 				})
 			}
 			return c.JSON(http.StatusOK, interactions)
-		} else if self.Role == "doctor" {
+		} else if self.Role == "doctor" || self.Role == "nurse" {
 			interactions, err := models.GetInteractionsByDoctor(*self.ID)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -158,7 +158,7 @@ func getInteraction(c echo.Context) error {
 		})
 	}
 
-	if self.Role == "admin" || (self.Role == "doctor" && self.ID == &i.DoctorID) || (self.Role == "patient" && self.ID == &i.UserID) {
+	if self.Role == "admin" || ((self.Role == "doctor" || self.Role == "nurse") && self.ID == &i.DoctorID) || (self.Role == "patient" && self.ID == &i.UserID) {
 		return c.JSON(http.StatusOK, i)
 	}
 
@@ -220,7 +220,7 @@ func updateInteraction(c echo.Context) error {
 	}
 
 	self := middleware.GetSelf(c)
-	if self.Role == "admin" || (self.Role == "doctor" && self.ID == &i.DoctorID) {
+	if self.Role == "admin" || ((self.Role == "doctor" || self.Role == "nurse") && self.ID == &i.DoctorID) {
 		if request.UserID != nil {
 			i.UserID = *request.UserID
 		}
@@ -287,7 +287,7 @@ func deleteInteraction(c echo.Context) error {
 	}
 
 	self := middleware.GetSelf(c)
-	if self.Role == "admin" || (self.Role == "doctor" && self.ID == &i.DoctorID) {
+	if self.Role == "admin" || ((self.Role == "doctor" || self.Role == "nurse") && self.ID == &i.DoctorID) {
 		if err := i.DeleteInteraction(); err != nil {
 			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 				Error: "Failed to delete interaction",

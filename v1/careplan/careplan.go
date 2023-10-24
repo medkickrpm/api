@@ -42,7 +42,7 @@ func createCareplan(c echo.Context) error {
 	}
 
 	self := middleware.GetSelf(c)
-	if self.Role == "doctor" {
+	if self.Role == "doctor" || self.Role == "nurse" {
 		request.DoctorID = self.ID
 	}
 	if self.Role == "admin" {
@@ -123,7 +123,7 @@ func uploadCareplan(c echo.Context) error {
 	}
 
 	self := middleware.GetSelf(c)
-	if self.Role == "doctor" {
+	if self.Role == "doctor" || self.Role == "nurse" {
 		if careplan.User.OrganizationID != self.OrganizationID {
 			return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 				Error: "Unauthorized: You are not in the same organization as the patient",
@@ -197,7 +197,7 @@ func getCareplan(c echo.Context) error {
 				})
 			}
 		}
-		if self.Role == "doctor" {
+		if self.Role == "doctor" || self.Role == "nurse" {
 			if careplan.User.OrganizationID != self.OrganizationID {
 				return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 					Error: "Unauthorized: You are not in the same organization as the patient",
@@ -219,7 +219,7 @@ func getCareplan(c echo.Context) error {
 
 		return c.JSON(http.StatusOK, careplans)
 	}
-	if self.Role == "doctor" {
+	if self.Role == "doctor" || self.Role == "nurse" {
 		careplans, err := models.GetCarePlansByDoctorID(*self.ID)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -278,7 +278,7 @@ func downloadCareplan(c echo.Context) error {
 	}
 
 	self := middleware.GetSelf(c)
-	if self.Role == "doctor" {
+	if self.Role == "doctor" || self.Role == "nurse" {
 		if careplan.User.OrganizationID != self.OrganizationID {
 			return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 				Error: "Unauthorized: You are not in the same organization as the patient",
@@ -330,7 +330,7 @@ func deleteCareplan(c echo.Context) error {
 	}
 
 	self := middleware.GetSelf(c)
-	if self.Role == "doctor" {
+	if self.Role == "doctor" || self.Role == "nurse" {
 		if careplan.User.OrganizationID != self.OrganizationID {
 			return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 				Error: "Unauthorized: You are not in the same organization as the patient",

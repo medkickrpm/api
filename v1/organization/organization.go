@@ -210,7 +210,7 @@ func updateOrganization(c echo.Context) error {
 
 	idUint := uint(id)
 
-	if self.Role == "doctor" {
+	if self.Role == "doctor" || self.Role == "nurse" {
 		idUint = *self.OrganizationID
 	}
 

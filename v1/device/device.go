@@ -35,9 +35,9 @@ func getDevice(c echo.Context) error {
 				})
 			}
 			return c.JSON(http.StatusOK, devices)
-		} else if self.Role == "doctor" {
+		} else if self.Role == "doctor" || self.Role == "nurse" {
 			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-				Error: "Doctors cannot get all devices",
+				Error: "Doctors/Nurses cannot get all devices",
 			})
 		} else {
 			devices, err := models.GetDevicesByUser(*self.ID)
