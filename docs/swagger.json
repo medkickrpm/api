@@ -1629,8 +1629,10 @@
                         "enum": [
                             "admin",
                             "doctor",
+                            "nurse",
                             "patient",
                             "doctornv",
+                            "nursenv",
                             "patientnv"
                         ],
                         "type": "string",
@@ -1700,8 +1702,10 @@
                         "enum": [
                             "admin",
                             "doctor",
+                            "nurse",
                             "patient",
                             "doctornv",
+                            "nursenv",
                             "patientnv"
                         ],
                         "type": "string",

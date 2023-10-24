@@ -139,7 +139,7 @@ func createUser(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string false "User ID"
-// @Param filter query string false "Role Filter" Enums(admin, doctor, patient, doctornv, patientnv)
+// @Param filter query string false "Role Filter" Enums(admin, doctor, nurse, patient, doctornv, nursenv, patientnv)
 // @Success 200 {object} []models.User
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
@@ -219,7 +219,7 @@ func getUser(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int false "Organization ID"
-// @Param filter query string false "Role Filter" Enums(admin, doctor, patient, doctornv, patientnv)
+// @Param filter query string false "Role Filter" Enums(admin, doctor, nurse, patient, doctornv, nursenv, patientnv)
 // @Success 200 {object} []models.User
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse

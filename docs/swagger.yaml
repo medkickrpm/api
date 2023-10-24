@@ -1773,8 +1773,10 @@ paths:
         enum:
         - admin
         - doctor
+        - nurse
         - patient
         - doctornv
+        - nursenv
         - patientnv
         in: query
         name: filter
@@ -1990,8 +1992,10 @@ paths:
         enum:
         - admin
         - doctor
+        - nurse
         - patient
         - doctornv
+        - nursenv
         - patientnv
         in: query
         name: filter

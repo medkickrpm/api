@@ -1633,8 +1633,10 @@ const docTemplate = `{
                         "enum": [
                             "admin",
                             "doctor",
+                            "nurse",
                             "patient",
                             "doctornv",
+                            "nursenv",
                             "patientnv"
                         ],
                         "type": "string",
@@ -1704,8 +1706,10 @@ const docTemplate = `{
                         "enum": [
                             "admin",
                             "doctor",
+                            "nurse",
                             "patient",
                             "doctornv",
+                            "nursenv",
                             "patientnv"
                         ],
                         "type": "string",
