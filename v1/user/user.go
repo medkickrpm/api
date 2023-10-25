@@ -493,6 +493,122 @@ func getInteractionsInUser(c echo.Context) error {
 	})
 }
 
+// getTotalInteractionDuration godoc
+// @Summary Total user interaction duration
+// @Description Get the sum of the interaction durations for a user
+// @Tags Interaction
+// @Accept json
+// @Produce json
+// @Param id path int true "ID"
+// @Param start_date query string false "Start Date (YYYY-MM-DD)"
+// @Param end_date query string false "End Date (YYYY-MM-DD)"
+// @Success 200 {object} uint
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /user/{id}/interactions/duration [get]
+func getTotalInteractionDuration(c echo.Context) error {
+	id := c.Param("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid ID",
+		})
+	}
+
+	idUint := uint(idInt)
+	self := middleware.GetSelf(c)
+	if self.Role == "patient" && *self.ID != idUint {
+		return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+			Error: "Forbidden",
+		})
+	}
+
+	u := models.User{
+		ID: &idUint,
+	}
+
+	if err := u.GetUser(); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get user",
+		})
+	}
+
+	startDateRaw := c.QueryParam("start_date")
+	endDateRaw := c.QueryParam("end_date")
+
+	//convert start_date and end_date to time.Time
+	startDate, err := time.Parse("2006-01-02", startDateRaw)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to parse start_date",
+		})
+	}
+
+	var endDate time.Time
+
+	if endDateRaw == "" {
+		endDate = time.Now()
+	} else {
+		endDate, err = time.Parse("2006-01-02", endDateRaw)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Error: "Failed to parse end_date",
+			})
+		}
+	}
+
+	// Make sure startDate is before endDate
+	if startDate.After(endDate) {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Start date must be before end date",
+		})
+	}
+
+	// Make sure startDate is before present day
+	if startDate.After(time.Now()) {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Start date must be before present day",
+		})
+	}
+
+	if self.Role == "admin" || ((self.Role == "doctor" || self.Role == "nurse") && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+		if startDateRaw != "" {
+			interactions, err := models.GetInteractionsByUser(idUint)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get interactions",
+				})
+			}
+
+			var totalDuration uint
+			for _, interaction := range interactions {
+				totalDuration += interaction.Duration
+			}
+
+			return c.JSON(http.StatusOK, totalDuration)
+		} else {
+			interactions, err := models.GetInteractionsByUserBetweenDates(idUint, startDate, endDate)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get interactions",
+				})
+			}
+
+			var totalDuration uint
+			for _, interaction := range interactions {
+				totalDuration += interaction.Duration
+			}
+
+			return c.JSON(http.StatusOK, totalDuration)
+		}
+	}
+
+	return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+		Error: "Forbidden",
+	})
+}
+
 // getCarePlans godoc
 // @Summary Get care plans in User
 // @Description If ID is specified, gets care plans in that user, if ID is not specified, gets care plans in self

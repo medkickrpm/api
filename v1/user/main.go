@@ -23,5 +23,6 @@ func Routes(r *echo.Group) {
 
 	r.GET("/user/:id/devices", getDevicesInUser, middleware.NotGuest)
 	r.GET("/user/:id/interactions", getInteractionsInUser, middleware.NotGuest)
+	r.GET("/user/:id/interactions/duration", getInteractionsInUser, middleware.NotGuest)
 	r.GET("/user/:id/careplans", getCarePlansInUser, middleware.NotGuest)
 }
