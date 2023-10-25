@@ -171,6 +171,8 @@ definitions:
     type: object
   interaction.CreateRequest:
     properties:
+      cost_category:
+        type: string
       doctor_id:
         type: integer
       duration:
@@ -183,6 +185,7 @@ definitions:
       user_id:
         type: integer
     required:
+    - cost_category
     - duration
     - notes
     - session_date
@@ -190,6 +193,8 @@ definitions:
     type: object
   interaction.UpdateRequest:
     properties:
+      cost_category:
+        type: string
       doctor_id:
         type: integer
       duration:
@@ -371,6 +376,9 @@ definitions:
     type: object
   models.Interaction:
     properties:
+      cost_category:
+        example: ""
+        type: string
       created_at:
         example: "2021-01-01T00:00:00Z"
         type: string

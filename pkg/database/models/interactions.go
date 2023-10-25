@@ -6,16 +6,17 @@ import (
 )
 
 type Interaction struct {
-	ID          uint      `json:"id" gorm:"primary_key;auto_increment" example:"1"`
-	UserID      uint      `json:"user_id" gorm:"not null" example:"1"`
-	User        User      `json:"user" gorm:"foreignKey:UserID"`
-	DoctorID    uint      `json:"doctor_id" gorm:"not null" example:"1"`
-	Doctor      User      `json:"doctor" gorm:"foreignKey:DoctorID"`
-	Duration    uint      `json:"duration" gorm:"not null" example:"30"`
-	Notes       string    `json:"notes" gorm:"not null" example:"Patient is doing well"`
-	SessionDate time.Time `json:"session_date" gorm:"not null" example:"2021-01-01T00:00:00Z"`
-	CreatedAt   time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
-	UpdatedAt   time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
+	ID           uint      `json:"id" gorm:"primary_key;auto_increment" example:"1"`
+	UserID       uint      `json:"user_id" gorm:"not null" example:"1"`
+	User         User      `json:"user" gorm:"foreignKey:UserID"`
+	DoctorID     uint      `json:"doctor_id" gorm:"not null" example:"1"`
+	Doctor       User      `json:"doctor" gorm:"foreignKey:DoctorID"`
+	Duration     uint      `json:"duration" gorm:"not null" example:"30"`
+	Notes        string    `json:"notes" gorm:"not null" example:"Patient is doing well"`
+	CostCategory string    `json:"cost_category" gorm:"not null" example:""`
+	SessionDate  time.Time `json:"session_date" gorm:"not null" example:"2021-01-01T00:00:00Z"`
+	CreatedAt    time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
+	UpdatedAt    time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
 }
 
 func (i *Interaction) CreateInteraction() error {

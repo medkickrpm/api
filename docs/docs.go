@@ -2310,12 +2310,16 @@ const docTemplate = `{
         "interaction.CreateRequest": {
             "type": "object",
             "required": [
+                "cost_category",
                 "duration",
                 "notes",
                 "session_date",
                 "user_id"
             ],
             "properties": {
+                "cost_category": {
+                    "type": "string"
+                },
                 "doctor_id": {
                     "type": "integer"
                 },
@@ -2337,6 +2341,9 @@ const docTemplate = `{
         "interaction.UpdateRequest": {
             "type": "object",
             "properties": {
+                "cost_category": {
+                    "type": "string"
+                },
                 "doctor_id": {
                     "type": "integer"
                 },
@@ -2585,6 +2592,10 @@ const docTemplate = `{
         "models.Interaction": {
             "type": "object",
             "properties": {
+                "cost_category": {
+                    "type": "string",
+                    "example": ""
+                },
                 "created_at": {
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"

@@ -12,11 +12,12 @@ import (
 )
 
 type CreateRequest struct {
-	UserID      uint   `json:"user_id" validate:"required"`
-	DoctorID    *uint  `json:"doctor_id"`
-	Duration    uint   `json:"duration" validate:"required"`
-	Notes       string `json:"notes" validate:"required"`
-	SessionDate string `json:"session_date" validate:"required" example:"2021-01-01T00:00:00Z"`
+	UserID       uint   `json:"user_id" validate:"required"`
+	DoctorID     *uint  `json:"doctor_id"`
+	Duration     uint   `json:"duration" validate:"required"`
+	Notes        string `json:"notes" validate:"required"`
+	SessionDate  string `json:"session_date" validate:"required" example:"2021-01-01T00:00:00Z"`
+	CostCategory string `json:"cost_category" validate:"required"`
 }
 
 // createInteraction godoc
@@ -84,11 +85,12 @@ func createInteraction(c echo.Context) error {
 	}
 
 	i := models.Interaction{
-		UserID:      request.UserID,
-		DoctorID:    *request.DoctorID,
-		Duration:    request.Duration,
-		Notes:       request.Notes,
-		SessionDate: sessionDate,
+		UserID:       request.UserID,
+		DoctorID:     *request.DoctorID,
+		Duration:     request.Duration,
+		Notes:        request.Notes,
+		CostCategory: request.CostCategory,
+		SessionDate:  sessionDate,
 	}
 	if err := i.CreateInteraction(); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -168,11 +170,12 @@ func getInteraction(c echo.Context) error {
 }
 
 type UpdateRequest struct {
-	UserID      *uint  `json:"user_id"`
-	DoctorID    *uint  `json:"doctor_id"`
-	Duration    *uint  `json:"duration"`
-	Notes       string `json:"notes"`
-	SessionDate string `json:"session_date" example:"2021-01-01T00:00:00Z"`
+	UserID       *uint  `json:"user_id"`
+	DoctorID     *uint  `json:"doctor_id"`
+	Duration     *uint  `json:"duration"`
+	Notes        string `json:"notes"`
+	CostCategory string `json:"cost_category"`
+	SessionDate  string `json:"session_date" example:"2021-01-01T00:00:00Z"`
 }
 
 // updateInteraction godoc
@@ -232,6 +235,9 @@ func updateInteraction(c echo.Context) error {
 		}
 		if request.Notes != "" {
 			i.Notes = request.Notes
+		}
+		if request.CostCategory != "" {
+			i.CostCategory = request.CostCategory
 		}
 		if request.SessionDate != "" {
 			var sessionDate time.Time
