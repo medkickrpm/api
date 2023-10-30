@@ -10,16 +10,16 @@ import (
 )
 
 type MeasurementRequest struct {
-	MeasurementType models.MeasurementType `json:"measurement_type" validate:"required"`
-	CriticalHigh    uint                   `json:"critical_high" validate:"required"`
-	WarningHigh     *uint                  `json:"warning_high,omitempty"`
-	WarningLow      *uint                  `json:"warning_low,omitempty"`
-	CriticalLow     uint                   `json:"critical_low" validate:"required"`
+	MeasurementType models.MeasurementType `json:"measurement_type" validate:"required,oneof=Systolic Diastolic Pulse Weight"`
+	CriticalLow     uint                   `json:"critical_low"`
+	WarningLow      *uint                  `json:"warning_low"`
+	WarningHigh     *uint                  `json:"warning_high"`
+	CriticalHigh    uint                   `json:"critical_high"`
 }
 
 type CreateAlertThresholdRequest struct {
-	DeviceType   models.DeviceType    `json:"device_type" validate:"required"`
-	Measurements []MeasurementRequest `json:"measurements" validate:"required,dive"`
+	DeviceType   models.DeviceType    `json:"device_type" validate:"required,oneof=BloodPressure BloodGlucose WeightScale"`
+	Measurements []MeasurementRequest `json:"measurements" validate:"required,min=1,dive,required"`
 }
 
 func createAlertThreshold(c echo.Context) error {
