@@ -2,7 +2,6 @@ package models
 
 import (
 	"MedKick-backend/pkg/database"
-	"fmt"
 	"time"
 )
 
@@ -112,9 +111,6 @@ type DeviceTelemetryDataForPatient struct {
 }
 
 func GetPatientTelemetryData(patientIDs []uint) ([]DeviceTelemetryDataForPatient, error) {
-	// DeviceTelemetryData table has Device ID, Device table has User ID
-	// We need to filter with user ID to get the patient's data
-
 	var result []struct {
 		DeviceTelemetryData
 		UserID uint
@@ -163,7 +159,6 @@ func GetPatientStatusFunc(thresholds []AlertThreshold) func(data DeviceTelemetry
 	}
 
 	return func(data DeviceTelemetryData) (isCritical, isWarning bool) {
-		fmt.Println(data.DiastolicBP)
 		if systolicBPThreshold.CriticalLow != nil {
 			if data.SystolicBP < *systolicBPThreshold.CriticalLow || data.SystolicBP > *systolicBPThreshold.CriticalHigh {
 				return true, false
