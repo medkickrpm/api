@@ -11,10 +11,10 @@ type AlertThreshold struct {
 	Organization    Organization    `json:"organization" gorm:"foreignKey:OrganizationID"`
 	DeviceType      DeviceType      `json:"device_type" gorm:"index:,unique,composite:measurement; not null" example:"BloodPressure"`
 	MeasurementType MeasurementType `json:"measurement_type" gorm:"index:,unique,composite:measurement; not null" example:"Systolic"`
-	CriticalLow     uint            `json:"critical_low" example:"60"`
+	CriticalLow     *uint           `json:"critical_low" gorm:"default:null" example:"60"`
 	WarningLow      *uint           `json:"warning_low" gorm:"default:null" example:"80"`
 	WarningHigh     *uint           `json:"warning_high" gorm:"default:null" example:"120"`
-	CriticalHigh    uint            `json:"critical_high" example:"140"`
+	CriticalHigh    *uint           `json:"critical_high" gorm:"default:null" example:"140"`
 	CreatedAt       time.Time       `json:"created_at" example:"2021-01-01T00:00:00Z"`
 	UpdatedAt       time.Time       `json:"updated_at" example:"2021-01-01T00:00:00Z"`
 }
