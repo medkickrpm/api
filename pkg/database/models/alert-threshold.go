@@ -42,3 +42,12 @@ func CreateAlertThresholds(alertThresholds []AlertThreshold) error {
 	}
 	return nil
 }
+
+func ListAlertThresholds(orgId uint) ([]AlertThreshold, error) {
+	var alertThresholds []AlertThreshold
+	if err := database.DB.Where("organization_id = ?", orgId).Find(&alertThresholds).Error; err != nil {
+		return nil, err
+	}
+
+	return alertThresholds, nil
+}
