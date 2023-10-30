@@ -13,6 +13,6 @@ func Routes(r *echo.Group) {
 
 	r.GET("/organization/:id/devices", getDevicesInOrganization, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
 
-	r.POST("/organization/:id/alert-threshold", createAlertThreshold, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
+	r.POST("/organization/:id/alert-threshold", upsertAlertThreshold, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
 	r.GET("/organization/:id/alert-threshold", listAlertThresholds, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
 }

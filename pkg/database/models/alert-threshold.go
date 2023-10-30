@@ -2,6 +2,7 @@ package models
 
 import (
 	"MedKick-backend/pkg/database"
+	"gorm.io/gorm/clause"
 	"time"
 )
 
@@ -36,13 +37,6 @@ const (
 	Weight    MeasurementType = "Weight"
 )
 
-func CreateAlertThresholds(alertThresholds []AlertThreshold) error {
-	if err := database.DB.Create(&alertThresholds).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
 func ListAlertThresholds(orgId uint) ([]AlertThreshold, error) {
 	var alertThresholds []AlertThreshold
 	if err := database.DB.Where("organization_id = ?", orgId).Find(&alertThresholds).Error; err != nil {
@@ -50,4 +44,22 @@ func ListAlertThresholds(orgId uint) ([]AlertThreshold, error) {
 	}
 
 	return alertThresholds, nil
+}
+
+func UpsertAlertThresholds(alertThresholds []AlertThreshold) error {
+	db := database.DB.Model(&AlertThreshold{})
+	// Conflict with  OrganizationID, DeviceType, MeasurementType then update all
+	db = db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "organization_id"}, {Name: "device_type"}, {Name: "measurement_type"}},
+		DoUpdates: clause.AssignmentColumns([]string{
+			"critical_low",
+			"warning_low",
+			"warning_high",
+			"critical_high",
+		}),
+	})
+	if err := db.Create(&alertThresholds).Error; err != nil {
+		return err
+	}
+	return nil
 }

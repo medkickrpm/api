@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func createAlertThreshold(c echo.Context) error {
+func upsertAlertThreshold(c echo.Context) error {
 	var req struct {
 		OrganizationID uint `json:"-" param:"id" validate:"required"`
 		AlertThresholdData
@@ -61,14 +61,14 @@ func createAlertThreshold(c echo.Context) error {
 		})
 	}
 
-	if err := models.CreateAlertThresholds(alertThresholds); err != nil {
+	if err := models.UpsertAlertThresholds(alertThresholds); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to create alert thresholds",
+			Error: "Failed to upsert alert thresholds",
 		})
 	}
 
 	return c.JSON(http.StatusCreated, dto.MessageResponse{
-		Message: "Alert thresholds created",
+		Message: "Alert thresholds upsert successful",
 	})
 }
 
