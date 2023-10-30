@@ -9,6 +9,18 @@ import (
 	"net/http"
 )
 
+// upsertAlertThreshold godoc
+// @Summary Upsert Alert Threshold
+// @Description Upsert Alert Threshold
+// @Tags Organization
+// @Accept json
+// @Produce json
+// @Param id path int true "Organization ID"
+// @Param upsert body AlertThresholdData true "Upsert Request"
+// @Success 201 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /organization/{id}/alert-threshold [post]
 func upsertAlertThreshold(c echo.Context) error {
 	var req struct {
 		OrganizationID uint `json:"-" param:"id" validate:"required"`
@@ -72,6 +84,16 @@ func upsertAlertThreshold(c echo.Context) error {
 	})
 }
 
+// listAlertThresholds godoc
+// @Summary List Alert Thresholds
+// @Description List Alert Thresholds
+// @Tags Organization
+// @Produce json
+// @Param id path int true "Organization ID"
+// @Success 200 {object} []AlertThresholdData
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /organization/{id}/alert-threshold [get]
 func listAlertThresholds(c echo.Context) error {
 	var req struct {
 		OrganizationID uint `json:"-" param:"id"`

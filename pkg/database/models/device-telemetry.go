@@ -2,6 +2,7 @@ package models
 
 import (
 	"MedKick-backend/pkg/database"
+	"fmt"
 	"time"
 )
 
@@ -103,4 +104,86 @@ func (d *DeviceTelemetryData) DeleteDeviceTelemetryData() error {
 		return err
 	}
 	return nil
+}
+
+type DeviceTelemetryDataForPatient struct {
+	PatientID uint
+	DeviceTelemetryData
+}
+
+func GetPatientTelemetryData(patientIDs []uint) ([]DeviceTelemetryDataForPatient, error) {
+	// DeviceTelemetryData table has Device ID, Device table has User ID
+	// We need to filter with user ID to get the patient's data
+
+	var result []struct {
+		DeviceTelemetryData
+		UserID uint
+	}
+
+	selects := []string{
+		"device_telemetry_data.*",
+		"devices.user_id as user_id",
+	}
+
+	err := database.DB.Model(&DeviceTelemetryData{}).
+		Select(selects).
+		Joins("JOIN devices ON device_telemetry_data.device_id = devices.id").
+		Where("devices.user_id IN ?", patientIDs).
+		Order("devices.user_id, device_telemetry_data.measured_at DESC").
+		Find(&result).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	var telemetryData []DeviceTelemetryDataForPatient
+
+	for _, r := range result {
+		telemetryData = append(telemetryData, DeviceTelemetryDataForPatient{
+			PatientID:           r.UserID,
+			DeviceTelemetryData: r.DeviceTelemetryData,
+		})
+	}
+
+	return telemetryData, nil
+}
+
+func GetPatientStatusFunc(thresholds []AlertThreshold) func(data DeviceTelemetryData) (isCritical, isWarning bool) {
+
+	var systolicBPThreshold, diastolicBPThreshold AlertThreshold
+
+	for _, t := range thresholds {
+		if t.DeviceType == BloodPressure {
+			if t.MeasurementType == Systolic {
+				systolicBPThreshold = t
+			} else if t.MeasurementType == Diastolic {
+				diastolicBPThreshold = t
+			}
+		}
+	}
+
+	return func(data DeviceTelemetryData) (isCritical, isWarning bool) {
+		fmt.Println(data.DiastolicBP)
+		if systolicBPThreshold.CriticalLow != nil {
+			if data.SystolicBP < *systolicBPThreshold.CriticalLow || data.SystolicBP > *systolicBPThreshold.CriticalHigh {
+				return true, false
+			}
+		}
+		if diastolicBPThreshold.CriticalLow != nil {
+			if data.DiastolicBP < *diastolicBPThreshold.CriticalLow || data.DiastolicBP > *diastolicBPThreshold.CriticalHigh {
+				return true, false
+			}
+		}
+		if systolicBPThreshold.WarningLow != nil {
+			if data.SystolicBP < *systolicBPThreshold.WarningLow || data.SystolicBP > *systolicBPThreshold.WarningHigh {
+				return false, true
+			}
+		}
+		if diastolicBPThreshold.WarningLow != nil {
+			if data.DiastolicBP < *diastolicBPThreshold.WarningLow || data.DiastolicBP > *diastolicBPThreshold.WarningHigh {
+				return false, true
+			}
+		}
+		return false, false
+	}
 }

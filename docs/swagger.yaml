@@ -493,6 +493,23 @@ definitions:
         example: "2021-01-01T00:00:00Z"
         type: string
     type: object
+  organization.AlertThresholdData:
+    properties:
+      device_type:
+        enum:
+        - BloodPressure
+        - BloodGlucose
+        - WeightScale
+        type: string
+      measurements:
+        items:
+          $ref: '#/definitions/organization.MeasurementData'
+        minItems: 1
+        type: array
+    required:
+    - device_type
+    - measurements
+    type: object
   organization.CreateRequest:
     properties:
       address:
@@ -519,6 +536,26 @@ definitions:
     - phone
     - state
     - zip
+    type: object
+  organization.MeasurementData:
+    properties:
+      critical_high:
+        type: integer
+      critical_low:
+        type: integer
+      measurement_type:
+        enum:
+        - Systolic
+        - Diastolic
+        - Pulse
+        - Weight
+        type: string
+      warning_high:
+        type: integer
+      warning_low:
+        type: integer
+    required:
+    - measurement_type
     type: object
   organization.UpdateRequest:
     properties:
@@ -1663,6 +1700,69 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: update Organization
+      tags:
+      - Organization
+  /organization/{id}/alert-threshold:
+    get:
+      description: List Alert Thresholds
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/organization.AlertThresholdData'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: List Alert Thresholds
+      tags:
+      - Organization
+    post:
+      consumes:
+      - application/json
+      description: Upsert Alert Threshold
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Upsert Request
+        in: body
+        name: upsert
+        required: true
+        schema:
+          $ref: '#/definitions/organization.AlertThresholdData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Upsert Alert Threshold
       tags:
       - Organization
   /organization/{id}/devices:

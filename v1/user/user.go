@@ -150,6 +150,7 @@ func getUser(c echo.Context) error {
 	id := c.Param("id")
 
 	filter := c.QueryParam("filter")
+	status := c.QueryParam("status")
 
 	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "nurse" && filter != "doctornv" && filter != "nursenv" && filter != "patientnv" {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
@@ -179,6 +180,54 @@ func getUser(c echo.Context) error {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 					Error: "Failed to get users",
 				})
+			}
+
+			if filter == "patient" && self.OrganizationID != nil && status != "" {
+				var patientList []uint
+				for _, user := range users {
+					patientList = append(patientList, *user.ID)
+				}
+
+				telemetryData, err := models.GetPatientTelemetryData(patientList)
+				if err != nil {
+					return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+						Error: "Failed to get telemetry data",
+					})
+				}
+
+				threshold, err := models.ListAlertThresholds(*self.OrganizationID)
+				if err != nil {
+					return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+						Error: "Failed to get alert thresholds",
+					})
+				}
+
+				latestTelemetryData := make(map[uint]models.DeviceTelemetryDataForPatient)
+				for _, td := range telemetryData {
+					if _, ok := latestTelemetryData[td.PatientID]; !ok {
+						latestTelemetryData[td.PatientID] = td
+					}
+				}
+
+				patientStatusFunc := models.GetPatientStatusFunc(threshold)
+				patientSelected := make(map[uint]struct{})
+				for _, data := range latestTelemetryData {
+					isCritical, isWarning := patientStatusFunc(data.DeviceTelemetryData)
+					if (status == "critical" && isCritical) || (status == "warning" && isWarning) {
+						patientSelected[data.PatientID] = struct{}{}
+					}
+				}
+
+				filteredPatients := make([]models.User, 0)
+
+				for _, user := range users {
+					if _, ok := patientSelected[*user.ID]; ok {
+						filteredPatients = append(filteredPatients, user)
+					}
+				}
+
+				return c.JSON(http.StatusOK, filteredPatients)
+
 			}
 			return c.JSON(http.StatusOK, users)
 		}
