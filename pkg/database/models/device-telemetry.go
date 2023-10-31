@@ -2,7 +2,6 @@ package models
 
 import (
 	"MedKick-backend/pkg/database"
-	"fmt"
 	"time"
 )
 
@@ -158,30 +157,18 @@ func GetLatestPatientTelemetryData(data []DeviceTelemetryDataForPatient) []Devic
 	for _, d := range data {
 		if d.DeviceName == "Sphygmomanometer" {
 			if _, ok := sphygmomanometerData[d.PatientID]; !ok {
-				sphygmomanometerData[d.PatientID] = DeviceTelemetryDataForPatient{
-					PatientID:           d.PatientID,
-					DeviceName:          d.DeviceName,
-					DeviceType:          BloodPressure,
-					DeviceTelemetryData: d.DeviceTelemetryData,
-				}
+				d.DeviceType = BloodPressure
+				sphygmomanometerData[d.PatientID] = d
 			}
 		} else if d.DeviceName == "Weight Scale" {
 			if _, ok := weightScaleData[d.PatientID]; !ok {
-				weightScaleData[d.PatientID] = DeviceTelemetryDataForPatient{
-					PatientID:           d.PatientID,
-					DeviceName:          d.DeviceName,
-					DeviceType:          WeightScale,
-					DeviceTelemetryData: d.DeviceTelemetryData,
-				}
+				d.DeviceType = WeightScale
+				weightScaleData[d.PatientID] = d
 			}
 		} else if d.DeviceName == "Blood Glucose Meter" {
 			if _, ok := bloodGlucoseMeterData[d.PatientID]; !ok {
-				bloodGlucoseMeterData[d.PatientID] = DeviceTelemetryDataForPatient{
-					PatientID:           d.PatientID,
-					DeviceName:          d.DeviceName,
-					DeviceType:          BloodGlucose,
-					DeviceTelemetryData: d.DeviceTelemetryData,
-				}
+				d.DeviceType = BloodGlucose
+				bloodGlucoseMeterData[d.PatientID] = d
 			}
 		}
 	}
@@ -243,7 +230,6 @@ func GetPatientStatusFunc(thresholds []AlertThreshold) func(data DeviceTelemetry
 		if data.DeviceType == WeightScale {
 			if (weightThreshold.CriticalLow != nil && data.Weight < *weightThreshold.CriticalLow) ||
 				(weightThreshold.CriticalHigh != nil && data.Weight > *weightThreshold.CriticalHigh) {
-				fmt.Println("weight critical", data.Weight)
 				return true, false
 			}
 
