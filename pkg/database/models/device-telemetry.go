@@ -129,6 +129,7 @@ func GetPatientTelemetryData(patientIDs []uint) ([]DeviceTelemetryDataForPatient
 		Select(selects).
 		Joins("JOIN devices ON device_telemetry_data.device_id = devices.id").
 		Where("devices.user_id IN ?", patientIDs).
+		Where("device_telemetry_data.measured_at > ?", time.Now().AddDate(0, 0, -30)).
 		Order("devices.user_id, device_telemetry_data.measured_at DESC").
 		Find(&result).Error
 

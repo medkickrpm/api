@@ -70,6 +70,7 @@ func upsertAlertThreshold(c echo.Context) error {
 			WarningHigh:     measurement.WarningHigh,
 			WarningLow:      measurement.WarningLow,
 			CriticalLow:     measurement.CriticalLow,
+			Note:            req.Note,
 		})
 	}
 

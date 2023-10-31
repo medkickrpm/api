@@ -16,6 +16,7 @@ type AlertThreshold struct {
 	WarningLow      *uint           `json:"warning_low" gorm:"default:null" example:"80"`
 	WarningHigh     *uint           `json:"warning_high" gorm:"default:null" example:"120"`
 	CriticalHigh    *uint           `json:"critical_high" gorm:"default:null" example:"140"`
+	Note            string          `json:"note" gorm:"default:null" example:"This is a note"`
 	CreatedAt       time.Time       `json:"created_at" example:"2021-01-01T00:00:00Z"`
 	UpdatedAt       time.Time       `json:"updated_at" example:"2021-01-01T00:00:00Z"`
 }

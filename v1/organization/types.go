@@ -36,6 +36,7 @@ func (m MeasurementData) validate() error {
 type AlertThresholdData struct {
 	DeviceType   models.DeviceType `json:"device_type" validate:"required,oneof=BloodPressure BloodGlucose WeightScale"`
 	Measurements []MeasurementData `json:"measurements" validate:"required,min=1,dive,required"`
+	Note         string            `json:"note"`
 }
 
 func convertAlertThresholdModelToResponse(data []models.AlertThreshold) []AlertThresholdData {
@@ -54,10 +55,14 @@ func convertAlertThresholdModelToResponse(data []models.AlertThreshold) []AlertT
 	response := make([]AlertThresholdData, 0)
 
 	for deviceType, measurements := range deviceMap {
-		response = append(response, AlertThresholdData{
+		threshold := AlertThresholdData{
 			DeviceType:   deviceType,
 			Measurements: measurements,
-		})
+		}
+		if len(measurements) > 0 {
+			threshold.Note = data[0].Note
+		}
+		response = append(response, threshold)
 	}
 
 	return response
