@@ -1704,6 +1704,83 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/count": {
+            "get": {
+                "description": "ADMIN ONLY - Count Users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Count Users",
+                "parameters": [
+                    {
+                        "enum": [
+                            "admin",
+                            "doctor",
+                            "nurse",
+                            "patient",
+                            "doctornv",
+                            "nursenv",
+                            "patientnv"
+                        ],
+                        "type": "string",
+                        "description": "Role Filter",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "critical",
+                            "warning"
+                        ],
+                        "type": "string",
+                        "description": "Status Filter",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/org/{id}": {
             "get": {
                 "description": "ADMIN \u0026 DOCTOR ONLY - if ID is specified, gets users in that organization, if ID is not specified, gets users in self's organization",

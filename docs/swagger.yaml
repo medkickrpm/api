@@ -2126,6 +2126,59 @@ paths:
       summary: Total user interaction duration
       tags:
       - Interaction
+  /user/count:
+    get:
+      consumes:
+      - application/json
+      description: ADMIN ONLY - Count Users
+      parameters:
+      - description: Role Filter
+        enum:
+        - admin
+        - doctor
+        - nurse
+        - patient
+        - doctornv
+        - nursenv
+        - patientnv
+        in: query
+        name: filter
+        type: string
+      - description: Status Filter
+        enum:
+        - critical
+        - warning
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Count Users
+      tags:
+      - User
   /user/org/{id}:
     get:
       consumes:

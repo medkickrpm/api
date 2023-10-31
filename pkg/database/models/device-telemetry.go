@@ -2,6 +2,7 @@ package models
 
 import (
 	"MedKick-backend/pkg/database"
+	"fmt"
 	"time"
 )
 
@@ -106,18 +107,22 @@ func (d *DeviceTelemetryData) DeleteDeviceTelemetryData() error {
 }
 
 type DeviceTelemetryDataForPatient struct {
-	PatientID uint
+	PatientID  uint
+	DeviceName string
+	DeviceType DeviceType
 	DeviceTelemetryData
 }
 
 func GetPatientTelemetryData(patientIDs []uint) ([]DeviceTelemetryDataForPatient, error) {
 	var result []struct {
 		DeviceTelemetryData
-		UserID uint
+		DeviceName string
+		UserID     uint
 	}
 
 	selects := []string{
 		"device_telemetry_data.*",
+		"devices.name as device_name",
 		"devices.user_id as user_id",
 	}
 
@@ -137,6 +142,7 @@ func GetPatientTelemetryData(patientIDs []uint) ([]DeviceTelemetryDataForPatient
 	for _, r := range result {
 		telemetryData = append(telemetryData, DeviceTelemetryDataForPatient{
 			PatientID:           r.UserID,
+			DeviceName:          r.DeviceName,
 			DeviceTelemetryData: r.DeviceTelemetryData,
 		})
 	}
@@ -144,9 +150,62 @@ func GetPatientTelemetryData(patientIDs []uint) ([]DeviceTelemetryDataForPatient
 	return telemetryData, nil
 }
 
-func GetPatientStatusFunc(thresholds []AlertThreshold) func(data DeviceTelemetryData) (isCritical, isWarning bool) {
+func GetLatestPatientTelemetryData(data []DeviceTelemetryDataForPatient) []DeviceTelemetryDataForPatient {
+	sphygmomanometerData := make(map[uint]DeviceTelemetryDataForPatient)
+	weightScaleData := make(map[uint]DeviceTelemetryDataForPatient)
+	bloodGlucoseMeterData := make(map[uint]DeviceTelemetryDataForPatient)
 
-	var systolicBPThreshold, diastolicBPThreshold AlertThreshold
+	for _, d := range data {
+		if d.DeviceName == "Sphygmomanometer" {
+			if _, ok := sphygmomanometerData[d.PatientID]; !ok {
+				sphygmomanometerData[d.PatientID] = DeviceTelemetryDataForPatient{
+					PatientID:           d.PatientID,
+					DeviceName:          d.DeviceName,
+					DeviceType:          BloodPressure,
+					DeviceTelemetryData: d.DeviceTelemetryData,
+				}
+			}
+		} else if d.DeviceName == "Weight Scale" {
+			if _, ok := weightScaleData[d.PatientID]; !ok {
+				weightScaleData[d.PatientID] = DeviceTelemetryDataForPatient{
+					PatientID:           d.PatientID,
+					DeviceName:          d.DeviceName,
+					DeviceType:          WeightScale,
+					DeviceTelemetryData: d.DeviceTelemetryData,
+				}
+			}
+		} else if d.DeviceName == "Blood Glucose Meter" {
+			if _, ok := bloodGlucoseMeterData[d.PatientID]; !ok {
+				bloodGlucoseMeterData[d.PatientID] = DeviceTelemetryDataForPatient{
+					PatientID:           d.PatientID,
+					DeviceName:          d.DeviceName,
+					DeviceType:          BloodGlucose,
+					DeviceTelemetryData: d.DeviceTelemetryData,
+				}
+			}
+		}
+	}
+
+	var result []DeviceTelemetryDataForPatient
+
+	for _, d := range sphygmomanometerData {
+		result = append(result, d)
+	}
+
+	for _, d := range weightScaleData {
+		result = append(result, d)
+	}
+
+	for _, d := range bloodGlucoseMeterData {
+		result = append(result, d)
+	}
+
+	return result
+}
+
+func GetPatientStatusFunc(thresholds []AlertThreshold) func(data DeviceTelemetryDataForPatient) (isCritical bool, isWarning bool) {
+
+	var systolicBPThreshold, diastolicBPThreshold, weightThreshold AlertThreshold
 
 	for _, t := range thresholds {
 		if t.DeviceType == BloodPressure {
@@ -156,29 +215,44 @@ func GetPatientStatusFunc(thresholds []AlertThreshold) func(data DeviceTelemetry
 				diastolicBPThreshold = t
 			}
 		}
+		if t.DeviceType == WeightScale {
+			if t.MeasurementType == Weight {
+				weightThreshold = t
+			}
+		}
 	}
 
-	return func(data DeviceTelemetryData) (isCritical, isWarning bool) {
-		if systolicBPThreshold.CriticalLow != nil {
-			if data.SystolicBP < *systolicBPThreshold.CriticalLow || data.SystolicBP > *systolicBPThreshold.CriticalHigh {
+	return func(data DeviceTelemetryDataForPatient) (isCritical, isWarning bool) {
+
+		if data.DeviceType == BloodPressure {
+			if (systolicBPThreshold.CriticalLow != nil && data.SystolicBP < *systolicBPThreshold.CriticalLow) ||
+				(systolicBPThreshold.CriticalHigh != nil && data.SystolicBP > *systolicBPThreshold.CriticalHigh) ||
+				(diastolicBPThreshold.CriticalLow != nil && data.DiastolicBP < *diastolicBPThreshold.CriticalLow) ||
+				(diastolicBPThreshold.CriticalHigh != nil && data.DiastolicBP > *diastolicBPThreshold.CriticalHigh) {
 				return true, false
 			}
-		}
-		if diastolicBPThreshold.CriticalLow != nil {
-			if data.DiastolicBP < *diastolicBPThreshold.CriticalLow || data.DiastolicBP > *diastolicBPThreshold.CriticalHigh {
-				return true, false
-			}
-		}
-		if systolicBPThreshold.WarningLow != nil {
-			if data.SystolicBP < *systolicBPThreshold.WarningLow || data.SystolicBP > *systolicBPThreshold.WarningHigh {
+
+			if (systolicBPThreshold.WarningLow != nil && data.SystolicBP < *systolicBPThreshold.WarningLow) ||
+				(systolicBPThreshold.WarningHigh != nil && data.SystolicBP > *systolicBPThreshold.WarningHigh) ||
+				(diastolicBPThreshold.WarningLow != nil && data.DiastolicBP < *diastolicBPThreshold.WarningLow) ||
+				(diastolicBPThreshold.WarningHigh != nil && data.DiastolicBP > *diastolicBPThreshold.WarningHigh) {
 				return false, true
 			}
 		}
-		if diastolicBPThreshold.WarningLow != nil {
-			if data.DiastolicBP < *diastolicBPThreshold.WarningLow || data.DiastolicBP > *diastolicBPThreshold.WarningHigh {
+
+		if data.DeviceType == WeightScale {
+			if (weightThreshold.CriticalLow != nil && data.Weight < *weightThreshold.CriticalLow) ||
+				(weightThreshold.CriticalHigh != nil && data.Weight > *weightThreshold.CriticalHigh) {
+				fmt.Println("weight critical", data.Weight)
+				return true, false
+			}
+
+			if (weightThreshold.WarningLow != nil && data.Weight < *weightThreshold.WarningLow) ||
+				(weightThreshold.WarningHigh != nil && data.Weight > *weightThreshold.WarningHigh) {
 				return false, true
 			}
 		}
+
 		return false, false
 	}
 }

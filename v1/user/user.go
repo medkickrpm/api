@@ -195,6 +195,8 @@ func getUser(c echo.Context) error {
 					})
 				}
 
+				latestTelemetryData := models.GetLatestPatientTelemetryData(telemetryData)
+
 				threshold, err := models.ListAlertThresholds(*self.OrganizationID)
 				if err != nil {
 					return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -202,17 +204,10 @@ func getUser(c echo.Context) error {
 					})
 				}
 
-				latestTelemetryData := make(map[uint]models.DeviceTelemetryDataForPatient)
-				for _, td := range telemetryData {
-					if _, ok := latestTelemetryData[td.PatientID]; !ok {
-						latestTelemetryData[td.PatientID] = td
-					}
-				}
-
 				patientStatusFunc := models.GetPatientStatusFunc(threshold)
 				patientSelected := make(map[uint]struct{})
 				for _, data := range latestTelemetryData {
-					isCritical, isWarning := patientStatusFunc(data.DeviceTelemetryData)
+					isCritical, isWarning := patientStatusFunc(data)
 					if (status == "critical" && isCritical) || (status == "warning" && isWarning) {
 						patientSelected[data.PatientID] = struct{}{}
 					}
@@ -227,8 +222,8 @@ func getUser(c echo.Context) error {
 				}
 
 				return c.JSON(http.StatusOK, filteredPatients)
-
 			}
+
 			return c.JSON(http.StatusOK, users)
 		}
 	}
@@ -970,6 +965,20 @@ func deleteUser(c echo.Context) error {
 	})
 }
 
+// countUser godoc
+// @Summary Count Users
+// @Description ADMIN ONLY - Count Users
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param filter query string false "Role Filter" Enums(admin, doctor, nurse, patient, doctornv, nursenv, patientnv)
+// @Param status query string false "Status Filter" Enums(critical, warning)
+// @Success 200 {object} map[string]int64
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 403 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /user/count [get]
 func countUser(c echo.Context) error {
 	filter := c.QueryParam("filter")
 	status := c.QueryParam("status")
@@ -1027,6 +1036,8 @@ func countUser(c echo.Context) error {
 				})
 			}
 
+			latestTelemetryData := models.GetLatestPatientTelemetryData(telemetryData)
+
 			threshold, err := models.ListAlertThresholds(*self.OrganizationID)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -1034,16 +1045,9 @@ func countUser(c echo.Context) error {
 				})
 			}
 
-			latestTelemetryData := make(map[uint]models.DeviceTelemetryDataForPatient)
-			for _, td := range telemetryData {
-				if _, ok := latestTelemetryData[td.PatientID]; !ok {
-					latestTelemetryData[td.PatientID] = td
-				}
-			}
-
 			patientStatusFunc := models.GetPatientStatusFunc(threshold)
 			for _, data := range latestTelemetryData {
-				isCritical, isWarning := patientStatusFunc(data.DeviceTelemetryData)
+				isCritical, isWarning := patientStatusFunc(data)
 				if (status == "critical" && isCritical) || (status == "warning" && isWarning) {
 					userCount++
 				}
