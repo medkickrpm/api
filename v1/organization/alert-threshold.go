@@ -20,7 +20,7 @@ import (
 // @Success 201 {object} dto.MessageResponse
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
-// @Router /organization/{id}/alert-threshold [post]
+// @Router /organization/{id}/alert-threshold [put]
 func upsertAlertThreshold(c echo.Context) error {
 	var req struct {
 		OrganizationID uint `json:"-" param:"id" validate:"required"`

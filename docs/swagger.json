@@ -1543,7 +1543,7 @@
                     }
                 }
             },
-            "post": {
+            "put": {
                 "description": "Upsert Alert Threshold",
                 "consumes": [
                     "application/json"
@@ -3003,6 +3003,9 @@
                     "items": {
                         "$ref": "#/definitions/organization.MeasurementData"
                     }
+                },
+                "note": {
+                    "type": "string"
                 }
             }
         },

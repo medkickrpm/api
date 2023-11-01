@@ -506,6 +506,8 @@ definitions:
           $ref: '#/definitions/organization.MeasurementData'
         minItems: 1
         type: array
+      note:
+        type: string
     required:
     - device_type
     - measurements
@@ -1731,7 +1733,7 @@ paths:
       summary: List Alert Thresholds
       tags:
       - Organization
-    post:
+    put:
       consumes:
       - application/json
       description: Upsert Alert Threshold

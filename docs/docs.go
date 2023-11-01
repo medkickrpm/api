@@ -1547,7 +1547,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "post": {
+            "put": {
                 "description": "Upsert Alert Threshold",
                 "consumes": [
                     "application/json"
@@ -3007,6 +3007,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/organization.MeasurementData"
                     }
+                },
+                "note": {
+                    "type": "string"
                 }
             }
         },
