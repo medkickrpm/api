@@ -1888,6 +1888,16 @@ const docTemplate = `{
                         "description": "Role Filter",
                         "name": "filter",
                         "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "critical",
+                            "warning"
+                        ],
+                        "type": "string",
+                        "description": "Status Filter",
+                        "name": "filter",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2823,6 +2833,19 @@ const docTemplate = `{
                 }
             }
         },
+        "models.DeviceType": {
+            "type": "string",
+            "enum": [
+                "BloodPressure",
+                "BloodGlucose",
+                "WeightScale"
+            ],
+            "x-enum-varnames": [
+                "BloodPressure",
+                "BloodGlucose",
+                "WeightScale"
+            ]
+        },
         "models.Interaction": {
             "type": "object",
             "properties": {
@@ -2869,6 +2892,21 @@ const docTemplate = `{
                     "example": 1
                 }
             }
+        },
+        "models.MeasurementType": {
+            "type": "string",
+            "enum": [
+                "Systolic",
+                "Diastolic",
+                "Pulse",
+                "Weight"
+            ],
+            "x-enum-varnames": [
+                "Systolic",
+                "Diastolic",
+                "Pulse",
+                "Weight"
+            ]
         },
         "models.Organization": {
             "type": "object",
@@ -2994,11 +3032,15 @@ const docTemplate = `{
             ],
             "properties": {
                 "device_type": {
-                    "type": "string",
                     "enum": [
                         "BloodPressure",
                         "BloodGlucose",
                         "WeightScale"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.DeviceType"
+                        }
                     ]
                 },
                 "measurements": {
@@ -3064,12 +3106,16 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "measurement_type": {
-                    "type": "string",
                     "enum": [
                         "Systolic",
                         "Diastolic",
                         "Pulse",
                         "Weight"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.MeasurementType"
+                        }
                     ]
                 },
                 "warning_high": {

@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -140,6 +141,7 @@ func createUser(c echo.Context) error {
 // @Produce json
 // @Param id path string false "User ID"
 // @Param filter query string false "Role Filter" Enums(admin, doctor, nurse, patient, doctornv, nursenv, patientnv)
+// @Param filter query string false "Status Filter" Enums(critical, warning)
 // @Success 200 {object} []models.User
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
@@ -227,7 +229,7 @@ func getUser(c echo.Context) error {
 			return c.JSON(http.StatusOK, users)
 		}
 	}
-	if id == "" {
+	if strings.TrimSpace(id) == "" {
 		return c.JSON(http.StatusOK, self)
 	}
 
