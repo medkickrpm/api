@@ -1504,6 +1504,101 @@ const docTemplate = `{
                 }
             }
         },
+        "/organization/{id}/alert-threshold": {
+            "get": {
+                "description": "List Alert Thresholds",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "List Alert Thresholds",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/organization.AlertThresholdData"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Upsert Alert Threshold",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Upsert Alert Threshold",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Upsert Request",
+                        "name": "upsert",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/organization.AlertThresholdData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/organization/{id}/devices": {
             "get": {
                 "description": "Get Devices in Organization",
@@ -1580,6 +1675,83 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/count": {
+            "get": {
+                "description": "ADMIN ONLY - Count Users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Count Users",
+                "parameters": [
+                    {
+                        "enum": [
+                            "admin",
+                            "doctor",
+                            "nurse",
+                            "patient",
+                            "doctornv",
+                            "nursenv",
+                            "patientnv"
+                        ],
+                        "type": "string",
+                        "description": "Role Filter",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "critical",
+                            "warning"
+                        ],
+                        "type": "string",
+                        "description": "Status Filter",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
                         }
                     },
                     "400": {
@@ -2814,6 +2986,33 @@ const docTemplate = `{
                 }
             }
         },
+        "organization.AlertThresholdData": {
+            "type": "object",
+            "required": [
+                "device_type",
+                "measurements"
+            ],
+            "properties": {
+                "device_type": {
+                    "type": "string",
+                    "enum": [
+                        "BloodPressure",
+                        "BloodGlucose",
+                        "WeightScale"
+                    ]
+                },
+                "measurements": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/organization.MeasurementData"
+                    }
+                },
+                "note": {
+                    "type": "string"
+                }
+            }
+        },
         "organization.CreateRequest": {
             "type": "object",
             "required": [
@@ -2849,6 +3048,35 @@ const docTemplate = `{
                 },
                 "zip": {
                     "type": "string"
+                }
+            }
+        },
+        "organization.MeasurementData": {
+            "type": "object",
+            "required": [
+                "measurement_type"
+            ],
+            "properties": {
+                "critical_high": {
+                    "type": "integer"
+                },
+                "critical_low": {
+                    "type": "integer"
+                },
+                "measurement_type": {
+                    "type": "string",
+                    "enum": [
+                        "Systolic",
+                        "Diastolic",
+                        "Pulse",
+                        "Weight"
+                    ]
+                },
+                "warning_high": {
+                    "type": "integer"
+                },
+                "warning_low": {
+                    "type": "integer"
                 }
             }
         },

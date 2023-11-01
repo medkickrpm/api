@@ -150,6 +150,7 @@ func getUser(c echo.Context) error {
 	id := c.Param("id")
 
 	filter := c.QueryParam("filter")
+	status := c.QueryParam("status")
 
 	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "nurse" && filter != "doctornv" && filter != "nursenv" && filter != "patientnv" {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
@@ -180,6 +181,49 @@ func getUser(c echo.Context) error {
 					Error: "Failed to get users",
 				})
 			}
+
+			if filter == "patient" && self.OrganizationID != nil && status != "" {
+				var patientList []uint
+				for _, user := range users {
+					patientList = append(patientList, *user.ID)
+				}
+
+				telemetryData, err := models.GetPatientTelemetryData(patientList)
+				if err != nil {
+					return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+						Error: "Failed to get telemetry data",
+					})
+				}
+
+				latestTelemetryData := models.GetLatestPatientTelemetryData(telemetryData)
+
+				threshold, err := models.ListAlertThresholds(*self.OrganizationID)
+				if err != nil {
+					return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+						Error: "Failed to get alert thresholds",
+					})
+				}
+
+				patientStatusFunc := models.GetPatientStatusFunc(threshold)
+				patientSelected := make(map[uint]struct{})
+				for _, data := range latestTelemetryData {
+					isCritical, isWarning := patientStatusFunc(data)
+					if (status == "critical" && isCritical) || (status == "warning" && isWarning) {
+						patientSelected[data.PatientID] = struct{}{}
+					}
+				}
+
+				filteredPatients := make([]models.User, 0)
+
+				for _, user := range users {
+					if _, ok := patientSelected[*user.ID]; ok {
+						filteredPatients = append(filteredPatients, user)
+					}
+				}
+
+				return c.JSON(http.StatusOK, filteredPatients)
+			}
+
 			return c.JSON(http.StatusOK, users)
 		}
 	}
@@ -918,5 +962,100 @@ func deleteUser(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, dto.MessageResponse{
 		Message: "Successfully deleted user",
+	})
+}
+
+// countUser godoc
+// @Summary Count Users
+// @Description ADMIN ONLY - Count Users
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param filter query string false "Role Filter" Enums(admin, doctor, nurse, patient, doctornv, nursenv, patientnv)
+// @Param status query string false "Status Filter" Enums(critical, warning)
+// @Success 200 {object} map[string]int64
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 403 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /user/count [get]
+func countUser(c echo.Context) error {
+	filter := c.QueryParam("filter")
+	status := c.QueryParam("status")
+
+	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "nurse" && filter != "doctornv" && filter != "nursenv" && filter != "patientnv" {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid filter",
+		})
+	}
+
+	self := middleware.GetSelf(c)
+
+	if self.Role != "admin" {
+		return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+			Error: "Unauthorized",
+		})
+	}
+
+	var userCount int64
+	var err error
+
+	if filter == "" {
+		userCount, err = models.CountUsers()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Error: "Failed to get users",
+			})
+		}
+	} else {
+		if filter != "patient" || status == "" {
+			userCount, err = models.CountUsersWithRole(filter)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get users",
+				})
+			}
+		} else {
+
+			users, err := models.GetUsersWithRole(filter)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get users",
+				})
+			}
+
+			var patientList []uint
+			for _, user := range users {
+				patientList = append(patientList, *user.ID)
+			}
+
+			telemetryData, err := models.GetPatientTelemetryData(patientList)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get telemetry data",
+				})
+			}
+
+			latestTelemetryData := models.GetLatestPatientTelemetryData(telemetryData)
+
+			threshold, err := models.ListAlertThresholds(*self.OrganizationID)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get alert thresholds",
+				})
+			}
+
+			patientStatusFunc := models.GetPatientStatusFunc(threshold)
+			for _, data := range latestTelemetryData {
+				isCritical, isWarning := patientStatusFunc(data)
+				if (status == "critical" && isCritical) || (status == "warning" && isWarning) {
+					userCount++
+				}
+			}
+		}
+	}
+
+	return c.JSON(http.StatusOK, map[string]int64{
+		"count": userCount,
 	})
 }

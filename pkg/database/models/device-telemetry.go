@@ -104,3 +104,142 @@ func (d *DeviceTelemetryData) DeleteDeviceTelemetryData() error {
 	}
 	return nil
 }
+
+type DeviceTelemetryDataForPatient struct {
+	PatientID  uint
+	DeviceName string
+	DeviceType DeviceType
+	DeviceTelemetryData
+}
+
+func GetPatientTelemetryData(patientIDs []uint) ([]DeviceTelemetryDataForPatient, error) {
+	var result []struct {
+		DeviceTelemetryData
+		DeviceName string
+		UserID     uint
+	}
+
+	selects := []string{
+		"device_telemetry_data.*",
+		"devices.name as device_name",
+		"devices.user_id as user_id",
+	}
+
+	err := database.DB.Model(&DeviceTelemetryData{}).
+		Select(selects).
+		Joins("JOIN devices ON device_telemetry_data.device_id = devices.id").
+		Where("devices.user_id IN ?", patientIDs).
+		Where("device_telemetry_data.measured_at > ?", time.Now().AddDate(0, 0, -30)).
+		Order("devices.user_id, device_telemetry_data.measured_at DESC").
+		Find(&result).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	var telemetryData []DeviceTelemetryDataForPatient
+
+	for _, r := range result {
+		telemetryData = append(telemetryData, DeviceTelemetryDataForPatient{
+			PatientID:           r.UserID,
+			DeviceName:          r.DeviceName,
+			DeviceTelemetryData: r.DeviceTelemetryData,
+		})
+	}
+
+	return telemetryData, nil
+}
+
+func GetLatestPatientTelemetryData(data []DeviceTelemetryDataForPatient) []DeviceTelemetryDataForPatient {
+	sphygmomanometerData := make(map[uint]DeviceTelemetryDataForPatient)
+	weightScaleData := make(map[uint]DeviceTelemetryDataForPatient)
+	bloodGlucoseMeterData := make(map[uint]DeviceTelemetryDataForPatient)
+
+	for _, d := range data {
+		if d.DeviceName == "Sphygmomanometer" {
+			if _, ok := sphygmomanometerData[d.PatientID]; !ok {
+				d.DeviceType = BloodPressure
+				sphygmomanometerData[d.PatientID] = d
+			}
+		} else if d.DeviceName == "Weight Scale" {
+			if _, ok := weightScaleData[d.PatientID]; !ok {
+				d.DeviceType = WeightScale
+				weightScaleData[d.PatientID] = d
+			}
+		} else if d.DeviceName == "Blood Glucose Meter" {
+			if _, ok := bloodGlucoseMeterData[d.PatientID]; !ok {
+				d.DeviceType = BloodGlucose
+				bloodGlucoseMeterData[d.PatientID] = d
+			}
+		}
+	}
+
+	var result []DeviceTelemetryDataForPatient
+
+	for _, d := range sphygmomanometerData {
+		result = append(result, d)
+	}
+
+	for _, d := range weightScaleData {
+		result = append(result, d)
+	}
+
+	for _, d := range bloodGlucoseMeterData {
+		result = append(result, d)
+	}
+
+	return result
+}
+
+func GetPatientStatusFunc(thresholds []AlertThreshold) func(data DeviceTelemetryDataForPatient) (isCritical bool, isWarning bool) {
+
+	var systolicBPThreshold, diastolicBPThreshold, weightThreshold AlertThreshold
+
+	for _, t := range thresholds {
+		if t.DeviceType == BloodPressure {
+			if t.MeasurementType == Systolic {
+				systolicBPThreshold = t
+			} else if t.MeasurementType == Diastolic {
+				diastolicBPThreshold = t
+			}
+		}
+		if t.DeviceType == WeightScale {
+			if t.MeasurementType == Weight {
+				weightThreshold = t
+			}
+		}
+	}
+
+	return func(data DeviceTelemetryDataForPatient) (isCritical, isWarning bool) {
+
+		if data.DeviceType == BloodPressure {
+			if (systolicBPThreshold.CriticalLow != nil && data.SystolicBP < *systolicBPThreshold.CriticalLow) ||
+				(systolicBPThreshold.CriticalHigh != nil && data.SystolicBP > *systolicBPThreshold.CriticalHigh) ||
+				(diastolicBPThreshold.CriticalLow != nil && data.DiastolicBP < *diastolicBPThreshold.CriticalLow) ||
+				(diastolicBPThreshold.CriticalHigh != nil && data.DiastolicBP > *diastolicBPThreshold.CriticalHigh) {
+				return true, false
+			}
+
+			if (systolicBPThreshold.WarningLow != nil && data.SystolicBP < *systolicBPThreshold.WarningLow) ||
+				(systolicBPThreshold.WarningHigh != nil && data.SystolicBP > *systolicBPThreshold.WarningHigh) ||
+				(diastolicBPThreshold.WarningLow != nil && data.DiastolicBP < *diastolicBPThreshold.WarningLow) ||
+				(diastolicBPThreshold.WarningHigh != nil && data.DiastolicBP > *diastolicBPThreshold.WarningHigh) {
+				return false, true
+			}
+		}
+
+		if data.DeviceType == WeightScale {
+			if (weightThreshold.CriticalLow != nil && data.Weight < *weightThreshold.CriticalLow) ||
+				(weightThreshold.CriticalHigh != nil && data.Weight > *weightThreshold.CriticalHigh) {
+				return true, false
+			}
+
+			if (weightThreshold.WarningLow != nil && data.Weight < *weightThreshold.WarningLow) ||
+				(weightThreshold.WarningHigh != nil && data.Weight > *weightThreshold.WarningHigh) {
+				return false, true
+			}
+		}
+
+		return false, false
+	}
+}

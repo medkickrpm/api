@@ -17,6 +17,7 @@ func Routes(r *echo.Group) {
 	r.POST("/user", createUser, middleware.NotGuest, middleware.HasRole("admin"))
 	r.GET("/user/:id", getUser, middleware.NotGuest)
 	r.GET("/user", getUser, middleware.NotGuest)
+	r.GET("/user/count", countUser, middleware.NotGuest)
 	r.GET("/user/org/:id", getUsersInOrg, middleware.NotGuest, middleware.HasRole("admin", "doctor", "nurse"))
 	r.PATCH("/user/:id", updateUser, middleware.NotGuest)
 	r.DELETE("/user/:id", deleteUser, middleware.NotGuest, middleware.HasRole("admin", "doctor"))

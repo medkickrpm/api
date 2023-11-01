@@ -12,4 +12,7 @@ func Routes(r *echo.Group) {
 	r.DELETE("/organization/:id", deleteOrganization, middleware.NotGuest, middleware.HasRole("admin"))
 
 	r.GET("/organization/:id/devices", getDevicesInOrganization, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
+
+	r.PUT("/organization/:id/alert-threshold", upsertAlertThreshold, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
+	r.GET("/organization/:id/alert-threshold", listAlertThresholds, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
 }
