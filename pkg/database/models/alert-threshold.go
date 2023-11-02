@@ -57,6 +57,7 @@ func UpsertAlertThresholds(alertThresholds []AlertThreshold) error {
 			"warning_low",
 			"warning_high",
 			"critical_high",
+			"note",
 		}),
 	})
 	if err := db.Create(&alertThresholds).Error; err != nil {
