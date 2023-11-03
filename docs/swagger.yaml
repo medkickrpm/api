@@ -418,6 +418,12 @@ definitions:
         example: 1
         type: integer
     type: object
+  models.InteractionSettingType:
+    enum:
+    - ColorThreshold
+    type: string
+    x-enum-varnames:
+    - ColorThreshold
   models.MeasurementType:
     enum:
     - Systolic
@@ -561,6 +567,18 @@ definitions:
     - phone
     - state
     - zip
+    type: object
+  organization.InteractionSettingData:
+    properties:
+      setting_type:
+        allOf:
+        - $ref: '#/definitions/models.InteractionSettingType'
+        enum:
+        - ColorThreshold
+      value:
+        type: integer
+    required:
+    - setting_type
     type: object
   organization.MeasurementData:
     properties:
@@ -1820,6 +1838,75 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Get Devices in Organization
+      tags:
+      - Organization
+  /organization/{id}/interaction-setting:
+    get:
+      consumes:
+      - application/json
+      description: Get Interaction Setting
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Filter
+        in: query
+        name: filter
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Interaction Setting
+      tags:
+      - Organization
+    put:
+      consumes:
+      - application/json
+      description: Upsert Interaction Setting
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Upsert Request
+        in: body
+        name: upsert
+        required: true
+        schema:
+          $ref: '#/definitions/organization.InteractionSettingData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Upsert Interaction Setting
       tags:
       - Organization
   /user:

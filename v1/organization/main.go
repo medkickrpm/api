@@ -15,4 +15,7 @@ func Routes(r *echo.Group) {
 
 	r.PUT("/organization/:id/alert-threshold", upsertAlertThreshold, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
 	r.GET("/organization/:id/alert-threshold", listAlertThresholds, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
+
+	r.PUT("/organization/:id/interaction-setting", upsertInteractionSetting, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
+	r.GET("/organization/:id/interaction-setting", getInteractionSetting, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
 }
