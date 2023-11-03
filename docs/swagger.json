@@ -1914,6 +1914,16 @@
                         "description": "Role Filter",
                         "name": "filter",
                         "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "critical",
+                            "warning"
+                        ],
+                        "type": "string",
+                        "description": "Status Filter",
+                        "name": "filter",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1923,6 +1933,90 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/org/{id}/count": {
+            "get": {
+                "description": "Count Users in Organization",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Count Users in Organization",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "admin",
+                            "doctor",
+                            "nurse",
+                            "patient",
+                            "doctornv",
+                            "nursenv",
+                            "patientnv"
+                        ],
+                        "type": "string",
+                        "description": "Role Filter",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "critical",
+                            "warning"
+                        ],
+                        "type": "string",
+                        "description": "Status Filter",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
                             }
                         }
                     },
