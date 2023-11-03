@@ -1746,35 +1746,6 @@ paths:
       summary: update Organization
       tags:
       - Organization
-  /organization/{id}/alert-threshold:
-    get:
-      description: List Alert Thresholds
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/user.AlertThresholdData'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      summary: List Alert Thresholds
-      tags:
-      - User
   /organization/{id}/devices:
     get:
       consumes:
@@ -2046,6 +2017,34 @@ paths:
       tags:
       - User
   /user/{id}/alert-threshold:
+    get:
+      description: List Alert Thresholds
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/user.AlertThresholdData'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: List Alert Thresholds
+      tags:
+      - User
     put:
       consumes:
       - application/json
