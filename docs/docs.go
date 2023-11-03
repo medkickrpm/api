@@ -1646,6 +1646,109 @@ const docTemplate = `{
                 }
             }
         },
+        "/organization/{id}/interaction-setting": {
+            "get": {
+                "description": "Get Interaction Setting",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Get Interaction Setting",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter",
+                        "name": "filter",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Upsert Interaction Setting",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Upsert Interaction Setting",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Upsert Request",
+                        "name": "upsert",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/organization.InteractionSettingData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "post": {
                 "description": "ADMIN ONLY - Create User",
@@ -2833,19 +2936,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.DeviceType": {
-            "type": "string",
-            "enum": [
-                "BloodPressure",
-                "BloodGlucose",
-                "WeightScale"
-            ],
-            "x-enum-varnames": [
-                "BloodPressure",
-                "BloodGlucose",
-                "WeightScale"
-            ]
-        },
         "models.Interaction": {
             "type": "object",
             "properties": {
@@ -2892,21 +2982,6 @@ const docTemplate = `{
                     "example": 1
                 }
             }
-        },
-        "models.MeasurementType": {
-            "type": "string",
-            "enum": [
-                "Systolic",
-                "Diastolic",
-                "Pulse",
-                "Weight"
-            ],
-            "x-enum-varnames": [
-                "Systolic",
-                "Diastolic",
-                "Pulse",
-                "Weight"
-            ]
         },
         "models.Organization": {
             "type": "object",
@@ -3032,15 +3107,11 @@ const docTemplate = `{
             ],
             "properties": {
                 "device_type": {
+                    "type": "string",
                     "enum": [
                         "BloodPressure",
                         "BloodGlucose",
                         "WeightScale"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.DeviceType"
-                        }
                     ]
                 },
                 "measurements": {
@@ -3093,6 +3164,23 @@ const docTemplate = `{
                 }
             }
         },
+        "organization.InteractionSettingData": {
+            "type": "object",
+            "required": [
+                "setting_type"
+            ],
+            "properties": {
+                "setting_type": {
+                    "type": "string",
+                    "enum": [
+                        "ColorThreshold"
+                    ]
+                },
+                "value": {
+                    "type": "integer"
+                }
+            }
+        },
         "organization.MeasurementData": {
             "type": "object",
             "required": [
@@ -3106,16 +3194,12 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "measurement_type": {
+                    "type": "string",
                     "enum": [
                         "Systolic",
                         "Diastolic",
                         "Pulse",
                         "Weight"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.MeasurementType"
-                        }
                     ]
                 },
                 "warning_high": {

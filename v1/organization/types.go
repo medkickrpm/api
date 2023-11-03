@@ -67,3 +67,8 @@ func convertAlertThresholdModelToResponse(data []models.AlertThreshold) []AlertT
 
 	return response
 }
+
+type InteractionSettingData struct {
+	SettingType models.InteractionSettingType `json:"setting_type" validate:"required,oneof=ColorThreshold"`
+	Value       int64                         `json:"value"`
+}
