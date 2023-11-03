@@ -2,14 +2,15 @@ package models
 
 import (
 	"MedKick-backend/pkg/database"
-	"gorm.io/gorm/clause"
 	"time"
+
+	"gorm.io/gorm/clause"
 )
 
 type AlertThreshold struct {
 	ID              uint            `json:"id" gorm:"primary_key;auto_increment" example:"1"`
-	OrganizationID  uint            `json:"organization_id" gorm:"index:,unique,composite:measurement; not null" example:"1"`
-	Organization    Organization    `json:"organization" gorm:"foreignKey:OrganizationID"`
+	PatientID       uint            `json:"patient_id" gorm:"index:,unique,composite:measurement; not null" example:"1"`
+	Patient         User            `json:"patient" gorm:"foreignKey:PatientID"`
 	DeviceType      DeviceType      `json:"device_type" gorm:"index:,unique,composite:measurement; not null" example:"BloodPressure"`
 	MeasurementType MeasurementType `json:"measurement_type" gorm:"index:,unique,composite:measurement; not null" example:"Systolic"`
 	CriticalLow     *uint           `json:"critical_low" gorm:"default:null" example:"60"`
@@ -38,9 +39,9 @@ const (
 	Weight    MeasurementType = "Weight"
 )
 
-func ListAlertThresholds(orgId uint) ([]AlertThreshold, error) {
+func ListAlertThresholds(userID []uint) ([]AlertThreshold, error) {
 	var alertThresholds []AlertThreshold
-	if err := database.DB.Where("organization_id = ?", orgId).Find(&alertThresholds).Error; err != nil {
+	if err := database.DB.Where("patient_id in (?)", userID).Find(&alertThresholds).Error; err != nil {
 		return nil, err
 	}
 
@@ -49,9 +50,9 @@ func ListAlertThresholds(orgId uint) ([]AlertThreshold, error) {
 
 func UpsertAlertThresholds(alertThresholds []AlertThreshold) error {
 	db := database.DB.Model(&AlertThreshold{})
-	// Conflict with  OrganizationID, DeviceType, MeasurementType then update all
+	// Conflict with  PatientID, DeviceType, MeasurementType then update all
 	db = db.Clauses(clause.OnConflict{
-		Columns: []clause.Column{{Name: "organization_id"}, {Name: "device_type"}, {Name: "measurement_type"}},
+		Columns: []clause.Column{{Name: "patient_id"}, {Name: "device_type"}, {Name: "measurement_type"}},
 		DoUpdates: clause.AssignmentColumns([]string{
 			"critical_low",
 			"warning_low",

@@ -2,11 +2,12 @@ package echo
 
 import (
 	"MedKick-backend/pkg/echo/dto"
+	"net/http"
+	"os"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
-	"net/http"
-	"os"
 
 	_ "MedKick-backend/docs"
 )

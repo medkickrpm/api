@@ -1510,13 +1510,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Organization"
+                    "User"
                 ],
                 "summary": "List Alert Thresholds",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Organization ID",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1528,59 +1528,8 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/organization.AlertThresholdData"
+                                "$ref": "#/definitions/user.AlertThresholdData"
                             }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Upsert Alert Threshold",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Organization"
-                ],
-                "summary": "Upsert Alert Threshold",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Organization ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Upsert Request",
-                        "name": "upsert",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/organization.AlertThresholdData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/dto.MessageResponse"
                         }
                     },
                     "400": {
@@ -2230,6 +2179,59 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}/alert-threshold": {
+            "put": {
+                "description": "Upsert Alert Threshold",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Upsert Alert Threshold",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Upsert Request",
+                        "name": "upsert",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.AlertThresholdData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }
@@ -3229,37 +3231,6 @@ const docTemplate = `{
                 }
             }
         },
-        "organization.AlertThresholdData": {
-            "type": "object",
-            "required": [
-                "device_type",
-                "measurements"
-            ],
-            "properties": {
-                "device_type": {
-                    "enum": [
-                        "BloodPressure",
-                        "BloodGlucose",
-                        "WeightScale"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.DeviceType"
-                        }
-                    ]
-                },
-                "measurements": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/definitions/organization.MeasurementData"
-                    }
-                },
-                "note": {
-                    "type": "string"
-                }
-            }
-        },
         "organization.CreateRequest": {
             "type": "object",
             "required": [
@@ -3319,39 +3290,6 @@ const docTemplate = `{
                 }
             }
         },
-        "organization.MeasurementData": {
-            "type": "object",
-            "required": [
-                "measurement_type"
-            ],
-            "properties": {
-                "critical_high": {
-                    "type": "integer"
-                },
-                "critical_low": {
-                    "type": "integer"
-                },
-                "measurement_type": {
-                    "enum": [
-                        "Systolic",
-                        "Diastolic",
-                        "Pulse",
-                        "Weight"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.MeasurementType"
-                        }
-                    ]
-                },
-                "warning_high": {
-                    "type": "integer"
-                },
-                "warning_low": {
-                    "type": "integer"
-                }
-            }
-        },
         "organization.UpdateRequest": {
             "type": "object",
             "required": [
@@ -3386,6 +3324,37 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "zip": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.AlertThresholdData": {
+            "type": "object",
+            "required": [
+                "device_type",
+                "measurements"
+            ],
+            "properties": {
+                "device_type": {
+                    "enum": [
+                        "BloodPressure",
+                        "BloodGlucose",
+                        "WeightScale"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.DeviceType"
+                        }
+                    ]
+                },
+                "measurements": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/user.MeasurementData"
+                    }
+                },
+                "note": {
                     "type": "string"
                 }
             }
@@ -3454,6 +3423,39 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "user.MeasurementData": {
+            "type": "object",
+            "required": [
+                "measurement_type"
+            ],
+            "properties": {
+                "critical_high": {
+                    "type": "integer"
+                },
+                "critical_low": {
+                    "type": "integer"
+                },
+                "measurement_type": {
+                    "enum": [
+                        "Systolic",
+                        "Diastolic",
+                        "Pulse",
+                        "Weight"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.MeasurementType"
+                        }
+                    ]
+                },
+                "warning_high": {
+                    "type": "integer"
+                },
+                "warning_low": {
+                    "type": "integer"
                 }
             }
         },

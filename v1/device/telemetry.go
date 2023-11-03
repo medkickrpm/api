@@ -4,10 +4,11 @@ import (
 	"MedKick-backend/pkg/database/models"
 	"MedKick-backend/pkg/echo/dto"
 	"MedKick-backend/pkg/echo/middleware"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/labstack/echo/v4"
 )
 
 // getTelemetry godoc

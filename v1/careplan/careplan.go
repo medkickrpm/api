@@ -6,9 +6,10 @@ import (
 	"MedKick-backend/pkg/echo/middleware"
 	"MedKick-backend/pkg/s3"
 	"MedKick-backend/pkg/validator"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
 )
 
 type CreateRequest struct {

@@ -1,29 +1,29 @@
-package organization
+package user
 
 import (
 	"MedKick-backend/pkg/database/models"
 	"MedKick-backend/pkg/echo/dto"
-	"MedKick-backend/pkg/echo/middleware"
 	"MedKick-backend/pkg/validator"
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 // upsertAlertThreshold godoc
 // @Summary Upsert Alert Threshold
 // @Description Upsert Alert Threshold
-// @Tags Organization
+// @Tags User
 // @Accept json
 // @Produce json
-// @Param id path int true "Organization ID"
+// @Param id path int true "User ID"
 // @Param upsert body AlertThresholdData true "Upsert Request"
 // @Success 201 {object} dto.MessageResponse
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
-// @Router /organization/{id}/alert-threshold [put]
+// @Router /user/{id}/alert-threshold [put]
 func upsertAlertThreshold(c echo.Context) error {
 	var req struct {
-		OrganizationID uint `json:"-" param:"id" validate:"required"`
+		PatientID uint `json:"-" param:"id" validate:"required"`
 		AlertThresholdData
 	}
 
@@ -39,18 +39,19 @@ func upsertAlertThreshold(c echo.Context) error {
 		})
 	}
 
-	self := middleware.GetSelf(c)
-	if self.Role == "doctor" {
-		req.OrganizationID = *self.OrganizationID
+	u := models.User{
+		ID: &req.PatientID,
 	}
 
-	o := models.Organization{
-		ID: req.OrganizationID,
-	}
-
-	if err := o.GetOrganization(); err != nil {
+	if err := u.GetUser(); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to get organization",
+			Error: "Failed to get user",
+		})
+	}
+
+	if u.Role != "patient" {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "User is not a patient",
 		})
 	}
 
@@ -63,7 +64,7 @@ func upsertAlertThreshold(c echo.Context) error {
 			})
 		}
 		alertThresholds = append(alertThresholds, models.AlertThreshold{
-			OrganizationID:  req.OrganizationID,
+			PatientID:       req.PatientID,
 			DeviceType:      req.DeviceType,
 			MeasurementType: measurement.MeasurementType,
 			CriticalHigh:    measurement.CriticalHigh,
@@ -88,16 +89,16 @@ func upsertAlertThreshold(c echo.Context) error {
 // listAlertThresholds godoc
 // @Summary List Alert Thresholds
 // @Description List Alert Thresholds
-// @Tags Organization
+// @Tags User
 // @Produce json
-// @Param id path int true "Organization ID"
+// @Param id path int true "User ID"
 // @Success 200 {object} []AlertThresholdData
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
-// @Router /organization/{id}/alert-threshold [get]
+// @Router /user/{id}/alert-threshold [get]
 func listAlertThresholds(c echo.Context) error {
 	var req struct {
-		OrganizationID uint `json:"-" param:"id"`
+		PatientID uint `json:"-" param:"id"`
 	}
 
 	if err := c.Bind(&req); err != nil {
@@ -106,22 +107,23 @@ func listAlertThresholds(c echo.Context) error {
 		})
 	}
 
-	self := middleware.GetSelf(c)
-	if self.Role == "doctor" || self.Role == "nurse" {
-		req.OrganizationID = *self.OrganizationID
+	u := models.User{
+		ID: &req.PatientID,
 	}
 
-	o := models.Organization{
-		ID: req.OrganizationID,
-	}
-
-	if err := o.GetOrganization(); err != nil {
+	if err := u.GetUser(); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to get organization",
+			Error: "Failed to get user",
 		})
 	}
 
-	alertThresholds, err := models.ListAlertThresholds(req.OrganizationID)
+	if u.Role != "patient" {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "User is not a patient",
+		})
+	}
+
+	alertThresholds, err := models.ListAlertThresholds([]uint{req.PatientID})
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to get alert thresholds",

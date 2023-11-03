@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"github.com/gorilla/sessions"
 	"net/http"
 	"os"
+
+	"github.com/gorilla/sessions"
 )
 
 var Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))

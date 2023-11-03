@@ -193,24 +193,29 @@ func GetLatestPatientTelemetryData(data []DeviceTelemetryDataForPatient) []Devic
 
 func GetPatientStatusFunc(thresholds []AlertThreshold) func(data DeviceTelemetryDataForPatient) (isCritical bool, isWarning bool) {
 
-	var systolicBPThreshold, diastolicBPThreshold, weightThreshold AlertThreshold
+	systolicBPThresholdMap := make(map[uint]AlertThreshold)
+	diastolicBPThresholdMap := make(map[uint]AlertThreshold)
+	weightThresholdMap := make(map[uint]AlertThreshold)
 
 	for _, t := range thresholds {
 		if t.DeviceType == BloodPressure {
 			if t.MeasurementType == Systolic {
-				systolicBPThreshold = t
+				systolicBPThresholdMap[t.PatientID] = t
 			} else if t.MeasurementType == Diastolic {
-				diastolicBPThreshold = t
+				diastolicBPThresholdMap[t.PatientID] = t
 			}
 		}
 		if t.DeviceType == WeightScale {
 			if t.MeasurementType == Weight {
-				weightThreshold = t
+				weightThresholdMap[t.PatientID] = t
 			}
 		}
 	}
 
 	return func(data DeviceTelemetryDataForPatient) (isCritical, isWarning bool) {
+		systolicBPThreshold := systolicBPThresholdMap[data.PatientID]
+		diastolicBPThreshold := diastolicBPThresholdMap[data.PatientID]
+		weightThreshold := weightThresholdMap[data.PatientID]
 
 		if data.DeviceType == BloodPressure {
 			if (systolicBPThreshold.CriticalLow != nil && data.SystolicBP < *systolicBPThreshold.CriticalLow) ||

@@ -521,26 +521,6 @@ definitions:
         example: "2021-01-01T00:00:00Z"
         type: string
     type: object
-  organization.AlertThresholdData:
-    properties:
-      device_type:
-        allOf:
-        - $ref: '#/definitions/models.DeviceType'
-        enum:
-        - BloodPressure
-        - BloodGlucose
-        - WeightScale
-      measurements:
-        items:
-          $ref: '#/definitions/organization.MeasurementData'
-        minItems: 1
-        type: array
-      note:
-        type: string
-    required:
-    - device_type
-    - measurements
-    type: object
   organization.CreateRequest:
     properties:
       address:
@@ -580,27 +560,6 @@ definitions:
     required:
     - setting_type
     type: object
-  organization.MeasurementData:
-    properties:
-      critical_high:
-        type: integer
-      critical_low:
-        type: integer
-      measurement_type:
-        allOf:
-        - $ref: '#/definitions/models.MeasurementType'
-        enum:
-        - Systolic
-        - Diastolic
-        - Pulse
-        - Weight
-      warning_high:
-        type: integer
-      warning_low:
-        type: integer
-    required:
-    - measurement_type
-    type: object
   organization.UpdateRequest:
     properties:
       address:
@@ -627,6 +586,26 @@ definitions:
     - phone
     - state
     - zip
+    type: object
+  user.AlertThresholdData:
+    properties:
+      device_type:
+        allOf:
+        - $ref: '#/definitions/models.DeviceType'
+        enum:
+        - BloodPressure
+        - BloodGlucose
+        - WeightScale
+      measurements:
+        items:
+          $ref: '#/definitions/user.MeasurementData'
+        minItems: 1
+        type: array
+      note:
+        type: string
+    required:
+    - device_type
+    - measurements
     type: object
   user.CreateRequest:
     properties:
@@ -676,6 +655,27 @@ definitions:
     required:
     - email
     - password
+    type: object
+  user.MeasurementData:
+    properties:
+      critical_high:
+        type: integer
+      critical_low:
+        type: integer
+      measurement_type:
+        allOf:
+        - $ref: '#/definitions/models.MeasurementType'
+        enum:
+        - Systolic
+        - Diastolic
+        - Pulse
+        - Weight
+      warning_high:
+        type: integer
+      warning_low:
+        type: integer
+    required:
+    - measurement_type
     type: object
   user.RegisterRequest:
     properties:
@@ -1750,7 +1750,7 @@ paths:
     get:
       description: List Alert Thresholds
       parameters:
-      - description: Organization ID
+      - description: User ID
         in: path
         name: id
         required: true
@@ -1762,7 +1762,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/organization.AlertThresholdData'
+              $ref: '#/definitions/user.AlertThresholdData'
             type: array
         "400":
           description: Bad Request
@@ -1774,41 +1774,7 @@ paths:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: List Alert Thresholds
       tags:
-      - Organization
-    put:
-      consumes:
-      - application/json
-      description: Upsert Alert Threshold
-      parameters:
-      - description: Organization ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Upsert Request
-        in: body
-        name: upsert
-        required: true
-        schema:
-          $ref: '#/definitions/organization.AlertThresholdData'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/dto.MessageResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      summary: Upsert Alert Threshold
-      tags:
-      - Organization
+      - User
   /organization/{id}/devices:
     get:
       consumes:
@@ -2077,6 +2043,41 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Update User
+      tags:
+      - User
+  /user/{id}/alert-threshold:
+    put:
+      consumes:
+      - application/json
+      description: Upsert Alert Threshold
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Upsert Request
+        in: body
+        name: upsert
+        required: true
+        schema:
+          $ref: '#/definitions/user.AlertThresholdData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Upsert Alert Threshold
       tags:
       - User
   /user/{id}/careplans:
