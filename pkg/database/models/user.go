@@ -54,6 +54,14 @@ func CountUsers() (int64, error) {
 	return count, nil
 }
 
+func CountUsersInOrg(orgId uint) (int64, error) {
+	var count int64
+	if err := database.DB.Model(&User{}).Where("organization_id = ?", orgId).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func GetUsersWithRole(role string) ([]User, error) {
 	var users []User
 	if err := database.DB.Where("role = ?", role).Preload("Organization").Find(&users).Error; err != nil {
@@ -72,6 +80,15 @@ func CountUsersWithRole(role string) (int64, error) {
 	if err := database.DB.Model(&User{}).Where("role = ?", role).Count(&count).Error; err != nil {
 		return 0, err
 	}
+	return count, nil
+}
+
+func CountUsersWithRoleInOrg(orgId uint, role string) (int64, error) {
+	var count int64
+	if err := database.DB.Model(&User{}).Where("organization_id = ? AND role = ?", orgId, role).Count(&count).Error; err != nil {
+		return 0, err
+	}
+
 	return count, nil
 }
 
