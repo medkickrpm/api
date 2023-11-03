@@ -2932,6 +2932,19 @@
                 }
             }
         },
+        "models.DeviceType": {
+            "type": "string",
+            "enum": [
+                "BloodPressure",
+                "BloodGlucose",
+                "WeightScale"
+            ],
+            "x-enum-varnames": [
+                "BloodPressure",
+                "BloodGlucose",
+                "WeightScale"
+            ]
+        },
         "models.Interaction": {
             "type": "object",
             "properties": {
@@ -2978,6 +2991,30 @@
                     "example": 1
                 }
             }
+        },
+        "models.InteractionSettingType": {
+            "type": "string",
+            "enum": [
+                "ColorThreshold"
+            ],
+            "x-enum-varnames": [
+                "ColorThreshold"
+            ]
+        },
+        "models.MeasurementType": {
+            "type": "string",
+            "enum": [
+                "Systolic",
+                "Diastolic",
+                "Pulse",
+                "Weight"
+            ],
+            "x-enum-varnames": [
+                "Systolic",
+                "Diastolic",
+                "Pulse",
+                "Weight"
+            ]
         },
         "models.Organization": {
             "type": "object",
@@ -3103,11 +3140,15 @@
             ],
             "properties": {
                 "device_type": {
-                    "type": "string",
                     "enum": [
                         "BloodPressure",
                         "BloodGlucose",
                         "WeightScale"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.DeviceType"
+                        }
                     ]
                 },
                 "measurements": {
@@ -3167,9 +3208,13 @@
             ],
             "properties": {
                 "setting_type": {
-                    "type": "string",
                     "enum": [
                         "ColorThreshold"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.InteractionSettingType"
+                        }
                     ]
                 },
                 "value": {
@@ -3190,12 +3235,16 @@
                     "type": "integer"
                 },
                 "measurement_type": {
-                    "type": "string",
                     "enum": [
                         "Systolic",
                         "Diastolic",
                         "Pulse",
                         "Weight"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.MeasurementType"
+                        }
                     ]
                 },
                 "warning_high": {

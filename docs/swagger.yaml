@@ -374,6 +374,16 @@ definitions:
         example: 5
         type: integer
     type: object
+  models.DeviceType:
+    enum:
+    - BloodPressure
+    - BloodGlucose
+    - WeightScale
+    type: string
+    x-enum-varnames:
+    - BloodPressure
+    - BloodGlucose
+    - WeightScale
   models.Interaction:
     properties:
       cost_category:
@@ -408,6 +418,24 @@ definitions:
         example: 1
         type: integer
     type: object
+  models.InteractionSettingType:
+    enum:
+    - ColorThreshold
+    type: string
+    x-enum-varnames:
+    - ColorThreshold
+  models.MeasurementType:
+    enum:
+    - Systolic
+    - Diastolic
+    - Pulse
+    - Weight
+    type: string
+    x-enum-varnames:
+    - Systolic
+    - Diastolic
+    - Pulse
+    - Weight
   models.Organization:
     properties:
       address:
@@ -496,11 +524,12 @@ definitions:
   organization.AlertThresholdData:
     properties:
       device_type:
+        allOf:
+        - $ref: '#/definitions/models.DeviceType'
         enum:
         - BloodPressure
         - BloodGlucose
         - WeightScale
-        type: string
       measurements:
         items:
           $ref: '#/definitions/organization.MeasurementData'
@@ -542,9 +571,10 @@ definitions:
   organization.InteractionSettingData:
     properties:
       setting_type:
+        allOf:
+        - $ref: '#/definitions/models.InteractionSettingType'
         enum:
         - ColorThreshold
-        type: string
       value:
         type: integer
     required:
@@ -557,12 +587,13 @@ definitions:
       critical_low:
         type: integer
       measurement_type:
+        allOf:
+        - $ref: '#/definitions/models.MeasurementType'
         enum:
         - Systolic
         - Diastolic
         - Pulse
         - Weight
-        type: string
       warning_high:
         type: integer
       warning_low:
