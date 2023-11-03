@@ -388,7 +388,7 @@ func getUsersInOrg(c echo.Context) error {
 
 			latestTelemetryData := models.GetLatestPatientTelemetryData(telemetryData)
 
-			threshold, err := models.ListAlertThresholds(*self.OrganizationID)
+			threshold, err := models.ListAlertThresholds(orgUint)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 					Error: "Failed to get alert thresholds",
