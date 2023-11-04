@@ -2,8 +2,9 @@ package models
 
 import (
 	"MedKick-backend/pkg/database"
-	"gorm.io/gorm/clause"
 	"time"
+
+	"gorm.io/gorm/clause"
 )
 
 type InteractionSetting struct {

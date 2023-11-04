@@ -2,6 +2,7 @@ package interaction
 
 import (
 	"MedKick-backend/pkg/echo/middleware"
+
 	"github.com/labstack/echo/v4"
 )
 

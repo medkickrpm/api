@@ -1,9 +1,10 @@
 package sendgrid
 
 import (
+	"os"
+
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
-	"os"
 )
 
 var client *sendgrid.Client

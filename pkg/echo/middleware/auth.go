@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"MedKick-backend/pkg/database/models"
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 func Auth(next echo.HandlerFunc) echo.HandlerFunc {

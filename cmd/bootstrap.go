@@ -4,8 +4,9 @@ import (
 	"MedKick-backend/pkg/database"
 	"MedKick-backend/pkg/database/models"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {

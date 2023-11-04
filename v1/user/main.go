@@ -2,6 +2,7 @@ package user
 
 import (
 	"MedKick-backend/pkg/echo/middleware"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -27,4 +28,8 @@ func Routes(r *echo.Group) {
 	r.GET("/user/:id/interactions", getInteractionsInUser, middleware.NotGuest)
 	r.GET("/user/:id/interactions/duration", getTotalInteractionDuration, middleware.NotGuest)
 	r.GET("/user/:id/careplans", getCarePlansInUser, middleware.NotGuest)
+
+	r.PUT("/user/:id/alert-threshold", upsertAlertThreshold, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
+	r.GET("/user/:id/alert-threshold", listAlertThresholds, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
+
 }

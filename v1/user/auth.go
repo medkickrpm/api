@@ -7,9 +7,10 @@ import (
 	"MedKick-backend/pkg/sendgrid"
 	"MedKick-backend/pkg/validator"
 	"fmt"
+	"net/http"
+
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"net/http"
 )
 
 type LoginRequest struct {

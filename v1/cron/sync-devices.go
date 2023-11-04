@@ -5,10 +5,11 @@ import (
 	"MedKick-backend/pkg/echo/dto"
 	mioApi "MedKick-backend/pkg/mio/api"
 	"MedKick-backend/pkg/validator"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/labstack/echo/v4"
 )
 
 // syncDevices godoc

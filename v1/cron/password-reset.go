@@ -4,10 +4,11 @@ import (
 	"MedKick-backend/pkg/database/models"
 	"MedKick-backend/pkg/echo/dto"
 	"MedKick-backend/pkg/validator"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/labstack/echo/v4"
 )
 
 type Request struct {

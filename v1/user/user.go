@@ -6,13 +6,15 @@ import (
 	"MedKick-backend/pkg/echo/middleware"
 	"MedKick-backend/pkg/sendgrid"
 	"MedKick-backend/pkg/validator"
+	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 )
 
 type CreateRequest struct {
@@ -185,44 +187,12 @@ func getUser(c echo.Context) error {
 			}
 
 			if filter == "patient" && self.OrganizationID != nil && status != "" {
-				var patientList []uint
-				for _, user := range users {
-					patientList = append(patientList, *user.ID)
-				}
-
-				telemetryData, err := models.GetPatientTelemetryData(patientList)
+				filteredPatients, err := filterCriticalPatient(users, status)
 				if err != nil {
 					return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-						Error: "Failed to get telemetry data",
+						Error: err.Error(),
 					})
 				}
-
-				latestTelemetryData := models.GetLatestPatientTelemetryData(telemetryData)
-
-				threshold, err := models.ListAlertThresholds(*self.OrganizationID)
-				if err != nil {
-					return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-						Error: "Failed to get alert thresholds",
-					})
-				}
-
-				patientStatusFunc := models.GetPatientStatusFunc(threshold)
-				patientSelected := make(map[uint]struct{})
-				for _, data := range latestTelemetryData {
-					isCritical, isWarning := patientStatusFunc(data)
-					if (status == "critical" && isCritical) || (status == "warning" && isWarning) {
-						patientSelected[data.PatientID] = struct{}{}
-					}
-				}
-
-				filteredPatients := make([]models.User, 0)
-
-				for _, user := range users {
-					if _, ok := patientSelected[*user.ID]; ok {
-						filteredPatients = append(filteredPatients, user)
-					}
-				}
-
 				return c.JSON(http.StatusOK, filteredPatients)
 			}
 
@@ -374,44 +344,12 @@ func getUsersInOrg(c echo.Context) error {
 		}
 
 		if filter == "patient" && status != "" {
-			var patientList []uint
-			for _, user := range users {
-				patientList = append(patientList, *user.ID)
-			}
-
-			telemetryData, err := models.GetPatientTelemetryData(patientList)
+			filteredPatients, err := filterCriticalPatient(users, status)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-					Error: "Failed to get telemetry data",
+					Error: err.Error(),
 				})
 			}
-
-			latestTelemetryData := models.GetLatestPatientTelemetryData(telemetryData)
-
-			threshold, err := models.ListAlertThresholds(orgUint)
-			if err != nil {
-				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-					Error: "Failed to get alert thresholds",
-				})
-			}
-
-			patientStatusFunc := models.GetPatientStatusFunc(threshold)
-			patientSelected := make(map[uint]struct{})
-			for _, data := range latestTelemetryData {
-				isCritical, isWarning := patientStatusFunc(data)
-				if (status == "critical" && isCritical) || (status == "warning" && isWarning) {
-					patientSelected[data.PatientID] = struct{}{}
-				}
-			}
-
-			filteredPatients := make([]models.User, 0)
-
-			for _, user := range users {
-				if _, ok := patientSelected[*user.ID]; ok {
-					filteredPatients = append(filteredPatients, user)
-				}
-			}
-
 			return c.JSON(http.StatusOK, filteredPatients)
 		}
 
@@ -1071,34 +1009,14 @@ func countUser(c echo.Context) error {
 				})
 			}
 
-			var patientList []uint
-			for _, user := range users {
-				patientList = append(patientList, *user.ID)
-			}
-
-			telemetryData, err := models.GetPatientTelemetryData(patientList)
+			filteredPatients, err := filterCriticalPatient(users, status)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-					Error: "Failed to get telemetry data",
+					Error: err.Error(),
 				})
 			}
 
-			latestTelemetryData := models.GetLatestPatientTelemetryData(telemetryData)
-
-			threshold, err := models.ListAlertThresholds(*self.OrganizationID)
-			if err != nil {
-				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-					Error: "Failed to get alert thresholds",
-				})
-			}
-
-			patientStatusFunc := models.GetPatientStatusFunc(threshold)
-			for _, data := range latestTelemetryData {
-				isCritical, isWarning := patientStatusFunc(data)
-				if (status == "critical" && isCritical) || (status == "warning" && isWarning) {
-					userCount++
-				}
-			}
+			userCount = int64(len(filteredPatients))
 		}
 	}
 
@@ -1168,38 +1086,56 @@ func countUserInOrg(c echo.Context) error {
 				})
 			}
 
-			var patientList []uint
-			for _, user := range users {
-				patientList = append(patientList, *user.ID)
-			}
-
-			telemetryData, err := models.GetPatientTelemetryData(patientList)
+			filteredPatients, err := filterCriticalPatient(users, status)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-					Error: "Failed to get telemetry data",
+					Error: err.Error(),
 				})
 			}
 
-			latestTelemetryData := models.GetLatestPatientTelemetryData(telemetryData)
-
-			threshold, err := models.ListAlertThresholds(orgUint)
-			if err != nil {
-				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-					Error: "Failed to get alert thresholds",
-				})
-			}
-
-			patientStatusFunc := models.GetPatientStatusFunc(threshold)
-			for _, data := range latestTelemetryData {
-				isCritical, isWarning := patientStatusFunc(data)
-				if (status == "critical" && isCritical) || (status == "warning" && isWarning) {
-					userCount++
-				}
-			}
+			userCount = int64(len(filteredPatients))
 		}
 	}
 
 	return c.JSON(http.StatusOK, map[string]int64{
 		"count": userCount,
 	})
+}
+
+func filterCriticalPatient(users []models.User, status string) (filteredPatients []models.User, err error) {
+	var patientList []uint
+	for _, user := range users {
+		patientList = append(patientList, *user.ID)
+	}
+
+	filteredPatients = make([]models.User, 0)
+
+	telemetryData, err := models.GetPatientTelemetryData(patientList)
+	if err != nil {
+		return nil, errors.New("failed to get telemetry data")
+	}
+
+	latestTelemetryData := models.GetLatestPatientTelemetryData(telemetryData)
+
+	thresholdList, err := models.ListAlertThresholds(patientList)
+	if err != nil {
+		return nil, errors.New("failed to get alert thresholds")
+	}
+
+	patientStatusFunc := models.GetPatientStatusFunc(thresholdList)
+	patientSelected := make(map[uint]struct{})
+	for _, data := range latestTelemetryData {
+		isCritical, isWarning := patientStatusFunc(data)
+		if (status == "critical" && isCritical) || (status == "warning" && isWarning) {
+			patientSelected[data.PatientID] = struct{}{}
+		}
+	}
+
+	for _, user := range users {
+		if _, ok := patientSelected[*user.ID]; ok {
+			filteredPatients = append(filteredPatients, user)
+		}
+	}
+
+	return filteredPatients, nil
 }

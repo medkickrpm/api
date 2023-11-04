@@ -5,11 +5,12 @@ import (
 	"MedKick-backend/pkg/echo/dto"
 	"MedKick-backend/pkg/validator"
 	"fmt"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 type MioData struct {
