@@ -143,8 +143,13 @@ func ingestTelemetry(c echo.Context) error {
 		})
 	}
 
+	organizationID := uint(0)
+	if device.User.OrganizationID != nil {
+		organizationID = *device.User.OrganizationID
+	}
 	telemetryAlert := models.TelemetryAlert{
 		DeviceID:       device.ID,
+		OrganizationID: organizationID,
 		IsActive:       true,
 		IsAutoResolved: false,
 		PatientID:      device.UserID,
