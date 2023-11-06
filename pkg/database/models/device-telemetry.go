@@ -248,3 +248,44 @@ func GetPatientStatusFunc(thresholds []AlertThreshold) func(data DeviceTelemetry
 		return false, false
 	}
 }
+
+func (d DeviceTelemetryData) GetStatusByPatientThreshold(deviceType DeviceType, thresholds []AlertThreshold) AlertType {
+
+	alertType := AlertOk
+
+	if deviceType == BloodPressure {
+		for _, t := range thresholds {
+			if t.DeviceType == BloodPressure {
+				if t.MeasurementType == Systolic {
+					if (t.CriticalLow != nil && d.SystolicBP < *t.CriticalLow) ||
+						(t.CriticalHigh != nil && d.SystolicBP > *t.CriticalHigh) {
+						alertType = AlertCritical
+					}
+
+					if (t.WarningLow != nil && d.SystolicBP < *t.WarningLow) ||
+						(t.WarningHigh != nil && d.SystolicBP > *t.WarningHigh) {
+						if alertType != AlertCritical {
+							alertType = AlertWarning
+						}
+					}
+				}
+
+				if t.MeasurementType == Diastolic {
+					if (t.CriticalLow != nil && d.DiastolicBP < *t.CriticalLow) ||
+						(t.CriticalHigh != nil && d.DiastolicBP > *t.CriticalHigh) {
+						alertType = AlertCritical
+					}
+
+					if (t.WarningLow != nil && d.DiastolicBP < *t.WarningLow) ||
+						(t.WarningHigh != nil && d.DiastolicBP > *t.WarningHigh) {
+						if alertType != AlertCritical {
+							alertType = AlertWarning
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return alertType
+}

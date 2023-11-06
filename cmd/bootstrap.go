@@ -30,6 +30,7 @@ func main() {
 		&models.UserVerification{},
 		&models.AlertThreshold{},
 		&models.InteractionSetting{},
+		&models.TelemetryAlert{},
 	)
 	if err != nil {
 		panic("Could not migrate database")
