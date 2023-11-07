@@ -1650,6 +1650,119 @@
                 }
             }
         },
+        "/organization/{id}/telemetry-alert": {
+            "get": {
+                "description": "List Telemetry Alert",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "List Telemetry Alert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Size",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/organization.TelemetryAlertResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/organization/{id}/telemetry-alert/{alert}/resolve": {
+            "patch": {
+                "description": "Resolve Telemetry Alert",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Resolve Telemetry Alert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Alert ID",
+                        "name": "alert",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "post": {
                 "description": "ADMIN ONLY - Create User",
@@ -2521,10 +2634,7 @@
             "required": [
                 "bat",
                 "data_type",
-                "iccid",
-                "imei",
-                "sig",
-                "tz"
+                "imei"
             ],
             "properties": {
                 "bat": {
@@ -2798,6 +2908,19 @@
                     "type": "integer"
                 }
             }
+        },
+        "models.AlertType": {
+            "type": "string",
+            "enum": [
+                "Critical",
+                "Warning",
+                "Ok"
+            ],
+            "x-enum-varnames": [
+                "AlertCritical",
+                "AlertWarning",
+                "AlertOk"
+            ]
         },
         "models.CarePlan": {
             "type": "object",
@@ -3282,6 +3405,55 @@
                 },
                 "value": {
                     "type": "integer"
+                }
+            }
+        },
+        "organization.TelemetryAlertResponse": {
+            "type": "object",
+            "properties": {
+                "alert_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "patient_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "patient_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "phone_number": {
+                    "type": "string",
+                    "example": "08123456789"
+                },
+                "resolved_by": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.AlertType"
+                        }
+                    ],
+                    "example": "Critical"
+                },
+                "telemetry_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "time": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "vitals": {
+                    "type": "object",
+                    "additionalProperties": true
                 }
             }
         },

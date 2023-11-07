@@ -84,7 +84,7 @@ func (d *Device) DeleteDevice() error {
 }
 
 func (d *Device) UpdateBattery(batteryLevel uint) error {
-	if err := database.DB.Model(&d).Update("battery_level", batteryLevel).Error; err != nil {
+	if err := database.DB.Model(&Device{}).Where("id = ?", d.ID).Update("battery_level", batteryLevel).Error; err != nil {
 		return err
 	}
 	return nil

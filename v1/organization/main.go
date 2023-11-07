@@ -16,4 +16,7 @@ func Routes(r *echo.Group) {
 
 	r.PUT("/organization/:id/interaction-setting", upsertInteractionSetting, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
 	r.GET("/organization/:id/interaction-setting", getInteractionSetting, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
+
+	r.GET("/organization/:id/telemetry-alert", listTelemetryAlert, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
+	r.PATCH("/organization/:id/telemetry-alert/:alert/resolve", resolvedTelemetryAlert, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
 }

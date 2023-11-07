@@ -17,7 +17,7 @@ type MioData struct {
 	DataType           string `json:"data_type" validate:"required"`
 	IMEI               string `json:"imei" validate:"required"`
 	SerialNumber       string `json:"sn"`
-	Iccid              string `json:"iccid" validate:"required"`
+	Iccid              string `json:"iccid"`
 	User               uint   `json:"user"`
 	SystolicBP         uint   `json:"sys"`
 	DiastolicBP        uint   `json:"dia"`
@@ -26,9 +26,9 @@ type MioData struct {
 	HandShaking        bool   `json:"hand"`
 	TripleMeasure      bool   `json:"tri"`
 	Battery            uint   `json:"bat" validate:"required"`
-	Signal             uint   `json:"sig" validate:"required"`
+	Signal             uint   `json:"sig"`
 	Timestamp          int64  `json:"ts"`
-	Timezone           string `json:"tz" validate:"required"`
+	Timezone           string `json:"tz"`
 	UID                string `json:"uid"`
 	Weight             uint   `json:"wt"`
 	WeightStableTime   uint   `json:"wet"`
@@ -95,13 +95,11 @@ func ingestTelemetry(c echo.Context) error {
 
 	var req RequestTelemetry
 	if err := c.Bind(&req); err != nil {
-		fmt.Println("1")
 		fmt.Println(err.Error())
 		return err
 	}
 
 	if err := validator.Validate.Struct(req); err != nil {
-		fmt.Println("2")
 		println(err.Error())
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -145,8 +143,33 @@ func ingestTelemetry(c echo.Context) error {
 		})
 	}
 
+	organizationID := uint(0)
+	if device.User.OrganizationID != nil {
+		organizationID = *device.User.OrganizationID
+	}
+	telemetryAlert := models.TelemetryAlert{
+		DeviceID:       device.ID,
+		OrganizationID: organizationID,
+		IsActive:       true,
+		IsAutoResolved: false,
+		PatientID:      device.UserID,
+	}
+
+	if err := telemetryAlert.GetTelemetryAlert(); err != nil {
+		log.Errorf("Failed to get telemetry alert: %s", err)
+	}
+
+	currentTime := time.Unix(req.Data.Timestamp, 0)
+
+	telemetryAlert.MeasuredAt = currentTime
+
+	alertThreshold, err := models.ListAlertThresholds([]uint{device.UserID})
+	if err != nil {
+		log.Errorf("Failed to list alert threshold: %s", err)
+	}
+
 	if req.Data.DataType == "bpm_gen2_measure" {
-		t := time.Unix(req.Data.Timestamp, 0)
+
 		dtd := &models.DeviceTelemetryData{
 			SystolicBP:         req.Data.SystolicBP,
 			DiastolicBP:        req.Data.DiastolicBP,
@@ -155,7 +178,7 @@ func ingestTelemetry(c echo.Context) error {
 			HandShaking:        req.Data.HandShaking,
 			TripleMeasurement:  req.Data.TripleMeasure,
 			DeviceID:           device.ID,
-			MeasuredAt:         t,
+			MeasuredAt:         currentTime,
 		}
 		if err := dtd.CreateDeviceTelemetryData(); err != nil {
 			log.Errorf("Failed to create device telemetry data: %s", err)
@@ -163,16 +186,22 @@ func ingestTelemetry(c echo.Context) error {
 				Error: "Failed to create device telemetry data",
 			})
 		}
-		return c.NoContent(http.StatusNoContent)
-	}
-	if req.Data.DataType == "scale_gen2_measure" {
-		t := time.Unix(req.Data.Timestamp, 0)
+
+		currentAlertType := dtd.GetStatusByPatientThreshold(models.BloodPressure, alertThreshold)
+		telemetryAlert.DeviceType = models.BloodPressure
+		telemetryAlert.AlertType = currentAlertType
+		telemetryAlert.TelemetryID = dtd.ID
+		telemetryAlert.Data = map[string]interface{}{
+			string(models.Systolic):  dtd.SystolicBP,
+			string(models.Diastolic): dtd.DiastolicBP,
+		}
+	} else if req.Data.DataType == "scale_gen2_measure" {
 		dtd := &models.DeviceTelemetryData{
 			Weight:           req.Data.Weight,
 			WeightStableTime: req.Data.WeightStableTime,
 			WeightLockCount:  req.Data.WeightLockCount,
 			DeviceID:         device.ID,
-			MeasuredAt:       t,
+			MeasuredAt:       currentTime,
 		}
 		if err := dtd.CreateDeviceTelemetryData(); err != nil {
 			log.Errorf("Failed to create device telemetry data: %s", err)
@@ -180,10 +209,7 @@ func ingestTelemetry(c echo.Context) error {
 				Error: "Failed to create device telemetry data",
 			})
 		}
-		return c.NoContent(http.StatusNoContent)
-	}
-	if req.Data.DataType == "bgm_gen1_measure" {
-		t := time.Unix(req.Data.Timestamp, 0)
+	} else if req.Data.DataType == "bgm_gen1_measure" {
 		unit := ""
 		if req.Data.Unit == 1 {
 			unit = "mmol/L"
@@ -227,7 +253,7 @@ func ingestTelemetry(c echo.Context) error {
 			SampleType:   sampleType,
 			Meal:         meal,
 			DeviceID:     device.ID,
-			MeasuredAt:   t,
+			MeasuredAt:   currentTime,
 		}
 
 		if err := dtd.CreateDeviceTelemetryData(); err != nil {
@@ -236,13 +262,25 @@ func ingestTelemetry(c echo.Context) error {
 				Error: "Failed to create device telemetry data",
 			})
 		}
-		return c.NoContent(http.StatusNoContent)
+	} else {
+		log.Warnf("Unknown data type: %s", req.Data.DataType)
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: fmt.Sprintf("Unknown data type, %s", req.Data.DataType),
+		})
 	}
 
-	log.Warnf("Unknown data type: %s", req.Data.DataType)
-	return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-		Error: fmt.Sprintf("Unknown data type, %s", req.Data.DataType),
-	})
+	if telemetryAlert.AlertType == models.AlertOk {
+		telemetryAlert.IsActive = false
+		telemetryAlert.IsAutoResolved = true
+	}
+
+	if telemetryAlert.ID != 0 || telemetryAlert.AlertType != models.AlertOk {
+		if err := telemetryAlert.UpsertTelemetryAlert(); err != nil {
+			log.Errorf("Failed to upsert telemetry alert: %s", err)
+		}
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }
 
 // ingestStatus godoc

@@ -75,10 +75,7 @@ definitions:
     required:
     - bat
     - data_type
-    - iccid
     - imei
-    - sig
-    - tz
     type: object
   device.MioStatus:
     properties:
@@ -207,6 +204,16 @@ definitions:
       user_id:
         type: integer
     type: object
+  models.AlertType:
+    enum:
+    - Critical
+    - Warning
+    - Ok
+    type: string
+    x-enum-varnames:
+    - AlertCritical
+    - AlertWarning
+    - AlertOk
   models.CarePlan:
     properties:
       created_at:
@@ -559,6 +566,40 @@ definitions:
         type: integer
     required:
     - setting_type
+    type: object
+  organization.TelemetryAlertResponse:
+    properties:
+      alert_id:
+        example: 1
+        type: integer
+      is_active:
+        example: true
+        type: boolean
+      patient_id:
+        example: 1
+        type: integer
+      patient_name:
+        example: John Doe
+        type: string
+      phone_number:
+        example: "08123456789"
+        type: string
+      resolved_by:
+        example: John Doe
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.AlertType'
+        example: Critical
+      telemetry_id:
+        example: 1
+        type: integer
+      time:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      vitals:
+        additionalProperties: true
+        type: object
     type: object
   organization.UpdateRequest:
     properties:
@@ -1844,6 +1885,81 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Upsert Interaction Setting
+      tags:
+      - Organization
+  /organization/{id}/telemetry-alert:
+    get:
+      consumes:
+      - application/json
+      description: List Telemetry Alert
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Size
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/organization.TelemetryAlertResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: List Telemetry Alert
+      tags:
+      - Organization
+  /organization/{id}/telemetry-alert/{alert}/resolve:
+    patch:
+      consumes:
+      - application/json
+      description: Resolve Telemetry Alert
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Alert ID
+        in: path
+        name: alert
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Resolve Telemetry Alert
       tags:
       - Organization
   /user:
