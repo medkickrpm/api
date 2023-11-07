@@ -147,21 +147,17 @@ func ingestTelemetry(c echo.Context) error {
 	if device.User.OrganizationID != nil {
 		organizationID = *device.User.OrganizationID
 	}
-	telemetryAlert := models.TelemetryAlert{
-		DeviceID:       device.ID,
-		OrganizationID: organizationID,
-		IsActive:       true,
-		IsAutoResolved: false,
-		PatientID:      device.UserID,
-	}
-
-	if err := telemetryAlert.GetTelemetryAlert(); err != nil {
-		log.Errorf("Failed to get telemetry alert: %s", err)
-	}
 
 	currentTime := time.Unix(req.Data.Timestamp, 0)
 
-	telemetryAlert.MeasuredAt = currentTime
+	telemetryAlert := models.TelemetryAlert{
+		OrganizationID: organizationID,
+		DeviceID:       device.ID,
+		PatientID:      device.UserID,
+		IsActive:       true,
+		IsAutoResolved: false,
+		MeasuredAt:     currentTime,
+	}
 
 	alertThreshold, err := models.ListAlertThresholds([]uint{device.UserID})
 	if err != nil {
@@ -189,8 +185,8 @@ func ingestTelemetry(c echo.Context) error {
 
 		currentAlertType := dtd.GetStatusByPatientThreshold(models.BloodPressure, alertThreshold)
 		telemetryAlert.DeviceType = models.BloodPressure
-		telemetryAlert.AlertType = currentAlertType
 		telemetryAlert.TelemetryID = dtd.ID
+		telemetryAlert.AlertType = currentAlertType
 		telemetryAlert.Data = map[string]interface{}{
 			string(models.Systolic):  dtd.SystolicBP,
 			string(models.Diastolic): dtd.DiastolicBP,
@@ -269,13 +265,8 @@ func ingestTelemetry(c echo.Context) error {
 		})
 	}
 
-	if telemetryAlert.AlertType == models.AlertOk {
-		telemetryAlert.IsActive = false
-		telemetryAlert.IsAutoResolved = true
-	}
-
-	if telemetryAlert.ID != 0 || telemetryAlert.AlertType != models.AlertOk {
-		if err := telemetryAlert.UpsertTelemetryAlert(); err != nil {
+	if telemetryAlert.AlertType != models.AlertOk {
+		if err := telemetryAlert.InsertTelemetryAlert(); err != nil {
 			log.Errorf("Failed to upsert telemetry alert: %s", err)
 		}
 	}

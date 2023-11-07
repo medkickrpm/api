@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"gorm.io/datatypes"
-	"gorm.io/gorm/clause"
 )
 
 type TelemetryAlert struct {
@@ -64,27 +63,12 @@ func (t *TelemetryAlert) GetTelemetryAlert() error {
 	return nil
 }
 
-func (t *TelemetryAlert) UpsertTelemetryAlert() error {
+func (t *TelemetryAlert) InsertTelemetryAlert() error {
 	db := database.DB.Model(&TelemetryAlert{})
-	db = db.Clauses(clause.OnConflict{
-		Columns: []clause.Column{{Name: "device_id"}, {Name: "patient_id"}},
-		Where: clause.Where{
-			Exprs: []clause.Expression{
-				clause.Eq{Column: "is_active", Value: true},
-				clause.Eq{Column: "is_auto_resolved", Value: false},
-			},
-		},
-		DoUpdates: clause.AssignmentColumns([]string{
-			"telemetry_id",
-			"alert_type",
-			"data",
-			"is_active",
-			"measured_at",
-			"is_auto_resolved",
-		}),
-	})
-
-	return db.Create(&t).Error
+	if err := db.Create(&t).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (t *TelemetryAlert) ResolveTelemetryAlert() error {
