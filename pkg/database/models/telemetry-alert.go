@@ -25,6 +25,7 @@ type TelemetryAlert struct {
 	ResolvedBy     *User                `json:"resolved_by,omitempty" gorm:"foreignKey:ResolvedByID"`
 	MeasuredAt     time.Time            `json:"measured_at" example:"2021-01-01T00:00:00Z"`
 	IsAutoResolved bool                 `json:"is_auto_resolved,omitempty" example:"true"`
+	ResolvedAt     *time.Time           `json:"resolved_at,omitempty" example:"2021-01-01T00:00:00Z"`
 
 	CreatedAt time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
 	UpdatedAt time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
@@ -80,6 +81,7 @@ func (t *TelemetryAlert) ResolveTelemetryAlert() error {
 	if err := db.UpdateColumns(map[string]interface{}{
 		"is_active":      false,
 		"resolved_by_id": t.ResolvedByID,
+		"resolved_at":    time.Now().UTC(),
 	}).Error; err != nil {
 		return err
 	}
@@ -87,19 +89,15 @@ func (t *TelemetryAlert) ResolveTelemetryAlert() error {
 	return nil
 }
 
-func ListTelemetryAlerts(org uint, isActive bool, pagination PageReq) ([]TelemetryAlert, error) {
+func ListTelemetryAlerts(org uint, isActive bool, pagination PageReq, sort SortReq) ([]TelemetryAlert, error) {
 	var telemetryAlerts []TelemetryAlert
 	db := database.DB.Model(&TelemetryAlert{})
 	db = db.Where("organization_id = ?", org)
 	db = db.Where("is_active = ?", isActive)
 	db = db.Where("is_auto_resolved = ?", false)
-	if isActive {
-		db = db.Order("measured_at ASC")
-	} else {
-		db = db.Order("updated_at DESC")
-	}
 
 	db.Scopes(pagination.Paginate())
+	db.Scopes(sort.Sort())
 
 	if err := db.Preload("Patient").Preload("ResolvedBy").Find(&telemetryAlerts).Error; err != nil {
 		return nil, err

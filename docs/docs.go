@@ -1691,6 +1691,18 @@ const docTemplate = `{
                         "description": "Size",
                         "name": "size",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort By",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort Direction",
+                        "name": "sort_direction",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3433,6 +3445,10 @@ const docTemplate = `{
                 "phone_number": {
                     "type": "string",
                     "example": "08123456789"
+                },
+                "resolved_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 },
                 "resolved_by": {
                     "type": "string",

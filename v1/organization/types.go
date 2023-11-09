@@ -20,6 +20,7 @@ type TelemetryAlertResponse struct {
 	Status      models.AlertType       `json:"status" example:"Critical"`
 	IsActive    bool                   `json:"is_active" example:"true"`
 	ResolvedBy  string                 `json:"resolved_by,omitempty" example:"John Doe"`
+	ResolvedAt  *time.Time             `json:"resolved_at,omitempty" example:"2021-01-01T00:00:00Z"`
 	Time        time.Time              `json:"time" example:"2021-01-01T00:00:00Z"`
 }
 
@@ -41,6 +42,7 @@ func convertModelToResponse(data []models.TelemetryAlert) []TelemetryAlertRespon
 		}
 		if d.ResolvedBy != nil {
 			rd.ResolvedBy = d.ResolvedBy.FirstName + " " + d.ResolvedBy.LastName
+			rd.ResolvedAt = d.ResolvedAt
 		}
 
 		res = append(res, rd)
