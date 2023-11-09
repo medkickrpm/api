@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+)
 
 type PageReq struct {
 	// Page represents the requested page
@@ -19,4 +23,34 @@ func (p *PageReq) Paginate() func(db *gorm.DB) *gorm.DB {
 // NewPageReq returns a new PageReq with default values
 func NewPageReq() PageReq {
 	return PageReq{1, 10}
+}
+
+// SortReq is used to sort data
+type SortReq struct {
+	// By represents the field to sort by
+	By string `json:"sort_by" query:"sort_by"`
+	// Direction represents the direction of sorting
+	Direction SortDirection `json:"sort_direction" query:"sort_direction"`
+}
+
+// SortDirection represents the direction of sorting
+type SortDirection string
+
+const (
+	// ASC represents ascending order
+	ASC SortDirection = "ASC"
+	// DESC represents descending order
+	DESC SortDirection = "DESC"
+)
+
+// Sort returns scope for sorting
+func (s *SortReq) Sort() func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Order(fmt.Sprintf("%s %s", s.By, s.Direction))
+	}
+}
+
+// NewSortReq returns a new SortReq with default values
+func NewSortReq() SortReq {
+	return SortReq{"id", DESC}
 }

@@ -19,6 +19,8 @@ import (
 // @Param status query string false "Status"
 // @Param page query int false "Page"
 // @Param size query int false "Size"
+// @Param sort_by query string false "Sort By"
+// @Param sort_direction query string false "Sort Direction"
 // @Success 200 {object} TelemetryAlertResponse
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
@@ -28,8 +30,10 @@ func listTelemetryAlert(c echo.Context) error {
 		OrganizationID uint   `param:"id"`
 		Status         string `query:"status"`
 		models.PageReq
+		models.SortReq
 	}{
 		PageReq: models.NewPageReq(),
+		SortReq: models.NewSortReq(),
 	}
 
 	if err := c.Bind(&param); err != nil {
@@ -59,7 +63,7 @@ func listTelemetryAlert(c echo.Context) error {
 		isActive = false
 	}
 
-	data, err := models.ListTelemetryAlerts(param.OrganizationID, isActive, param.PageReq)
+	data, err := models.ListTelemetryAlerts(param.OrganizationID, isActive, param.PageReq, param.SortReq)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to get telemetry alert",
