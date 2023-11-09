@@ -1,10 +1,8 @@
 package models
 
 import (
-	"fmt"
-	"strings"
-
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type PageReq struct {
@@ -47,18 +45,7 @@ const (
 // Sort returns scope for sorting
 func (s *SortReq) Sort() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-
-		if s.Direction != "ASC" && s.Direction != "DESC" {
-			return db.Order(fmt.Sprintf("%s %s", "id", "DESC"))
-		}
-
-		parts := strings.Split(s.By, " ")
-
-		if len(parts) > 1 {
-			return db.Order(fmt.Sprintf("%s %s", "id", s.Direction))
-		}
-
-		return db.Order(fmt.Sprintf("%s %s", s.By, s.Direction))
+		return db.Order(clause.OrderByColumn{Column: clause.Column{Name: s.By}, Desc: s.Direction == DESC})
 	}
 }
 
