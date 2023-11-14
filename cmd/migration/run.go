@@ -1,4 +1,4 @@
-package main
+package migration
 
 import (
 	"MedKick-backend/pkg/database"
@@ -9,7 +9,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
+func Run() {
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -31,6 +31,10 @@ func main() {
 		&models.AlertThreshold{},
 		&models.InteractionSetting{},
 		&models.TelemetryAlert{},
+		&models.Service{},
+		&models.PatientService{},
+		&models.LastBillEntry{},
+		&models.Bill{},
 	)
 	if err != nil {
 		panic("Could not migrate database")
