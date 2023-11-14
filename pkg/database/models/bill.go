@@ -14,6 +14,7 @@ type LastBillEntry struct {
 	Patient   User `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
 
 	C99453 int `json:"c99453" gorm:"type:smallint; not null; default: 0" example:"1"`
+	C99454 int `json:"c99454" gorm:"type:smallint; not null; default: 0" example:"1"`
 
 	CreatedAt time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
 	UpdatedAt time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
