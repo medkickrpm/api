@@ -4,8 +4,8 @@ import "time"
 
 type Service struct {
 	ID          uint   `json:"id" gorm:"primary_key;auto_increment" example:"1"`
-	ServiceCode string `json:"service_code" gorm:"type:varchar(10); not null; uniqueIndex" example:"RPM"`
-	ServiceName string `json:"service_name" gorm:"not null" example:"Remote Patient Monitoring"`
+	Code        string `json:"service_code" gorm:"type:varchar(10); not null; uniqueIndex" example:"RPM"`
+	Name        string `json:"service_name" gorm:"not null" example:"Remote Patient Monitoring"`
 	IsEnabled   bool   `json:"is_enabled" gorm:"not null" example:"true"`
 	Description string `json:"description" example:"Remote Patient Monitoring"`
 
