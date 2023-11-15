@@ -16,6 +16,7 @@ type LastBillEntry struct {
 	C99453 int `json:"c99453" gorm:"type:smallint; not null; default: 0" example:"1"`
 	C99454 int `json:"c99454" gorm:"type:smallint; not null; default: 0" example:"1"`
 	C99457 int `json:"c99457" gorm:"type:smallint; not null; default: 0" example:"1"`
+	C99458 int `json:"c99458" gorm:"type:smallint; not null; default: 0" example:"1"`
 
 	CreatedAt time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
 	UpdatedAt time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
@@ -48,8 +49,8 @@ type Bill struct {
 	UpdatedAt time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
 }
 
-func (b *Bill) CreateBill() error {
-	if err := database.DB.Create(&b).Error; err != nil {
+func CreateBill(bills []Bill) error {
+	if err := database.DB.Create(&bills).Error; err != nil {
 		return err
 	}
 	return nil
