@@ -1589,6 +1589,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/organization/{id}/billing-report": {
+            "get": {
+                "description": "Get Billing Report",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "Get Billing Report",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Year",
+                        "name": "year",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Month",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/organization.BillingReportResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/organization/{id}/devices": {
             "get": {
                 "description": "Get Devices in Organization",
@@ -3447,6 +3505,58 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
+                }
+            }
+        },
+        "organization.BillingRecordBody": {
+            "type": "object",
+            "properties": {
+                "cpt_codes": {
+                    "type": "string",
+                    "example": "1,2,3"
+                },
+                "dob": {
+                    "type": "string",
+                    "example": "01/01/2000"
+                },
+                "dos": {
+                    "type": "string",
+                    "example": "01/01/2021"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "John"
+                },
+                "icd10": {
+                    "type": "string",
+                    "example": "A00.0"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                },
+                "provider": {
+                    "type": "string",
+                    "example": "Dr. John Doe"
+                }
+            }
+        },
+        "organization.BillingReportResponse": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "records": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/organization.BillingRecordBody"
+                    }
+                },
+                "year": {
+                    "type": "integer",
+                    "example": 2021
                 }
             }
         },

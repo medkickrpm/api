@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"MedKick-backend/pkg/database/models"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -43,6 +44,7 @@ func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 		delete(session.Values, "user-id")
 		err = session.Save(c.Request(), c.Response())
 		if err != nil {
+			fmt.Println("-------", err.Error())
 			http.Error(c.Response(), "Failed to save session", http.StatusInternalServerError)
 			return err
 		}

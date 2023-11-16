@@ -50,3 +50,21 @@ func convertModelToResponse(data []models.TelemetryAlert) []TelemetryAlertRespon
 
 	return res
 }
+
+type BillingReportResponse struct {
+	Year    int64               `json:"year" example:"2021"`
+	Month   int64               `json:"month" example:"1"`
+	Records []BillingRecordBody `json:"records"`
+}
+
+type BillingRecordBody struct {
+	PatientID   uint   `json:"-"`
+	FirstName   string `json:"first_name" example:"John"`
+	LastName    string `json:"last_name" example:"Doe"`
+	DOB         string `json:"dob" example:"01/01/2000"`
+	CPTCodes    string `json:"cpt_codes" example:"1,2,3"`
+	DOS         string `json:"dos" example:"01/01/2021"`
+	Provider    string `json:"provider" example:"Dr. John Doe"`
+	ICD10       string `json:"icd10" example:"A00.0"`
+	ServiceCode string `json:"-"`
+}
