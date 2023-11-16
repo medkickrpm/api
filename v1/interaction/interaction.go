@@ -5,6 +5,8 @@ import (
 	"MedKick-backend/pkg/echo/dto"
 	"MedKick-backend/pkg/echo/middleware"
 	"MedKick-backend/pkg/validator"
+	"MedKick-backend/pkg/worker"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -98,6 +100,11 @@ func createInteraction(c echo.Context) error {
 			Error: "Failed to create interaction",
 		})
 	}
+
+	go func() {
+		fmt.Println("Running CPT worker for patient in the background")
+		worker.RunCPTWorkerForPatient(request.UserID)
+	}()
 
 	return c.JSON(http.StatusCreated, i)
 }

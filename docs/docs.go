@@ -575,6 +575,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/cron/clear-test-billings": {
+            "post": {
+                "description": "CRON ONLY - Clears all test billings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CRON"
+                ],
+                "summary": "Clear Test Billings",
+                "parameters": [
+                    {
+                        "description": "Token Request",
+                        "name": "CronToken",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cron.Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/cron/sync-devices": {
             "post": {
                 "description": "CRON ONLY - Pulls and Syncs devices from Mio-Connect",
@@ -602,6 +645,49 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/cron/trigger-cpt-worker": {
+            "post": {
+                "description": "CRON ONLY - Triggers CPT Worker",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CRON"
+                ],
+                "summary": "Trigger CPT Worker",
+                "parameters": [
+                    {
+                        "description": "Token Request",
+                        "name": "CronToken",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cron.Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",

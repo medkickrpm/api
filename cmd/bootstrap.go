@@ -31,6 +31,10 @@ func main() {
 		&models.AlertThreshold{},
 		&models.InteractionSetting{},
 		&models.TelemetryAlert{},
+		&models.Service{},
+		&models.PatientService{},
+		&models.Bill{},
+		&models.LastBillEntry{},
 	)
 	if err != nil {
 		panic("Could not migrate database")

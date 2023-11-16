@@ -7,6 +7,7 @@ import (
 	"MedKick-backend/pkg/s3"
 	"MedKick-backend/pkg/sendgrid"
 	"MedKick-backend/pkg/validator"
+	"MedKick-backend/pkg/worker"
 	"MedKick-backend/v1/careplan"
 	"MedKick-backend/v1/cron"
 	"MedKick-backend/v1/device"
@@ -43,6 +44,12 @@ func main() {
 	}
 
 	database.ConnectDatabase(database.Config())
+
+	go func() {
+		fmt.Println("Running CPT Worker in background")
+		worker.RunCPTWorker()
+	}()
+
 	validator.Setup()
 	sendgrid.Setup()
 	s3.Setup()

@@ -1177,6 +1177,34 @@ paths:
       summary: Clear old password reset tokens
       tags:
       - CRON
+  /cron/clear-test-billings:
+    post:
+      consumes:
+      - application/json
+      description: CRON ONLY - Clears all test billings
+      parameters:
+      - description: Token Request
+        in: body
+        name: CronToken
+        required: true
+        schema:
+          $ref: '#/definitions/cron.Request'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Clear Test Billings
+      tags:
+      - CRON
   /cron/sync-devices:
     post:
       consumes:
@@ -1203,6 +1231,34 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Sync Devices from Mio Connect
+      tags:
+      - CRON
+  /cron/trigger-cpt-worker:
+    post:
+      consumes:
+      - application/json
+      description: CRON ONLY - Triggers CPT Worker
+      parameters:
+      - description: Token Request
+        in: body
+        name: CronToken
+        required: true
+        schema:
+          $ref: '#/definitions/cron.Request'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Trigger CPT Worker
       tags:
       - CRON
   /device/{id}:
