@@ -84,3 +84,21 @@ func DeleteBillByPatientIDInRange(patientID uint, startAt, endAt time.Time) erro
 
 	return nil
 }
+
+func ListBillByMonth(year, month int) ([]Bill, error) {
+	loc, _ := time.LoadLocation("EST")
+	startAt := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, loc)
+	endAt := startAt.AddDate(0, 1, 0)
+
+	var bills []Bill
+	db := database.DB.Model(&Bill{})
+	db = db.Preload("Patient")
+	db = db.Where("entry_at >= ?", startAt)
+	db = db.Where("entry_at < ?", endAt)
+
+	if err := db.Find(&bills).Error; err != nil {
+		return nil, err
+	}
+
+	return bills, nil
+}

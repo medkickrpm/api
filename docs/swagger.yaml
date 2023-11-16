@@ -528,6 +528,43 @@ definitions:
         example: "2021-01-01T00:00:00Z"
         type: string
     type: object
+  organization.BillingRecordBody:
+    properties:
+      cpt_codes:
+        example: 1,2,3
+        type: string
+      dob:
+        example: 01/01/2000
+        type: string
+      dos:
+        example: 01/01/2021
+        type: string
+      first_name:
+        example: John
+        type: string
+      icd10:
+        example: A00.0
+        type: string
+      last_name:
+        example: Doe
+        type: string
+      provider:
+        example: Dr. John Doe
+        type: string
+    type: object
+  organization.BillingReportResponse:
+    properties:
+      month:
+        example: 1
+        type: integer
+      records:
+        items:
+          $ref: '#/definitions/organization.BillingRecordBody'
+        type: array
+      year:
+        example: 2021
+        type: integer
+    type: object
   organization.CreateRequest:
     properties:
       address:
@@ -1844,6 +1881,45 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: update Organization
+      tags:
+      - Organization
+  /organization/{id}/billing-report:
+    get:
+      consumes:
+      - application/json
+      description: Get Billing Report
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Year
+        in: query
+        name: year
+        required: true
+        type: integer
+      - description: Month
+        in: query
+        name: month
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/organization.BillingReportResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Billing Report
       tags:
       - Organization
   /organization/{id}/devices:
