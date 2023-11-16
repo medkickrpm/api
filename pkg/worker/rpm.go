@@ -40,7 +40,7 @@ func processCPTCode99453(...uint) error {
 	db = database.DB.Model(&models.Device{}).
 		Joins("JOIN device_telemetry_data ON device_telemetry_data.device_id = devices.id").
 		Where("devices.user_id IN (?)", patientList).
-		Where("device_telemetry_data.measured_at < ?", getStartTimeOfToday().AddDate(0, 0, -16)).
+		Where("device_telemetry_data.measured_at < ?", getEndTimeOfToday().AddDate(0, 0, -16)).
 		Group("devices.user_id")
 
 	if err := db.Pluck("devices.user_id", &filteredPatientList).Error; err != nil {
