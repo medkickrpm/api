@@ -80,7 +80,8 @@ func clearTestBillings(c echo.Context) error {
 		})
 	}
 
-	if err := models.DeleteLastBillEntry(11); err != nil {
+	testPatient := uint(11)
+	if err := models.DeleteLastBillEntry(testPatient); err != nil {
 		log.Error(err)
 	}
 
@@ -88,7 +89,7 @@ func clearTestBillings(c echo.Context) error {
 	startDate := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
 	endDate := startDate.AddDate(0, 1, 0)
 
-	if err := models.DeleteBillByPatientIDInRange(11, startDate, endDate); err != nil {
+	if err := models.DeleteBillByPatientIDInRange(testPatient, startDate, endDate); err != nil {
 		log.Error(err)
 	}
 
