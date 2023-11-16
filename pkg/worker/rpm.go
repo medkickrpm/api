@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-func processCPTCode99453() error {
+func processCPTCode99453(...uint) error {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println("Recovered from panic: ", err)
@@ -77,7 +77,7 @@ func processCPTCode99453() error {
 	return nil
 }
 
-func processCPTCode99454() error {
+func processCPTCode99454(...uint) error {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println("Recovered from panic: ", err)

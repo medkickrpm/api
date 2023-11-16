@@ -41,6 +41,15 @@ func UpdateLastBillEntry(patientID uint, update map[string]interface{}) error {
 	return nil
 }
 
+func DeleteLastBillEntry(patientID uint) error {
+	db := database.DB.Model(&LastBillEntry{}).Where("patient_id = ?", patientID)
+	if err := db.Delete(&LastBillEntry{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type Bill struct {
 	ID          uint      `json:"id" gorm:"primary_key;auto_increment" example:"1"`
 	PatientID   uint      `json:"patient_id" gorm:"not null" example:"1"`
@@ -57,5 +66,21 @@ func CreateBill(bills []Bill) error {
 	if err := database.DB.Create(&bills).Error; err != nil {
 		return err
 	}
+	return nil
+}
+
+func DeleteBillByPatientIDInRange(patientID uint, startAt, endAt time.Time) error {
+	db := database.DB.Model(&Bill{}).Where("patient_id = ?", patientID)
+	if !startAt.IsZero() {
+		db = db.Where("entry_at >= ?", startAt)
+	}
+	if !endAt.IsZero() {
+		db = db.Where("entry_at < ?", endAt)
+	}
+
+	if err := db.Delete(&Bill{}).Error; err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -7,33 +7,41 @@ import (
 	"github.com/go-co-op/gocron"
 )
 
+func TriggerCPTWorker() {
+	funcList := []func(...uint) error{
+		processCPTCode99453,
+		processCPTCode99454,
+		processCPTCode99457,
+		processCPTCode99458,
+		processCPTCode99490,
+		processCPTCode99439,
+		processCPTCode99426,
+		processCPTCode99427,
+		processCPTCode99484,
+	}
+
+	for _, f := range funcList {
+		if err := f(); err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
 func RunCPTWorkerForPatient(patientID uint) {
-	if err := processCPTCode99457(patientID); err != nil {
-		fmt.Println(err)
+	funcList := []func(...uint) error{
+		processCPTCode99457,
+		processCPTCode99458,
+		processCPTCode99490,
+		processCPTCode99439,
+		processCPTCode99426,
+		processCPTCode99427,
+		processCPTCode99484,
 	}
 
-	if err := processCPTCode99458(patientID); err != nil {
-		fmt.Println(err)
-	}
-
-	if err := processCPTCode99490(patientID); err != nil {
-		fmt.Println(err)
-	}
-
-	if err := processCPTCode99439(patientID); err != nil {
-		fmt.Println(err)
-	}
-
-	if err := processCPTCode99426(patientID); err != nil {
-		fmt.Println(err)
-	}
-
-	if err := processCPTCode99427(patientID); err != nil {
-		fmt.Println(err)
-	}
-
-	if err := processCPTCode99484(patientID); err != nil {
-		fmt.Println(err)
+	for _, f := range funcList {
+		if err := f(patientID); err != nil {
+			fmt.Println(err)
+		}
 	}
 }
 
