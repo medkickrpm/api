@@ -32,7 +32,7 @@ func Config() *DBConfig {
 }
 
 func ConnectDatabase(dbConfig *DBConfig) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", dbConfig.User, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.Database)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=UTC", dbConfig.User, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.Database)
 
 	var err error
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{

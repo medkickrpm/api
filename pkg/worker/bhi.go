@@ -42,8 +42,7 @@ func processCPTCode99484(patientIDs ...uint) error {
 		return nil
 	}
 
-	year, month, _ := time.Now().UTC().Date()
-	startDate := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
+	startDate := getStartDateOfMonth()
 
 	var filteredPatientList []uint
 

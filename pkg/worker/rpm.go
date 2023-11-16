@@ -40,7 +40,7 @@ func processCPTCode99453(...uint) error {
 	db = database.DB.Model(&models.Device{}).
 		Joins("JOIN device_telemetry_data ON device_telemetry_data.device_id = devices.id").
 		Where("devices.user_id IN (?)", patientList).
-		Where("device_telemetry_data.measured_at < ?", time.Now().UTC().AddDate(0, 0, -16)).
+		Where("device_telemetry_data.measured_at < ?", getStartTimeOfToday().AddDate(0, 0, -16)).
 		Group("devices.user_id")
 
 	if err := db.Pluck("devices.user_id", &filteredPatientList).Error; err != nil {
@@ -106,8 +106,7 @@ func processCPTCode99454(...uint) error {
 		return nil
 	}
 
-	year, month, _ := time.Now().UTC().Date()
-	startDate := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
+	startDate := getStartDateOfMonth()
 
 	var filteredPatientList []uint
 	db = database.DB.Model(&models.Device{}).
@@ -193,8 +192,7 @@ func processCPTCode99457(patientIDs ...uint) error {
 		return nil
 	}
 
-	year, month, _ := time.Now().UTC().Date()
-	startDate := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
+	startDate := getStartDateOfMonth()
 
 	var filteredPatientList []uint
 
@@ -285,8 +283,7 @@ func processCPTCode99458(patientIDs ...uint) error {
 		return nil
 	}
 
-	year, month, _ := time.Now().UTC().Date()
-	startDate := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
+	startDate := getStartDateOfMonth()
 
 	var filteredPatientWithInteraction []struct {
 		UserID   uint `gorm:"column:user_id"`

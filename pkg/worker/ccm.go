@@ -42,8 +42,7 @@ func processCPTCode99490(patientIDs ...uint) error {
 		return nil
 	}
 
-	year, month, _ := time.Now().UTC().Date()
-	startDate := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
+	startDate := getStartDateOfMonth()
 
 	var filteredPatientList []uint
 
@@ -134,8 +133,7 @@ func processCPTCode99439(patientIDs ...uint) error {
 		return nil
 	}
 
-	year, month, _ := time.Now().UTC().Date()
-	startDate := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
+	startDate := getStartDateOfMonth()
 
 	var filteredPatientWithInteraction []struct {
 		UserID   uint `gorm:"column:user_id"`
