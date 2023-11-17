@@ -47,7 +47,7 @@ func RunCPTWorkerForPatient(patientID uint) {
 }
 
 func RunCPTWorker() {
-	loc, err := time.LoadLocation("EST")
+	loc, err := time.LoadLocation("America/New_York")
 	if err != nil {
 		log.Fatalf("Failed to load location: %v", err)
 	}
