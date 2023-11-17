@@ -3,6 +3,7 @@ package models
 import (
 	"MedKick-backend/pkg/database"
 	"errors"
+	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -86,7 +87,11 @@ func DeleteBillByPatientIDInRange(patientID uint, startAt, endAt time.Time) erro
 }
 
 func ListBillByMonth(year, month int) ([]Bill, error) {
-	loc, _ := time.LoadLocation("EST")
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		log.Fatalf("Failed to load location: %v", err)
+	}
+
 	startAt := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, loc)
 	endAt := startAt.AddDate(0, 1, 0)
 
