@@ -16,8 +16,6 @@ RUN CGO_ENABLED=0 go build -o main .
 # Use the light weight alpine image as the base image
 FROM alpine:3.18.3
 
-RUN apk add --no-cache tzdata
-
 # Set the working directory in the container
 WORKDIR /app
 
