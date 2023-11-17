@@ -36,6 +36,7 @@ func main() {
 		&models.Bill{},
 		&models.LastBillEntry{},
 	)
+
 	if err != nil {
 		panic("Could not migrate database")
 	}

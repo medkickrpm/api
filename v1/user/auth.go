@@ -67,7 +67,6 @@ func login(c echo.Context) error {
 
 	session.Values["user-id"] = u.ID
 	if err := session.Save(c.Request(), c.Response()); err != nil {
-		fmt.Println("------- 1", err.Error())
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to save session",
 		})
@@ -98,7 +97,6 @@ func logout(c echo.Context) error {
 
 	session.Values["user-id"] = nil
 	if err := session.Save(c.Request(), c.Response()); err != nil {
-		fmt.Println("------- 2", err.Error())
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to save session",
 		})

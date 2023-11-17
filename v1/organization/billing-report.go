@@ -70,7 +70,7 @@ func getBillingReport(c echo.Context) error {
 	}
 
 	loc, _ := time.LoadLocation("EST")
-	lastDayOfMonth := time.Date(param.Year, time.Month(param.Month+1), 0, 0, 0, 0, 0, loc)
+	lastDayOfMonth := time.Now().In(loc)
 
 	res := make([]BillingRecordBody, 0)
 
