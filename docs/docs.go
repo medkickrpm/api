@@ -1634,8 +1634,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Service",
                         "name": "service",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
