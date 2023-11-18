@@ -5,7 +5,6 @@ import (
 	"MedKick-backend/pkg/echo/dto"
 	"MedKick-backend/pkg/validator"
 	"fmt"
-	"log"
 	"net/http"
 	"sort"
 	"strings"
@@ -22,17 +21,19 @@ import (
 // @Accept json
 // @Produce json
 // @Param id path int true "Organization ID"
-// @Param year query int true "Year"
-// @Param month query int true "Month"
+// @Param start_date query string true "Start Date (YYYY-MM-DD)"
+// @Param end_date query string true "End Date (YYYY-MM-DD)"
+// @Param service query string true "Service"
 // @Success 200 {object} BillingReportResponse
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /organization/{id}/billing-report [get]
 func getBillingReport(c echo.Context) error {
 	param := struct {
-		OrganizationID uint `param:"id"`
-		Year           int  `query:"year" validate:"required"`
-		Month          int  `query:"month" validate:"required"`
+		OrganizationID uint   `param:"id"`
+		StartDate      string `query:"start_date" validate:"required"`
+		EndDate        string `query:"end_date" validate:"required"`
+		Service        string `query:"service" validate:"required"`
 	}{}
 
 	if err := c.Bind(&param); err != nil {
@@ -47,7 +48,28 @@ func getBillingReport(c echo.Context) error {
 		})
 	}
 
-	rawBills, err := models.ListBillByMonth(param.Year, param.Month)
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to load location",
+		})
+	}
+	startDate, err := time.ParseInLocation("2006-01-02", param.StartDate, loc)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to parse start date",
+		})
+	}
+
+	endDate, err := time.ParseInLocation("2006-01-02", param.EndDate, loc)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to parse end date",
+		})
+	}
+	endDate = endDate.AddDate(0, 0, 1)
+
+	rawBills, err := models.ListBillByMonth(param.Service, startDate, endDate)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to list bills",
@@ -70,12 +92,7 @@ func getBillingReport(c echo.Context) error {
 		groupBill[patientID][serviceCode] = append(groupBill[patientID][serviceCode], bill)
 	}
 
-	loc, err := time.LoadLocation("America/New_York")
-	if err != nil {
-		log.Fatalf("Failed to load location: %v", err)
-	}
-
-	lastDayOfMonth := time.Now().In(loc)
+	currentDate := time.Now().In(loc)
 
 	res := make([]BillingRecordBody, 0)
 
@@ -87,12 +104,16 @@ func getBillingReport(c echo.Context) error {
 			for _, bill := range bills {
 				codes = append(codes, fmt.Sprintf("%d", bill.CPTCode))
 				once.Do(func() {
+					dob := bill.Patient.DOB
+					if d, err2 := time.Parse("2006-01-02", dob); err2 == nil {
+						dob = d.Format("02/01/2006")
+					}
 					record = BillingRecordBody{
 						PatientID:   bill.PatientID,
 						FirstName:   bill.Patient.FirstName,
 						LastName:    bill.Patient.LastName,
-						DOB:         bill.Patient.DOB,
-						DOS:         lastDayOfMonth.Format("02/01/2006"),
+						DOB:         dob,
+						DOS:         currentDate.Format("02/01/2006"),
 						ServiceCode: bill.ServiceCode,
 					}
 				})
@@ -110,8 +131,9 @@ func getBillingReport(c echo.Context) error {
 	})
 
 	return c.JSON(http.StatusOK, BillingReportResponse{
-		Year:    int64(param.Year),
-		Month:   int64(param.Month),
-		Records: res,
+		StartDate: param.StartDate,
+		EndDate:   param.EndDate,
+		Service:   param.Service,
+		Records:   res,
 	})
 }
