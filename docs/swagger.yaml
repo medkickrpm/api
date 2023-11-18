@@ -1908,9 +1908,13 @@ paths:
         required: true
         type: string
       - description: Service
+        enum:
+        - RPM
+        - CCM
+        - PCM
+        - BHI
         in: query
         name: service
-        required: true
         type: string
       produces:
       - application/json

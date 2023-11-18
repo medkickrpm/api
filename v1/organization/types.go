@@ -54,7 +54,7 @@ func convertModelToResponse(data []models.TelemetryAlert) []TelemetryAlertRespon
 type BillingReportResponse struct {
 	StartDate string              `json:"start_date" example:"2006-01-02"`
 	EndDate   string              `json:"end_date" example:"2006-01-02"`
-	Service   string              `json:"service" example:"RPM"`
+	Service   string              `json:"service,omitempty" example:"RPM"`
 	Records   []BillingRecordBody `json:"records"`
 }
 
