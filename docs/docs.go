@@ -1625,6 +1625,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "enum": [
+                            "RPM",
+                            "CCM",
+                            "PCM",
+                            "BHI"
+                        ],
                         "type": "string",
                         "description": "Service",
                         "name": "service",
