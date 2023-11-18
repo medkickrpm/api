@@ -102,6 +102,9 @@ func getBillingReport(c echo.Context) error {
 			var once sync.Once
 			var codes []string
 			for _, bill := range bills {
+				if bill.Patient.OrganizationID == nil || *bill.Patient.OrganizationID != param.OrganizationID {
+					continue
+				}
 				codes = append(codes, fmt.Sprintf("%d", bill.CPTCode))
 				once.Do(func() {
 					dob := bill.Patient.DOB
@@ -118,8 +121,10 @@ func getBillingReport(c echo.Context) error {
 					}
 				})
 			}
-			record.CPTCodes = strings.Join(codes, ", ")
-			res = append(res, record)
+			if len(codes) > 0 {
+				record.CPTCodes = strings.Join(codes, ", ")
+				res = append(res, record)
+			}
 		}
 	}
 
