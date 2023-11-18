@@ -91,7 +91,9 @@ func ListBillByMonth(service string, startDate, endDate time.Time) ([]Bill, erro
 	db = db.Preload("Patient")
 	db = db.Where("entry_at >= ?", startDate)
 	db = db.Where("entry_at < ?", endDate)
-	db = db.Where("service_code = ?", service)
+	if service != "" {
+		db = db.Where("service_code = ?", service)
+	}
 
 	if err := db.Find(&bills).Error; err != nil {
 		return nil, err

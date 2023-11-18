@@ -33,7 +33,7 @@ func getBillingReport(c echo.Context) error {
 		OrganizationID uint   `param:"id"`
 		StartDate      string `query:"start_date" validate:"required"`
 		EndDate        string `query:"end_date" validate:"required"`
-		Service        string `query:"service" validate:"required"`
+		Service        string `query:"service"`
 	}{}
 
 	if err := c.Bind(&param); err != nil {
