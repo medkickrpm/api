@@ -554,16 +554,19 @@ definitions:
     type: object
   organization.BillingReportResponse:
     properties:
-      month:
-        example: 1
-        type: integer
+      end_date:
+        example: "2006-01-02"
+        type: string
       records:
         items:
           $ref: '#/definitions/organization.BillingRecordBody'
         type: array
-      year:
-        example: 2021
-        type: integer
+      service:
+        example: RPM
+        type: string
+      start_date:
+        example: "2006-01-02"
+        type: string
     type: object
   organization.CreateRequest:
     properties:
@@ -1894,16 +1897,21 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Year
+      - description: Start Date (YYYY-MM-DD)
         in: query
-        name: year
+        name: start_date
         required: true
-        type: integer
-      - description: Month
+        type: string
+      - description: End Date (YYYY-MM-DD)
         in: query
-        name: month
+        name: end_date
         required: true
-        type: integer
+        type: string
+      - description: Service
+        in: query
+        name: service
+        required: true
+        type: string
       produces:
       - application/json
       responses:

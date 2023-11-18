@@ -21,8 +21,9 @@ import (
 // @Accept json
 // @Produce json
 // @Param id path int true "Organization ID"
-// @Param year query int true "Year"
-// @Param month query int true "Month"
+// @Param start_date query string true "Start Date (YYYY-MM-DD)"
+// @Param end_date query string true "End Date (YYYY-MM-DD)"
+// @Param service query string true "Service"
 // @Success 200 {object} BillingReportResponse
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse

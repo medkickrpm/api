@@ -1611,16 +1611,23 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Year",
-                        "name": "year",
+                        "type": "string",
+                        "description": "Start Date (YYYY-MM-DD)",
+                        "name": "start_date",
                         "in": "query",
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Month",
-                        "name": "month",
+                        "type": "string",
+                        "description": "End Date (YYYY-MM-DD)",
+                        "name": "end_date",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Service",
+                        "name": "service",
                         "in": "query",
                         "required": true
                     }
@@ -3544,9 +3551,9 @@ const docTemplate = `{
         "organization.BillingReportResponse": {
             "type": "object",
             "properties": {
-                "month": {
-                    "type": "integer",
-                    "example": 1
+                "end_date": {
+                    "type": "string",
+                    "example": "2006-01-02"
                 },
                 "records": {
                     "type": "array",
@@ -3554,9 +3561,13 @@ const docTemplate = `{
                         "$ref": "#/definitions/organization.BillingRecordBody"
                     }
                 },
-                "year": {
-                    "type": "integer",
-                    "example": 2021
+                "service": {
+                    "type": "string",
+                    "example": "RPM"
+                },
+                "start_date": {
+                    "type": "string",
+                    "example": "2006-01-02"
                 }
             }
         },
