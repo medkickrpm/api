@@ -52,9 +52,10 @@ func convertModelToResponse(data []models.TelemetryAlert) []TelemetryAlertRespon
 }
 
 type BillingReportResponse struct {
-	Year    int64               `json:"year" example:"2021"`
-	Month   int64               `json:"month" example:"1"`
-	Records []BillingRecordBody `json:"records"`
+	StartDate string              `json:"start_date" example:"2006-01-02"`
+	EndDate   string              `json:"end_date" example:"2006-01-02"`
+	Service   string              `json:"service" example:"RPM"`
+	Records   []BillingRecordBody `json:"records"`
 }
 
 type BillingRecordBody struct {
