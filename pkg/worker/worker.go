@@ -2,6 +2,7 @@ package worker
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/go-co-op/gocron"
@@ -46,7 +47,10 @@ func RunCPTWorkerForPatient(patientID uint) {
 }
 
 func RunCPTWorker() {
-	loc, _ := time.LoadLocation("America/New_York")
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		log.Fatalf("Failed to load location: %v", err)
+	}
 
 	s := gocron.NewScheduler(loc)
 

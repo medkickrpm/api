@@ -5,6 +5,7 @@ import (
 	"MedKick-backend/pkg/echo/dto"
 	"MedKick-backend/pkg/validator"
 	"fmt"
+	"log"
 	"net/http"
 	"sort"
 	"strings"
@@ -69,7 +70,11 @@ func getBillingReport(c echo.Context) error {
 		groupBill[patientID][serviceCode] = append(groupBill[patientID][serviceCode], bill)
 	}
 
-	loc, _ := time.LoadLocation("EST")
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		log.Fatalf("Failed to load location: %v", err)
+	}
+
 	lastDayOfMonth := time.Now().In(loc)
 
 	res := make([]BillingRecordBody, 0)
