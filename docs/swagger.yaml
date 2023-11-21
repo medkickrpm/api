@@ -396,9 +396,15 @@ definitions:
       code:
         example: I10
         type: string
+      diagnosis_name:
+        example: Essential (primary) hypertension
+        type: string
       id:
         example: 1
         type: integer
+      short_mnemonic:
+        example: Essential (primary) hypertension
+        type: string
     type: object
   models.Interaction:
     properties:
