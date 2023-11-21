@@ -35,6 +35,8 @@ func main() {
 		&models.PatientService{},
 		&models.Bill{},
 		&models.LastBillEntry{},
+		&models.Diagnosis{},
+		&models.PatientDiagnosis{},
 	)
 
 	if err != nil {

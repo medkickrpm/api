@@ -32,6 +32,9 @@ func Routes(r *echo.Group) {
 	r.PUT("/user/:id/alert-threshold", upsertAlertThreshold, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
 	r.GET("/user/:id/alert-threshold", listAlertThresholds, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
 
+
+	r.PUT("/user/:id/diagnoses", upsertDiagnoses, middleware.NotGuest, middleware.HasRole("admin", "doctor", "nurse"))
+	r.GET("/user/:id/diagnoses", getDiagnoses, middleware.NotGuest, middleware.HasRole("admin", "doctor", "nurse"))
 	r.PUT("/user/:id/patient-service", upsertPatientServices, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
 	r.GET("/user/:id/patient-service", listPatientServices, middleware.NotGuest)
 }

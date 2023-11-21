@@ -68,6 +68,11 @@ func convertAlertThresholdModelToResponse(data []models.AlertThreshold) []AlertT
 	return response
 }
 
+
+type DiagnosisData struct {
+	Diagnoses []string `json:"diagnoses" validate:"required"`
+}
+
 type PatientServiceResponse struct {
 	PatientID        uint   `json:"patient_id" example:"1"`
 	ServiceCode      string `json:"service_code" example:"RPM"`

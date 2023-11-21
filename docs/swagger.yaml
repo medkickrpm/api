@@ -391,6 +391,15 @@ definitions:
     - BloodPressure
     - BloodGlucose
     - WeightScale
+  models.Diagnosis:
+    properties:
+      code:
+        example: I10
+        type: string
+      id:
+        example: 1
+        type: integer
+    type: object
   models.Interaction:
     properties:
       cost_category:
@@ -729,6 +738,15 @@ definitions:
     - password
     - phone
     - role
+    type: object
+  user.DiagnosisData:
+    properties:
+      diagnoses:
+        items:
+          type: string
+        type: array
+    required:
+    - diagnoses
     type: object
   user.LoginRequest:
     properties:
@@ -1443,6 +1461,27 @@ paths:
       summary: Update Device
       tags:
       - Devices
+  /diagnoses:
+    get:
+      consumes:
+      - application/json
+      description: List Diagnosis Codes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Diagnosis'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: List Diagnosis Codes
+      tags:
+      - Organization
   /interaction:
     post:
       consumes:
@@ -2456,6 +2495,71 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Get Devices in User
+      tags:
+      - User
+  /user/{id}/diagnoses:
+    get:
+      consumes:
+      - application/json
+      description: Get Diagnoses
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Diagnoses
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Diagnoses
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Upsert Diagnoses
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Upsert Request
+        in: body
+        name: upsert
+        required: true
+        schema:
+          $ref: '#/definitions/user.DiagnosisData'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Upsert Diagnoses
       tags:
       - User
   /user/{id}/interactions:

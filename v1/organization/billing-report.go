@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/labstack/gommon/log"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -69,7 +71,7 @@ func getBillingReport(c echo.Context) error {
 	}
 	endDate = endDate.AddDate(0, 0, 1)
 
-	rawBills, err := models.ListBillByMonth(param.Service, startDate, endDate)
+	rawBills, err := models.ListBillByDateRange(param.Service, startDate, endDate)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to list bills",
@@ -78,10 +80,13 @@ func getBillingReport(c echo.Context) error {
 
 	groupBill := make(map[uint]map[string][]models.Bill)
 
+	var patientIDs []uint
+
 	for _, bill := range rawBills {
 		patientID := bill.PatientID
 		if _, ok := groupBill[patientID]; !ok {
 			groupBill[patientID] = make(map[string][]models.Bill)
+			patientIDs = append(patientIDs, patientID)
 		}
 
 		serviceCode := bill.ServiceCode
@@ -91,6 +96,13 @@ func getBillingReport(c echo.Context) error {
 
 		groupBill[patientID][serviceCode] = append(groupBill[patientID][serviceCode], bill)
 	}
+
+	diagnosesMap, err := models.ListPatientDiagnosesCodeByPatientIDs(patientIDs)
+	if err != nil {
+		log.Error(err)
+	}
+
+	fmt.Println("-----", diagnosesMap)
 
 	currentDate := time.Now().In(loc)
 
@@ -118,6 +130,9 @@ func getBillingReport(c echo.Context) error {
 						DOB:         dob,
 						DOS:         currentDate.Format("02/01/2006"),
 						ServiceCode: bill.ServiceCode,
+					}
+					if diagnosis, ok := diagnosesMap[bill.PatientID]; ok {
+						record.ICD10 = diagnosis
 					}
 				})
 			}
