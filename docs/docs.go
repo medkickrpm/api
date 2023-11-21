@@ -2772,6 +2772,101 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/{id}/patient-service": {
+            "get": {
+                "description": "List Patient Services",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "List Patient Services",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.PatientServiceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Upsert Patient Services",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Upsert Patient Services",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Upsert Request",
+                        "name": "upsert",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.PatientServiceData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -3854,6 +3949,49 @@ const docTemplate = `{
                 },
                 "warning_low": {
                     "type": "integer"
+                }
+            }
+        },
+        "user.PatientServiceData": {
+            "type": "object",
+            "required": [
+                "services"
+            ],
+            "properties": {
+                "services": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "user.PatientServiceResponse": {
+            "type": "object",
+            "properties": {
+                "ended_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "is_service_enabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "patient_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "service_code": {
+                    "type": "string",
+                    "example": "RPM"
+                },
+                "service_name": {
+                    "type": "string",
+                    "example": "Remote Patient Monitoring"
+                },
+                "started_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 }
             }
         },
