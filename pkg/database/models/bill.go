@@ -85,7 +85,7 @@ func DeleteBillByPatientIDInRange(patientID uint, startAt, endAt time.Time) erro
 	return nil
 }
 
-func ListBillByMonth(service string, startDate, endDate time.Time) ([]Bill, error) {
+func ListBillByDateRange(service string, startDate, endDate time.Time) ([]Bill, error) {
 	var bills []Bill
 	db := database.DB.Model(&Bill{})
 	db = db.Preload("Patient")

@@ -873,6 +873,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/diagnoses": {
+            "get": {
+                "description": "List Diagnosis Codes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "List Diagnosis Codes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Diagnosis"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/interaction": {
             "post": {
                 "description": "Create an interaction",
@@ -2640,6 +2672,104 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/{id}/diagnoses": {
+            "get": {
+                "description": "Get Diagnoses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get Diagnoses",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Diagnoses",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Upsert Diagnoses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Upsert Diagnoses",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Upsert Request",
+                        "name": "upsert",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.DiagnosisData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/{id}/interactions": {
             "get": {
                 "description": "If ID is specified, gets interactions in that user, if ID is not specified, gets interactions in self",
@@ -3333,6 +3463,19 @@ const docTemplate = `{
                 "WeightScale"
             ]
         },
+        "models.Diagnosis": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "I10"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "models.Interaction": {
             "type": "object",
             "properties": {
@@ -3806,6 +3949,20 @@ const docTemplate = `{
                 "role": {
                     "description": "Roles: admin, doctor, patient, doctornv, patientnv (nv = not verified email)",
                     "type": "string"
+                }
+            }
+        },
+        "user.DiagnosisData": {
+            "type": "object",
+            "required": [
+                "diagnoses"
+            ],
+            "properties": {
+                "diagnoses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

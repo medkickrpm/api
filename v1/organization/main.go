@@ -21,4 +21,6 @@ func Routes(r *echo.Group) {
 	r.PATCH("/organization/:id/telemetry-alert/:alert/resolve", resolvedTelemetryAlert, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
 
 	r.GET("/organization/:id/billing-report", getBillingReport, middleware.NotGuest, middleware.HasRole("admin"))
+
+	r.GET("/diagnoses", listDiagnosisCodes, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
 }
