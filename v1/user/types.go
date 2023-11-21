@@ -68,6 +68,40 @@ func convertAlertThresholdModelToResponse(data []models.AlertThreshold) []AlertT
 	return response
 }
 
+
 type DiagnosisData struct {
 	Diagnoses []string `json:"diagnoses" validate:"required"`
+}
+
+type PatientServiceResponse struct {
+	PatientID        uint   `json:"patient_id" example:"1"`
+	ServiceCode      string `json:"service_code" example:"RPM"`
+	ServiceName      string `json:"service_name" example:"Remote Patient Monitoring"`
+	IsServiceEnabled bool   `json:"is_service_enabled" example:"true"`
+	StartedAt        string `json:"started_at" example:"2021-01-01T00:00:00Z"`
+	EndedAt          string `json:"ended_at,omitempty" example:"2021-01-01T00:00:00Z"`
+}
+
+func convertPatientServiceModelToResponse(data []models.PatientService) []PatientServiceResponse {
+	response := make([]PatientServiceResponse, 0)
+
+	for _, d := range data {
+		pResp := PatientServiceResponse{
+			PatientID:        d.PatientID,
+			ServiceCode:      d.Service.Code,
+			ServiceName:      d.Service.Name,
+			IsServiceEnabled: d.Service.IsEnabled,
+			StartedAt:        d.StartedAt.Format("2006-01-02T15:04:05Z"),
+		}
+		if d.EndedAt != nil {
+			pResp.EndedAt = d.EndedAt.Format("2006-01-02T15:04:05Z")
+		}
+		response = append(response, pResp)
+	}
+
+	return response
+}
+
+type PatientServiceData struct {
+	Services []string `json:"services" validate:"required,dive,required,oneof=RPM CCM PCM BHI"`
 }

@@ -1,6 +1,11 @@
 package models
 
-import "time"
+import (
+	"MedKick-backend/pkg/database"
+	"time"
+
+	"gorm.io/gorm/clause"
+)
 
 type Service struct {
 	ID          uint   `json:"id" gorm:"primary_key;auto_increment" example:"1"`
@@ -11,6 +16,17 @@ type Service struct {
 
 	CreatedAt time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
 	UpdatedAt time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
+}
+
+func ListServices() ([]Service, error) {
+	var services []Service
+
+	db := database.DB.Model(&Service{})
+	if err := db.Find(&services).Error; err != nil {
+		return nil, err
+	}
+
+	return services, nil
 }
 
 type PatientService struct {
@@ -25,4 +41,39 @@ type PatientService struct {
 
 	CreatedAt time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
 	UpdatedAt time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
+}
+
+func ListPatientServices(patientID uint) ([]PatientService, error) {
+	var patientServices []PatientService
+	db := database.DB.Model(&PatientService{})
+	db = db.Preload("Service")
+	db = db.Where("patient_id = ?", patientID)
+	db = db.Where("ended_at IS NULL")
+	if err := db.Find(&patientServices).Error; err != nil {
+		return nil, err
+	}
+
+	return patientServices, nil
+}
+
+func UpsertPatientServices(services []PatientService) error {
+	// If patient_id & service_id already exists, update ended_at and started_at
+	// otherwise, insert new row
+
+	db := database.DB.Model(&PatientService{})
+	// Conflict with  PatientID, ServiceID then update all
+	db = db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "patient_id"}, {Name: "service_id"}},
+		DoUpdates: clause.AssignmentColumns([]string{
+			"started_at",
+			"ended_at",
+			"updated_at",
+		}),
+	})
+
+	if err := db.Create(&services).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
