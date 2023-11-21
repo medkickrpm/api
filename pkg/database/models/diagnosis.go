@@ -6,8 +6,10 @@ import (
 )
 
 type Diagnosis struct {
-	ID   uint   `json:"id" gorm:"primary_key;auto_increment" example:"1"`
-	Code string `json:"code" gorm:"type:varchar(10); not null; uniqueIndex" example:"I10"`
+	ID            uint   `json:"id" gorm:"primary_key;auto_increment" example:"1"`
+	Code          string `json:"code" gorm:"type:varchar(10); not null; uniqueIndex" example:"I10"`
+	DiagnosisName string `json:"diagnosis_name" gorm:"type:varchar(255); not null" example:"Essential (primary) hypertension"`
+	ShortMnemonic string `json:"short_mnemonic" gorm:"type:varchar(255); not null" example:"Essential (primary) hypertension"`
 }
 
 func (Diagnosis) TableName() string {

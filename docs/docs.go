@@ -3565,9 +3565,17 @@ const docTemplate = `{
                     "type": "string",
                     "example": "I10"
                 },
+                "diagnosis_name": {
+                    "type": "string",
+                    "example": "Essential (primary) hypertension"
+                },
                 "id": {
                     "type": "integer",
                     "example": 1
+                },
+                "short_mnemonic": {
+                    "type": "string",
+                    "example": "Essential (primary) hypertension"
                 }
             }
         },
