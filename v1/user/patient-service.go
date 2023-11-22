@@ -84,7 +84,7 @@ func upsertPatientServices(c echo.Context) error {
 		newServiceMap[service] = true
 	}
 
-	if newServiceMap["CCM"] == newServiceMap["PCM"] {
+	if newServiceMap["CCM"] == true && newServiceMap["PCM"] == true {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Cannot have both CCM and PCM",
 		})
