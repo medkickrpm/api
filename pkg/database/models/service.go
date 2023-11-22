@@ -31,9 +31,9 @@ func ListServices() ([]Service, error) {
 
 type PatientService struct {
 	ID        uint    `json:"id" gorm:"primary_key;auto_increment" example:"1"`
-	PatientID uint    `json:"patient_id" gorm:"index:,unique,composite:patient_service; not null" example:"1"`
+	PatientID uint    `json:"patient_id" gorm:"not null" example:"1"`
 	Patient   User    `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
-	ServiceID uint    `json:"service_id" gorm:"index:,unique,composite:patient_service; not null" example:"1"`
+	ServiceID uint    `json:"service_id" gorm:"not null" example:"1"`
 	Service   Service `json:"service,omitempty" gorm:"foreignKey:ServiceID"`
 
 	StartedAt time.Time  `json:"started_at" gorm:"not null" example:"2021-01-01T00:00:00Z"`
@@ -43,17 +43,46 @@ type PatientService struct {
 	UpdatedAt time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
 }
 
-func ListPatientServices(patientID uint) ([]PatientService, error) {
+func ListPatientServices(patientID uint, status string, pagination PageReq, sort SortReq) ([]PatientService, error) {
 	var patientServices []PatientService
 	db := database.DB.Model(&PatientService{})
 	db = db.Preload("Service")
 	db = db.Where("patient_id = ?", patientID)
-	db = db.Where("ended_at IS NULL")
+
+	if status == "active" {
+		db = db.Where("ended_at IS NULL")
+	} else if status == "inactive" {
+		db = db.Where("ended_at IS NOT NULL")
+	}
+
+	db = db.Scopes(pagination.Paginate())
+	db = db.Scopes(sort.Sort())
+
 	if err := db.Find(&patientServices).Error; err != nil {
 		return nil, err
 	}
 
 	return patientServices, nil
+}
+
+func CountPatientServices(patientID uint, status string) (int, error) {
+	var count int64
+
+	db := database.DB.Model(&PatientService{})
+	db = db.Preload("Service")
+	db = db.Where("patient_id = ?", patientID)
+
+	if status == "active" {
+		db = db.Where("ended_at IS NULL")
+	} else if status == "inactive" {
+		db = db.Where("ended_at IS NOT NULL")
+	}
+
+	if err := db.Count(&count).Error; err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }
 
 func UpsertPatientServices(services []PatientService) error {
@@ -63,9 +92,8 @@ func UpsertPatientServices(services []PatientService) error {
 	db := database.DB.Model(&PatientService{})
 	// Conflict with  PatientID, ServiceID then update all
 	db = db.Clauses(clause.OnConflict{
-		Columns: []clause.Column{{Name: "patient_id"}, {Name: "service_id"}},
+		Columns: []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{
-			"started_at",
 			"ended_at",
 			"updated_at",
 		}),

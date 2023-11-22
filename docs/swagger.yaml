@@ -2668,6 +2668,31 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Status
+        enum:
+        - active
+        - inactive
+        - all
+        in: query
+        name: status
+        required: true
+        type: string
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Size
+        in: query
+        name: size
+        type: integer
+      - description: Sort By
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort Direction
+        in: query
+        name: sort_direction
+        type: string
       produces:
       - application/json
       responses:

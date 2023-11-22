@@ -5,6 +5,7 @@ import (
 	"MedKick-backend/pkg/echo/dto"
 	"MedKick-backend/pkg/validator"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -57,7 +58,7 @@ func upsertPatientServices(c echo.Context) error {
 	}
 
 	// return active services by the patient
-	patientServices, err := models.ListPatientServices(req.PatientID)
+	patientServices, err := models.ListPatientServices(req.PatientID, "active", models.NewPageReq(), models.NewSortReq())
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to list patient services",
@@ -140,16 +141,33 @@ func upsertPatientServices(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "User ID"
+// @Param status query string true "Status" Enums(active,inactive,all)
+// @Param page query int false "Page"
+// @Param size query int false "Size"
+// @Param sort_by query string false "Sort By"
+// @Param sort_direction query string false "Sort Direction"
 // @Success 200 {object} PatientServiceResponse
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /user/{id}/patient-service [get]
 func listPatientServices(c echo.Context) error {
-	var req struct {
-		PatientID uint `json:"-" param:"id"`
+	req := struct {
+		PatientID uint   `json:"-" param:"id"`
+		Status    string `query:"status" validate:"required,oneof=active inactive all"`
+		models.PageReq
+		models.SortReq
+	}{
+		PageReq: models.NewPageReq(),
+		SortReq: models.NewSortReq(),
 	}
 
 	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: err.Error(),
+		})
+	}
+
+	if err := validator.Validate.Struct(req); err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: err.Error(),
 		})
@@ -171,12 +189,36 @@ func listPatientServices(c echo.Context) error {
 		})
 	}
 
-	patientServices, err := models.ListPatientServices(req.PatientID)
+	patientServices, err := models.ListPatientServices(req.PatientID, req.Status, req.PageReq, req.SortReq)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to list patient services",
 		})
 	}
 
-	return c.JSON(http.StatusOK, convertPatientServiceModelToResponse(patientServices))
+	if req.Status == "all" {
+		sort.SliceStable(patientServices, func(i, j int) bool {
+			if patientServices[i].EndedAt == nil && patientServices[j].EndedAt != nil {
+				return true
+			}
+
+			return false
+		})
+	}
+
+	total, err := models.CountPatientServices(req.PatientID, req.Status)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to count patient services",
+		})
+	}
+
+	response := map[string]interface{}{
+		"data":  convertPatientServiceModelToResponse(patientServices),
+		"page":  req.Page,
+		"size":  len(patientServices),
+		"total": total,
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
