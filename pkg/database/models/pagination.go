@@ -3,6 +3,7 @@ package models
 import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 type PageReq struct {
@@ -45,7 +46,7 @@ const (
 // Sort returns scope for sorting
 func (s *SortReq) Sort() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Order(clause.OrderByColumn{Column: clause.Column{Name: s.By}, Desc: s.Direction == DESC})
+		return db.Order(clause.OrderByColumn{Column: clause.Column{Name: s.By}, Desc: strings.ToUpper(string(s.Direction)) == string(DESC)})
 	}
 }
 
