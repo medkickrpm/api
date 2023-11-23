@@ -4239,7 +4239,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
                 },
-                "is_service_enabled": {
+                "is_service_active": {
                     "type": "boolean",
                     "example": true
                 },
