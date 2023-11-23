@@ -35,7 +35,7 @@ type PatientService struct {
 	Patient   User    `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
 	ServiceID uint    `json:"service_id" gorm:"not null" example:"1"`
 	Service   Service `json:"service,omitempty" gorm:"foreignKey:ServiceID"`
-	Status    bool    `json:"status" gorm:"not null; DEFAULT:1" example:"true"`
+	Status    *bool   `json:"status" gorm:"not null; DEFAULT:1" example:"true"`
 
 	StartedAt time.Time  `json:"started_at" gorm:"not null" example:"2021-01-01T00:00:00Z"`
 	EndedAt   *time.Time `json:"ended_at" gorm:"default:null" example:"2021-01-01T00:00:00Z"`
@@ -101,7 +101,7 @@ func UpsertPatientServices(services []PatientService) error {
 		}),
 	})
 
-	if err := db.Create(&services).Error; err != nil {
+	if err := db.Model(&PatientService{}).Create(&services).Error; err != nil {
 		return err
 	}
 
