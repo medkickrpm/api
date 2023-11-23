@@ -76,7 +76,9 @@ func upsertPatientServices(c echo.Context) error {
 	// all services in a map
 	serviceMap := make(map[string]models.Service)
 	for _, service := range allServices {
-		serviceMap[service.Code] = service
+		if service.IsEnabled {
+			serviceMap[service.Code] = service
+		}
 	}
 
 	// new requested services in a map

@@ -1963,6 +1963,38 @@
                 }
             }
         },
+        "/services": {
+            "get": {
+                "description": "List Services",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Organization"
+                ],
+                "summary": "List Services",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Service"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "post": {
                 "description": "ADMIN ONLY - Create User",
@@ -3729,6 +3761,39 @@
                 "zip": {
                     "type": "string",
                     "example": "12345"
+                }
+            }
+        },
+        "models.Service": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Remote Patient Monitoring"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "is_enabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "service_code": {
+                    "type": "string",
+                    "example": "RPM"
+                },
+                "service_name": {
+                    "type": "string",
+                    "example": "Remote Patient Monitoring"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 }
             }
         },

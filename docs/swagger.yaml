@@ -494,6 +494,30 @@ definitions:
         example: "12345"
         type: string
     type: object
+  models.Service:
+    properties:
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      description:
+        example: Remote Patient Monitoring
+        type: string
+      id:
+        example: 1
+        type: integer
+      is_enabled:
+        example: true
+        type: boolean
+      service_code:
+        example: RPM
+        type: string
+      service_name:
+        example: Remote Patient Monitoring
+        type: string
+      updated_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+    type: object
   models.User:
     properties:
       Location:
@@ -2190,6 +2214,27 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Resolve Telemetry Alert
+      tags:
+      - Organization
+  /services:
+    get:
+      consumes:
+      - application/json
+      description: List Services
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Service'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: List Services
       tags:
       - Organization
   /user:
