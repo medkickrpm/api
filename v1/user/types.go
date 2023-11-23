@@ -89,11 +89,12 @@ func convertPatientServiceModelToResponse(data []models.PatientService) []Patien
 			PatientID:        d.PatientID,
 			ServiceCode:      d.Service.Code,
 			ServiceName:      d.Service.Name,
-			IsServiceEnabled: d.Service.IsEnabled,
+			IsServiceEnabled: true,
 			StartedAt:        d.StartedAt.Format("2006-01-02T15:04:05Z"),
 		}
 		if d.EndedAt != nil {
 			pResp.EndedAt = d.EndedAt.Format("2006-01-02T15:04:05Z")
+			pResp.IsServiceEnabled = false
 		}
 		response = append(response, pResp)
 	}
