@@ -104,7 +104,8 @@ func upsertPatientServices(c echo.Context) error {
 	for _, patientService := range patientServices {
 		oldServiceMap[patientService.Service.Code] = struct{}{}
 		if _, ok := newServiceMap[patientService.Service.Code]; !ok {
-			patientService.Status = false
+			isActive := false
+			patientService.Status = &isActive
 			patientService.EndedAt = &currentTime
 			patientService.UpdatedAt = currentTime
 			toUpsert = append(toUpsert, patientService)
@@ -117,7 +118,6 @@ func upsertPatientServices(c echo.Context) error {
 			if svc, found := serviceMap[service]; found {
 				toUpsert = append(toUpsert, models.PatientService{
 					PatientID: req.PatientID,
-					Status:    true,
 					ServiceID: svc.ID,
 					StartedAt: currentTime,
 				})

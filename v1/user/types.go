@@ -86,12 +86,16 @@ func convertPatientServiceModelToResponse(data []models.PatientService) []Patien
 
 	for _, d := range data {
 		pResp := PatientServiceResponse{
-			PatientID:       d.PatientID,
-			ServiceCode:     d.Service.Code,
-			ServiceName:     d.Service.Name,
-			IsServiceActive: d.Status,
-			StartedAt:       d.StartedAt.Format("2006-01-02T15:04:05Z"),
+			PatientID:   d.PatientID,
+			ServiceCode: d.Service.Code,
+			ServiceName: d.Service.Name,
+			StartedAt:   d.StartedAt.Format("2006-01-02T15:04:05Z"),
 		}
+
+		if d.Status != nil && *d.Status {
+			pResp.IsServiceActive = true
+		}
+
 		if d.EndedAt != nil {
 			pResp.EndedAt = d.EndedAt.Format("2006-01-02T15:04:05Z")
 		}
