@@ -73,12 +73,12 @@ type DiagnosisData struct {
 }
 
 type PatientServiceResponse struct {
-	PatientID        uint   `json:"patient_id" example:"1"`
-	ServiceCode      string `json:"service_code" example:"RPM"`
-	ServiceName      string `json:"service_name" example:"Remote Patient Monitoring"`
-	IsServiceEnabled bool   `json:"is_service_enabled" example:"true"`
-	StartedAt        string `json:"started_at" example:"2021-01-01T00:00:00Z"`
-	EndedAt          string `json:"ended_at,omitempty" example:"2021-01-01T00:00:00Z"`
+	PatientID       uint   `json:"patient_id" example:"1"`
+	ServiceCode     string `json:"service_code" example:"RPM"`
+	ServiceName     string `json:"service_name" example:"Remote Patient Monitoring"`
+	IsServiceActive bool   `json:"is_service_active" example:"true"`
+	StartedAt       string `json:"started_at" example:"2021-01-01T00:00:00Z"`
+	EndedAt         string `json:"ended_at,omitempty" example:"2021-01-01T00:00:00Z"`
 }
 
 func convertPatientServiceModelToResponse(data []models.PatientService) []PatientServiceResponse {
@@ -86,11 +86,11 @@ func convertPatientServiceModelToResponse(data []models.PatientService) []Patien
 
 	for _, d := range data {
 		pResp := PatientServiceResponse{
-			PatientID:        d.PatientID,
-			ServiceCode:      d.Service.Code,
-			ServiceName:      d.Service.Name,
-			IsServiceEnabled: d.Service.IsEnabled,
-			StartedAt:        d.StartedAt.Format("2006-01-02T15:04:05Z"),
+			PatientID:       d.PatientID,
+			ServiceCode:     d.Service.Code,
+			ServiceName:     d.Service.Name,
+			IsServiceActive: d.Status,
+			StartedAt:       d.StartedAt.Format("2006-01-02T15:04:05Z"),
 		}
 		if d.EndedAt != nil {
 			pResp.EndedAt = d.EndedAt.Format("2006-01-02T15:04:05Z")

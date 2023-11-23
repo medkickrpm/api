@@ -35,6 +35,7 @@ type PatientService struct {
 	Patient   User    `json:"patient,omitempty" gorm:"foreignKey:PatientID"`
 	ServiceID uint    `json:"service_id" gorm:"not null" example:"1"`
 	Service   Service `json:"service,omitempty" gorm:"foreignKey:ServiceID"`
+	Status    bool    `json:"status" gorm:"not null; DEFAULT:1" example:"true"`
 
 	StartedAt time.Time  `json:"started_at" gorm:"not null" example:"2021-01-01T00:00:00Z"`
 	EndedAt   *time.Time `json:"ended_at" gorm:"default:null" example:"2021-01-01T00:00:00Z"`
@@ -50,9 +51,9 @@ func ListPatientServices(patientID uint, status string, pagination PageReq, sort
 	db = db.Where("patient_id = ?", patientID)
 
 	if status == "active" {
-		db = db.Where("ended_at IS NULL")
+		db = db.Where("status = ?", true)
 	} else if status == "inactive" {
-		db = db.Where("ended_at IS NOT NULL")
+		db = db.Where("status = ?", false)
 	}
 
 	db = db.Scopes(pagination.Paginate())
@@ -73,9 +74,9 @@ func CountPatientServices(patientID uint, status string) (int, error) {
 	db = db.Where("patient_id = ?", patientID)
 
 	if status == "active" {
-		db = db.Where("ended_at IS NULL")
+		db = db.Where("status = ?", true)
 	} else if status == "inactive" {
-		db = db.Where("ended_at IS NOT NULL")
+		db = db.Where("status = ?", false)
 	}
 
 	if err := db.Count(&count).Error; err != nil {
@@ -94,6 +95,7 @@ func UpsertPatientServices(services []PatientService) error {
 	db = db.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{
+			"status",
 			"ended_at",
 			"updated_at",
 		}),
