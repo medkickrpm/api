@@ -23,4 +23,6 @@ func Routes(r *echo.Group) {
 	r.GET("/organization/:id/billing-report", getBillingReport, middleware.NotGuest, middleware.HasRole("admin"))
 
 	r.GET("/diagnoses", listDiagnosisCodes, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
+
+	r.GET("/services", listServices, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
 }

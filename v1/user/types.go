@@ -68,7 +68,6 @@ func convertAlertThresholdModelToResponse(data []models.AlertThreshold) []AlertT
 	return response
 }
 
-
 type DiagnosisData struct {
 	Diagnoses []string `json:"diagnoses" validate:"required"`
 }
@@ -103,5 +102,5 @@ func convertPatientServiceModelToResponse(data []models.PatientService) []Patien
 }
 
 type PatientServiceData struct {
-	Services []string `json:"services" validate:"required,dive,required,oneof=RPM CCM PCM BHI"`
+	Services []string `json:"services" validate:"required,dive,required,oneof=RPM CCM PCM BHI RTM"`
 }
