@@ -3329,7 +3329,14 @@ const docTemplate = `{
             ],
             "properties": {
                 "cost_category": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "RPM",
+                        "CCM",
+                        "PCM",
+                        "BHI",
+                        "RTM"
+                    ]
                 },
                 "doctor_id": {
                     "type": "integer"

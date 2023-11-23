@@ -28,15 +28,30 @@ func TriggerCPTWorker() {
 	}
 }
 
-func RunCPTWorkerForPatient(patientID uint) {
-	funcList := []func(...uint) error{
-		processCPTCode99457,
-		processCPTCode99458,
-		processCPTCode99490,
-		processCPTCode99439,
-		processCPTCode99426,
-		processCPTCode99427,
-		processCPTCode99484,
+func RunCPTWorkerForPatient(service string, patientID uint) {
+	var funcList []func(...uint) error
+
+	if service == "RPM" {
+		funcList = []func(...uint) error{
+			processCPTCode99457,
+			processCPTCode99458,
+		}
+	} else if service == "CCM" {
+		funcList = []func(...uint) error{
+			processCPTCode99490,
+			processCPTCode99439,
+		}
+	} else if service == "PCM" {
+		funcList = []func(...uint) error{
+			processCPTCode99426,
+			processCPTCode99427,
+		}
+	} else if service == "BHI" {
+		funcList = []func(...uint) error{
+			processCPTCode99484,
+		}
+	} else {
+		return
 	}
 
 	for _, f := range funcList {

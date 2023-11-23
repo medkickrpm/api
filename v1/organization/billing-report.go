@@ -102,8 +102,6 @@ func getBillingReport(c echo.Context) error {
 		log.Error(err)
 	}
 
-	fmt.Println("-----", diagnosesMap)
-
 	currentDate := time.Now().In(loc)
 
 	res := make([]BillingRecordBody, 0)

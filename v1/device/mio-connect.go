@@ -297,13 +297,11 @@ func ingestStatus(c echo.Context) error {
 
 	var req RequestStatus
 	if err := c.Bind(&req); err != nil {
-		fmt.Println("1")
 		fmt.Println(err.Error())
 		return err
 	}
 
 	if err := validator.Validate.Struct(req); err != nil {
-		fmt.Println("2")
 		println(err.Error())
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
