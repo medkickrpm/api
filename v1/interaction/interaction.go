@@ -20,7 +20,7 @@ type CreateRequest struct {
 	Duration     uint   `json:"duration" validate:"required"`
 	Notes        string `json:"notes" validate:"required"`
 	SessionDate  string `json:"session_date" validate:"required" example:"2021-01-01T00:00:00Z"`
-	CostCategory string `json:"cost_category" validate:"required"`
+	CostCategory string `json:"cost_category" validate:"required,oneof=RPM CCM PCM BHI RTM"`
 }
 
 // createInteraction godoc
@@ -103,7 +103,7 @@ func createInteraction(c echo.Context) error {
 
 	go func() {
 		fmt.Println("Running CPT worker for patient in the background")
-		worker.RunCPTWorkerForPatient(request.UserID)
+		worker.RunCPTWorkerForPatient(request.CostCategory, request.UserID)
 	}()
 
 	return c.JSON(http.StatusCreated, i)

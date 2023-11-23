@@ -169,6 +169,12 @@ definitions:
   interaction.CreateRequest:
     properties:
       cost_category:
+        enum:
+        - RPM
+        - CCM
+        - PCM
+        - BHI
+        - RTM
         type: string
       doctor_id:
         type: integer

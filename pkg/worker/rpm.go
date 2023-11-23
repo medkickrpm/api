@@ -199,6 +199,7 @@ func processCPTCode99457(patientIDs ...uint) error {
 	db = database.DB.Model(&models.Interaction{}).
 		Where("user_id IN (?)", patientList).
 		Where("session_date >= ?", startDate).
+		Where("cost_category = ?", "RPM").
 		Group("user_id").
 		Having("SUM(duration) >= ?", 20*60)
 
@@ -294,6 +295,7 @@ func processCPTCode99458(patientIDs ...uint) error {
 		Select("user_id, SUM(duration) as duration").
 		Where("user_id IN (?)", patientList).
 		Where("session_date >= ?", startDate).
+		Where("cost_category = ?", "RPM").
 		Group("user_id").
 		Having("SUM(duration) >= ?", 40*60)
 
