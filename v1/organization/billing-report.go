@@ -128,6 +128,7 @@ func getBillingReport(c echo.Context) error {
 						DOB:         dob,
 						DOS:         currentDate.Format("02/01/2006"),
 						ServiceCode: bill.ServiceCode,
+						Provider:    bill.Patient.Provider,
 					}
 					if diagnosis, ok := diagnosesMap[bill.PatientID]; ok {
 						record.ICD10 = diagnosis

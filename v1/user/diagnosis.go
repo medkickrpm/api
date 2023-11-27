@@ -178,9 +178,9 @@ func getDiagnoses(c echo.Context) error {
 		})
 	}
 
-	diagnoses := make([]string, 0)
+	diagnoses := make([]models.Diagnosis, 0)
 	for _, d := range patientDiagnoses {
-		diagnoses = append(diagnoses, d.Diagnosis.Code)
+		diagnoses = append(diagnoses, d.Diagnosis)
 	}
 
 	return c.JSON(http.StatusOK, diagnoses)

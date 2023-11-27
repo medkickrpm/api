@@ -405,9 +405,6 @@ definitions:
       diagnosis_name:
         example: Essential (primary) hypertension
         type: string
-      id:
-        example: 1
-        type: integer
       short_mnemonic:
         example: Essential (primary) hypertension
         type: string
@@ -565,6 +562,9 @@ definitions:
         type: string
       phone:
         example: "08123456789"
+        type: string
+      provider:
+        example: Test Provider
         type: string
       role:
         example: admin
@@ -758,6 +758,8 @@ definitions:
         type: string
       phone:
         type: string
+      provider:
+        type: string
       role:
         description: 'Roles: admin, doctor, patient, doctornv, patientnv (nv = not
           verified email)'
@@ -907,6 +909,8 @@ definitions:
       password:
         type: string
       phone:
+        type: string
+      provider:
         type: string
       role:
         type: string

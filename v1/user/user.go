@@ -29,6 +29,7 @@ type CreateRequest struct {
 	InsuranceProvider string `json:"insurance_provider" validate:"required"`
 	InsuranceID       string `json:"insurance_id" validate:"required"`
 	OrganizationID    uint   `json:"organization_id" validate:"required"`
+	Provider          string `json:"provider"`
 }
 
 // createUser godoc
@@ -96,6 +97,7 @@ func createUser(c echo.Context) error {
 		InsuranceProvider: request.InsuranceProvider,
 		InsuranceID:       request.InsuranceID,
 		OrganizationID:    &request.OrganizationID,
+		Provider:          request.Provider,
 	}
 
 	// Hash password & Create User
@@ -713,6 +715,7 @@ type UpdateRequest struct {
 	InsuranceProvider string `json:"insurance_provider"`
 	InsuranceID       string `json:"insurance_id"`
 	OrganizationID    *uint  `json:"organization_id"`
+	Provider          string `json:"provider,omitempty"`
 }
 
 // updateUser godoc
@@ -783,6 +786,8 @@ func updateUser(c echo.Context) error {
 		if request.InsuranceID != "" {
 			self.InsuranceID = request.InsuranceID
 		}
+
+		self.Provider = request.Provider
 
 		if err := self.UpdateUser(); err != nil {
 			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{

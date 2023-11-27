@@ -3641,10 +3641,6 @@
                     "type": "string",
                     "example": "Essential (primary) hypertension"
                 },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
                 "short_mnemonic": {
                     "type": "string",
                     "example": "Essential (primary) hypertension"
@@ -3860,6 +3856,10 @@
                 "phone": {
                     "type": "string",
                     "example": "08123456789"
+                },
+                "provider": {
+                    "type": "string",
+                    "example": "Test Provider"
                 },
                 "role": {
                     "type": "string",
@@ -4154,6 +4154,9 @@
                 "phone": {
                     "type": "string"
                 },
+                "provider": {
+                    "type": "string"
+                },
                 "role": {
                     "description": "Roles: admin, doctor, patient, doctornv, patientnv (nv = not verified email)",
                     "type": "string"
@@ -4354,6 +4357,9 @@
                     "type": "string"
                 },
                 "phone": {
+                    "type": "string"
+                },
+                "provider": {
                     "type": "string"
                 },
                 "role": {
