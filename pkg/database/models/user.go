@@ -23,6 +23,7 @@ type User struct {
 	InsuranceID       string       `json:"insurance_id" gorm:"not null" example:"123456789"`
 	OrganizationID    *uint        `json:"organization_id" gorm:"null" example:"1"`
 	Organization      Organization `json:"organization" gorm:"foreignKey:OrganizationID"`
+	Provider          string       `json:"provider,omitempty" example:"Test Provider"`
 	CreatedAt         time.Time    `json:"created_at" example:"2021-01-01T00:00:00Z"`
 	UpdatedAt         time.Time    `json:"updated_at" example:"2021-01-01T00:00:00Z"`
 }

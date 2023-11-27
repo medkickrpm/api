@@ -3644,10 +3644,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Essential (primary) hypertension"
                 },
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
                 "short_mnemonic": {
                     "type": "string",
                     "example": "Essential (primary) hypertension"
@@ -3863,6 +3859,10 @@ const docTemplate = `{
                 "phone": {
                     "type": "string",
                     "example": "08123456789"
+                },
+                "provider": {
+                    "type": "string",
+                    "example": "Test Provider"
                 },
                 "role": {
                     "type": "string",
@@ -4157,6 +4157,9 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
+                "provider": {
+                    "type": "string"
+                },
                 "role": {
                     "description": "Roles: admin, doctor, patient, doctornv, patientnv (nv = not verified email)",
                     "type": "string"
@@ -4357,6 +4360,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone": {
+                    "type": "string"
+                },
+                "provider": {
                     "type": "string"
                 },
                 "role": {
