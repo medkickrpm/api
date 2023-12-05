@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -26,7 +27,90 @@ type User struct {
 	Provider          string       `json:"provider,omitempty" example:"Test Provider"`
 	CreatedAt         time.Time    `json:"created_at" example:"2021-01-01T00:00:00Z"`
 	UpdatedAt         time.Time    `json:"updated_at" example:"2021-01-01T00:00:00Z"`
+	Device            []Device
+	PatientDiagnosis  []PatientDiagnosis
+	Interaction       []Interaction
 }
+
+type DeviceTelemetryDataResponse struct {
+	ID uint `json:"id"`
+	//Sphygmomanometer
+	SystolicBP         uint `json:"systolic_bp"`
+	DiastolicBP        uint `json:"diastolic_bp"`
+	Pulse              uint `json:"pulse"`
+	IrregularHeartBeat bool `json:"irregular_heartbeat"`
+	HandShaking        bool `json:"hand_shaking"`
+	TripleMeasurement  bool `json:"triple_measurement"`
+	//Weight Scale
+	Weight           uint `json:"weight"`
+	WeightStableTime uint `json:"weight_stable_time"`
+	WeightLockCount  uint `json:"weight_lock_count"`
+	//Blood Glucose Meter
+	BloodGlucose uint   `json:"blood_glucose"`
+	Unit         string `json:"unit"`
+	TestPaper    string `json:"test_paper"`
+	SampleType   string `json:"sample_type"`
+	Meal         string `json:"meal"`
+
+	DeviceID   uint      `json:"device_id"`
+	MeasuredAt time.Time `json:"measured_at"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+type DeviceResponse struct {
+	ID                  uint   `json:"id"`
+	Name                string `json:"name"`
+	ModelNumber         string `json:"model_number"`
+	IMEI                string `json:"imei"`
+	SerialNumber        string `json:"serial_number"`
+	BatteryLevel        uint   `json:"battery_level"`
+	SignalStrength      string `json:"signal_strength"`
+	FirmwareVersion     string `json:"firmware_version"`
+	UserID              uint   `json:"user_id"`
+	DeviceTelemetryData *DeviceTelemetryDataResponse
+	CreatedAt           time.Time `json:"created_at"`
+	UpdatedAt           time.Time `json:"updated_at"`
+}
+
+type InteractionResponse struct {
+	ID           uint      `json:"id" gorm:"primary_key;auto_increment" example:"1"`
+	UserID       uint      `json:"user_id" gorm:"not null" example:"1"`
+	DoctorID     uint      `json:"doctor_id" gorm:"not null" example:"1"`
+	Doctor       User      `json:"doctor" gorm:"foreignKey:DoctorID"`
+	Duration     uint      `json:"duration" gorm:"not null" example:"30"`
+	Notes        string    `json:"notes" gorm:"not null" example:"Patient is doing well"`
+	CostCategory string    `json:"cost_category" gorm:"not null" example:""`
+	SessionDate  time.Time `json:"session_date" gorm:"not null" example:"2021-01-01T00:00:00Z"`
+	CreatedAt    time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
+	UpdatedAt    time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
+}
+
+type MainInterActionsResponse struct {
+	Interactions  []InteractionResponse
+	TotalDuration uint
+	Readings      int
+}
+
+type UserResponse struct {
+	ID                uint                     `json:"id"`
+	FirstName         string                   `json:"first_name"`
+	LastName          string                   `json:"last_name"`
+	Email             string                   `json:"email"`
+	Role              string                   `json:"role"`
+	DOB               string                   `json:"dob"`
+	Location          string                   `json:"location"`
+	AvatarSrc         string                   `json:"avatar_src"`
+	InsuranceProvider string                   `json:"insurance_provider"`
+	InsuranceID       string                   `json:"insurance_id"`
+	Organization      Organization             `json:"organization"`
+	Devices           []DeviceResponse         `json:"devices"`
+	Interactions      MainInterActionsResponse `json:"interactions"`
+	CreatedAt         time.Time                `json:"created_at"`
+	UpdatedAt         time.Time                `json:"updated_at"`
+}
+
+var userResponses []UserResponse
 
 func (u *User) CreateUser() error {
 	if err := database.DB.Create(&u).Error; err != nil {
@@ -46,6 +130,31 @@ func GetUsers() ([]User, error) {
 	}
 
 	return users, nil
+}
+
+func GetAllUsers() ([]UserResponse, error) {
+	var users []User
+	if err := database.DB.
+		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
+		Preload("Organization").
+		Preload("Device", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
+				Preload("DeviceTelemetryData") // Specify the fields you want from the Devices table
+		}).Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Diagnosis")
+	}).Preload("Interaction", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Doctor", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("Organization")
+		})
+	}).Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	for _, user := range users {
+		userResponses = append(userResponses, user.SanitizedUserResponse())
+	}
+
+	return userResponses, nil
 }
 
 func CountUsers() (int64, error) {
@@ -135,6 +244,25 @@ func (u *User) GetUser() error {
 	return nil
 }
 
+func (u *User) GetUserV2() (*UserResponse, error) {
+	var user User
+	if u.Email != "" {
+		if err := database.DB.Where("email = ?", u.Email).Preload("Organization").First(&user).Error; err != nil {
+			return nil, err
+		}
+		userResponse := user.SanitizedUserResponse()
+		return &userResponse, nil
+	}
+	if err := database.DB.Where("id = ?", u.ID).Preload("Organization").Preload("Device", func(db *gorm.DB) *gorm.DB {
+		return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id") // Specify the fields you want from the Devices table
+	}).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	userResponse := user.SanitizedUserResponse()
+	return &userResponse, nil
+}
+
 func (u *User) GetUserRaw() error {
 	if u.Email != "" {
 		if err := database.DB.Where("email = ?", u.Email).Preload("Organization").First(&u).Error; err != nil {
@@ -194,4 +322,114 @@ func (u *User) UpdatePassword(newPassword string) error {
 	}
 
 	return nil
+}
+
+func (user *User) SanitizedUserResponse() UserResponse {
+	var devices []DeviceResponse
+	var interactions []InteractionResponse
+	for index, device := range user.Device {
+		dataExists := true // Set your condition here
+		var DeviceTelemetries DeviceTelemetryDataResponse
+		if len(device.DeviceTelemetryData) <= 0 {
+			dataExists = false
+		} else {
+			dataExists = true
+			telemetry := device.DeviceTelemetryData[len(device.DeviceTelemetryData)-1]
+			DeviceTelemetries = DeviceTelemetryDataResponse{
+				ID:                 telemetry.ID,
+				SystolicBP:         telemetry.SystolicBP,
+				DiastolicBP:        telemetry.DiastolicBP,
+				Pulse:              telemetry.Pulse,
+				IrregularHeartBeat: telemetry.IrregularHeartBeat,
+				HandShaking:        telemetry.HandShaking,
+				TripleMeasurement:  telemetry.TripleMeasurement,
+				Weight:             telemetry.Weight,
+				WeightStableTime:   telemetry.WeightStableTime,
+				WeightLockCount:    telemetry.WeightLockCount,
+				BloodGlucose:       telemetry.BloodGlucose,
+				Unit:               telemetry.Unit,
+				TestPaper:          telemetry.TestPaper,
+				SampleType:         telemetry.SampleType,
+				Meal:               telemetry.Meal,
+				DeviceID:           telemetry.DeviceID,
+				MeasuredAt:         telemetry.MeasuredAt,
+				CreatedAt:          telemetry.CreatedAt,
+				UpdatedAt:          telemetry.UpdatedAt,
+			}
+		}
+
+		devices = append(devices, DeviceResponse{
+			ID:              device.ID,
+			Name:            device.Name,
+			ModelNumber:     device.ModelNumber,
+			IMEI:            device.IMEI,
+			SerialNumber:    device.SerialNumber,
+			BatteryLevel:    device.BatteryLevel,
+			SignalStrength:  device.SignalStrength,
+			FirmwareVersion: device.FirmwareVersion,
+			UserID:          device.UserID,
+			CreatedAt:       device.CreatedAt,
+			UpdatedAt:       device.UpdatedAt,
+		})
+
+		if dataExists {
+			devices[index].DeviceTelemetryData = &DeviceTelemetries
+
+		} else {
+			devices[index].DeviceTelemetryData = nil
+		}
+
+	}
+	var duration uint = 0
+	for _, interaction := range user.Interaction {
+		interactions = append(interactions, InteractionResponse{
+			ID:           interaction.ID,
+			UserID:       interaction.UserID,
+			DoctorID:     interaction.DoctorID,
+			Doctor:       interaction.Doctor,
+			Duration:     interaction.Duration,
+			Notes:        interaction.Notes,
+			CostCategory: interaction.CostCategory,
+			SessionDate:  interaction.SessionDate,
+			CreatedAt:    interaction.CreatedAt,
+			UpdatedAt:    interaction.UpdatedAt,
+		})
+		duration += interaction.Duration
+	}
+
+	response := UserResponse{
+		ID:                *user.ID,
+		FirstName:         user.FirstName,
+		LastName:          user.LastName,
+		Email:             user.Email,
+		Role:              user.Role,
+		DOB:               user.DOB,
+		Location:          user.Location,
+		AvatarSrc:         user.AvatarSRC,
+		InsuranceProvider: user.InsuranceProvider,
+		InsuranceID:       user.InsuranceID,
+		Organization: Organization{
+			ID:        user.Organization.ID,
+			Name:      user.Organization.Name,
+			Address:   user.Organization.Address,
+			Address2:  user.Organization.Address2,
+			City:      user.Organization.City,
+			State:     user.Organization.State,
+			Zip:       user.Organization.Zip,
+			Country:   user.Organization.Country,
+			Phone:     user.Organization.Phone,
+			CreatedAt: user.Organization.CreatedAt,
+			UpdatedAt: user.Organization.UpdatedAt,
+		},
+		Interactions: MainInterActionsResponse{
+			Interactions:  interactions,
+			TotalDuration: duration,
+			Readings:      len(interactions),
+		},
+		Devices:   devices,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+
+	return response
 }

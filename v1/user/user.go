@@ -173,7 +173,7 @@ func getUser(c echo.Context) error {
 		}
 
 		if filter == "" {
-			users, err := models.GetUsers()
+			users, err := models.GetAllUsers()
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 					Error: "Failed to get users",
@@ -215,20 +215,40 @@ func getUser(c echo.Context) error {
 	u := models.User{
 		ID: &idUint,
 	}
-	if err := u.GetUser(); err != nil {
+	data, err := u.GetUserV2()
+
+	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to get user",
 		})
 	}
 
 	if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) {
-		return c.JSON(http.StatusOK, u)
+		return c.JSON(http.StatusOK, data)
 	}
 
 	return c.JSON(http.StatusForbidden, dto.ErrorResponse{
 		Error: "Unauthorized",
 	})
 }
+
+// func GetUsersAllWithFilters(c echo.Context) error {
+
+// 	users, err := models.GetAllUsers(&models.User{})
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+// 			Error: "Failed to get users",
+// 		})
+// 	}
+
+// 	// if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) {
+// 	// 	return c.JSON(http.StatusOK, u)
+// 	// }
+
+// 	return c.JSON(http.StatusOK, users)
+
+// }
 
 // getUsersInOrg godoc
 // @Summary Get Users in Organization
