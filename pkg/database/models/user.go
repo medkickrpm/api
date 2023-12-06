@@ -341,11 +341,9 @@ func (user *User) SanitizedUserResponse() UserResponse {
 	var interactions []InteractionResponse
 	var reading time.Time
 	for index, device := range user.Device {
-		var dataExists bool // Set your condition here
+		dataExists := false // Set your condition here
 		var DeviceTelemetries DeviceTelemetryDataResponse
-		if len(device.DeviceTelemetryData) <= 0 {
-			dataExists = false
-		} else {
+		if len(device.DeviceTelemetryData) > 0 {
 			dataExists = true
 			telemetry := device.DeviceTelemetryData[0]
 			DeviceTelemetries = DeviceTelemetryDataResponse{
