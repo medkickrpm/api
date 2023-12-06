@@ -73,6 +73,13 @@ type DeviceResponse struct {
 	UpdatedAt           time.Time `json:"updated_at"`
 }
 
+type DignosesResponse struct {
+	UserID      uint      `json:"user_id" gorm:"primaryKey"`
+	DiagnosisID uint      `json:"diagnosis_id" gorm:"primaryKey"`
+	Diagnosis   Diagnosis `json:"diagnosis" gorm:"foreignKey:DiagnosisID"`
+	CreatedAt   time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
+}
+
 type InteractionResponse struct {
 	ID           uint      `json:"id" gorm:"primary_key;auto_increment" example:"1"`
 	UserID       uint      `json:"user_id" gorm:"not null" example:"1"`
@@ -87,9 +94,9 @@ type InteractionResponse struct {
 }
 
 type MainInterActionsResponse struct {
-	Interactions  []InteractionResponse
 	TotalDuration uint
 	Readings      int
+	ReadingDate   time.Time
 }
 
 type UserResponse struct {
@@ -104,6 +111,7 @@ type UserResponse struct {
 	InsuranceProvider string                   `json:"insurance_provider"`
 	InsuranceID       string                   `json:"insurance_id"`
 	Organization      Organization             `json:"organization"`
+	PatientDiagnosis  []DignosesResponse       `json:"patient_diagnosis"`
 	Devices           []DeviceResponse         `json:"devices"`
 	Interactions      MainInterActionsResponse `json:"interactions"`
 	CreatedAt         time.Time                `json:"created_at"`
@@ -134,18 +142,22 @@ func GetUsers() ([]User, error) {
 
 func GetAllUsers() ([]UserResponse, error) {
 	var users []User
+	// Set the date range for the current month
+	startDate := time.Date(2023, time.October, 1, 0, 0, 0, 0, time.UTC) // First day of the current month
+	endDate := time.Now()
+
 	if err := database.DB.
 		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
 		Preload("Device", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
-				Preload("DeviceTelemetryData") // Specify the fields you want from the Devices table
+				Preload("DeviceTelemetryData", func(db *gorm.DB) *gorm.DB {
+					return db.Order("created_at desc").Limit(2)
+				}) // Specify the fields you want from the Devices table
 		}).Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("Diagnosis")
 	}).Preload("Interaction", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Doctor", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("Organization")
-		})
+		return db.Where("created_at BETWEEN ? AND ?", startDate, endDate)
 	}).Find(&users).Error; err != nil {
 		return nil, err
 	}
@@ -327,14 +339,15 @@ func (u *User) UpdatePassword(newPassword string) error {
 func (user *User) SanitizedUserResponse() UserResponse {
 	var devices []DeviceResponse
 	var interactions []InteractionResponse
+	var reading time.Time
 	for index, device := range user.Device {
-		dataExists := true // Set your condition here
+		var dataExists bool // Set your condition here
 		var DeviceTelemetries DeviceTelemetryDataResponse
 		if len(device.DeviceTelemetryData) <= 0 {
 			dataExists = false
 		} else {
 			dataExists = true
-			telemetry := device.DeviceTelemetryData[len(device.DeviceTelemetryData)-1]
+			telemetry := device.DeviceTelemetryData[0]
 			DeviceTelemetries = DeviceTelemetryDataResponse{
 				ID:                 telemetry.ID,
 				SystolicBP:         telemetry.SystolicBP,
@@ -356,6 +369,7 @@ func (user *User) SanitizedUserResponse() UserResponse {
 				CreatedAt:          telemetry.CreatedAt,
 				UpdatedAt:          telemetry.UpdatedAt,
 			}
+			reading = telemetry.MeasuredAt
 		}
 
 		devices = append(devices, DeviceResponse{
@@ -379,6 +393,15 @@ func (user *User) SanitizedUserResponse() UserResponse {
 			devices[index].DeviceTelemetryData = nil
 		}
 
+	}
+	var Dignoses []DignosesResponse
+	for _, dignoses := range user.PatientDiagnosis {
+		Dignoses = append(Dignoses, DignosesResponse{
+			UserID:      dignoses.UserID,
+			DiagnosisID: dignoses.DiagnosisID,
+			Diagnosis:   dignoses.Diagnosis,
+			CreatedAt:   dignoses.CreatedAt,
+		})
 	}
 	var duration uint = 0
 	for _, interaction := range user.Interaction {
@@ -421,10 +444,11 @@ func (user *User) SanitizedUserResponse() UserResponse {
 			CreatedAt: user.Organization.CreatedAt,
 			UpdatedAt: user.Organization.UpdatedAt,
 		},
+		PatientDiagnosis: Dignoses,
 		Interactions: MainInterActionsResponse{
-			Interactions:  interactions,
 			TotalDuration: duration,
 			Readings:      len(interactions),
+			ReadingDate:   reading,
 		},
 		Devices:   devices,
 		CreatedAt: user.CreatedAt,
