@@ -8,7 +8,7 @@
         "title": "Medkick API",
         "contact": {
             "name": "Medkick API Support",
-            "url": "localhost:8080",
+            "url": "https://api.medkick.raajpatel.dev/",
             "email": "the@raajpatel.dev"
         },
         "version": "0.1-dev"
