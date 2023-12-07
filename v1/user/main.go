@@ -17,6 +17,7 @@ func Routes(r *echo.Group) {
 
 	r.POST("/user", createUser, middleware.NotGuest, middleware.HasRole("admin"))
 	r.GET("/user/:id", getUser, middleware.NotGuest)
+	r.GET("/patient/:id", getPatients, middleware.NotGuest)
 	r.GET("/user", getUser, middleware.NotGuest)
 	r.GET("/user/count", countUser, middleware.NotGuest)
 	r.GET("/user/org/:id", getUsersInOrg, middleware.NotGuest, middleware.HasRole("admin", "doctor", "nurse"))
@@ -31,7 +32,6 @@ func Routes(r *echo.Group) {
 
 	r.PUT("/user/:id/alert-threshold", upsertAlertThreshold, middleware.NotGuest, middleware.HasRole("doctor", "admin"))
 	r.GET("/user/:id/alert-threshold", listAlertThresholds, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
-
 
 	r.PUT("/user/:id/diagnoses", upsertDiagnoses, middleware.NotGuest, middleware.HasRole("admin", "doctor", "nurse"))
 	r.GET("/user/:id/diagnoses", getDiagnoses, middleware.NotGuest, middleware.HasRole("admin", "doctor", "nurse"))

@@ -230,6 +230,94 @@ func getUser(c echo.Context) error {
 	})
 }
 
+// getPatients godoc
+// @Summary Get Patients(s)
+// @Description Gets patients, if ID is specified, gets specific patient, if ID is "all", gets all patients
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path string false "Patient ID"
+// @Param org query string false "Org Filter"
+// @Success 200 {object} []models.UserResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 403 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /patient/{id} [get]
+func getPatients(c echo.Context) error {
+
+	id := c.Param("id")
+	org := c.QueryParam("org")
+
+	self := middleware.GetSelf(c)
+
+	if id == "all" {
+		if self.Role != "admin" {
+			return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+				Error: "Unauthorized",
+			})
+		}
+
+		if org == "" {
+			users, err := models.GetAllPatients()
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get Patients",
+				})
+			}
+			return c.JSON(http.StatusOK, users)
+		} else {
+			idInt, err := strconv.ParseUint(org, 10, 32)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+					Error: "Invalid ID",
+				})
+			}
+			users, err := models.GetAllPatientsWithOrg(idInt)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+					Error: "Failed to get users",
+				})
+			}
+			if len(users) > 0 {
+				return c.JSON(http.StatusOK, users)
+			} else {
+				return c.JSON(http.StatusNotFound, dto.ErrorResponse{
+					Error: "Patients not found against the organization",
+				})
+			}
+		}
+	}
+
+	if strings.TrimSpace(id) == "" {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get users",
+		})
+	}
+
+	idInt, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid ID",
+		})
+	}
+
+	user, err := models.GetPatient(uint(idInt))
+	if err != nil {
+		return c.JSON(http.StatusNotFound, dto.ErrorResponse{
+			Error: "Failed to get user",
+		})
+	}
+
+	if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == &user.Organization.ID) {
+		return c.JSON(http.StatusOK, user)
+	}
+
+	return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+		Error: "Unauthorized",
+	})
+}
+
 // getUsersInOrg godoc
 // @Summary Get Users in Organization
 // @Description ADMIN & DOCTOR ONLY - if ID is specified, gets users in that organization, if ID is not specified, gets users in self's organization
