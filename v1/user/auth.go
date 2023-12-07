@@ -8,7 +8,6 @@ import (
 	"MedKick-backend/pkg/validator"
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -68,8 +67,6 @@ func login(c echo.Context) error {
 
 	session.Values["user-id"] = u.ID
 	if err := session.Save(c.Request(), c.Response()); err != nil {
-		fmt.Println(err)
-		fmt.Println(os.Getenv("SESSION_SECRET"))
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to save session",
 		})
