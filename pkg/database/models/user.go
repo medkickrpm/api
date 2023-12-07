@@ -10,26 +10,26 @@ import (
 )
 
 type User struct {
-	ID                *uint        `json:"id" gorm:"primary_key;auto_increment" example:"1"`
-	FirstName         string       `json:"first_name" gorm:"not null" example:"John"`
-	LastName          string       `json:"last_name" gorm:"not null" example:"Doe"`
-	Email             string       `json:"email" gorm:"not null;unique"`
-	Phone             string       `json:"phone" gorm:"not null;unique" example:"08123456789"`
-	Password          string       `json:"password" gorm:"not null" example:"123456"`
-	Role              string       `json:"role" gorm:"not null" example:"admin"`
-	DOB               string       `json:"dob" gorm:"not null" example:"2000-01-01"`
-	Location          string       `json:"Location" gorm:"not null" example:"Dallas, TX"`
-	AvatarSRC         string       `json:"avatar_src" gorm:"not null" example:"https://cdn.med-kick.com/xxx.jpg"`
-	InsuranceProvider string       `json:"insurance_provider" gorm:"not null" example:"Aetna"`
-	InsuranceID       string       `json:"insurance_id" gorm:"not null" example:"123456789"`
-	OrganizationID    *uint        `json:"organization_id" gorm:"null" example:"1"`
-	Organization      Organization `json:"organization" gorm:"foreignKey:OrganizationID"`
-	Provider          string       `json:"provider,omitempty" example:"Test Provider"`
-	CreatedAt         time.Time    `json:"created_at" example:"2021-01-01T00:00:00Z"`
-	UpdatedAt         time.Time    `json:"updated_at" example:"2021-01-01T00:00:00Z"`
-	Device            []Device
-	PatientDiagnosis  []PatientDiagnosis
-	Interaction       []Interaction
+	ID                *uint              `json:"id" gorm:"primary_key;auto_increment" example:"1"`
+	FirstName         string             `json:"first_name" gorm:"not null" example:"John"`
+	LastName          string             `json:"last_name" gorm:"not null" example:"Doe"`
+	Email             string             `json:"email" gorm:"not null;unique"`
+	Phone             string             `json:"phone" gorm:"not null;unique" example:"08123456789"`
+	Password          string             `json:"password" gorm:"not null" example:"123456"`
+	Role              string             `json:"role" gorm:"not null" example:"admin"`
+	DOB               string             `json:"dob" gorm:"not null" example:"2000-01-01"`
+	Location          string             `json:"Location" gorm:"not null" example:"Dallas, TX"`
+	AvatarSRC         string             `json:"avatar_src" gorm:"not null" example:"https://cdn.med-kick.com/xxx.jpg"`
+	InsuranceProvider string             `json:"insurance_provider" gorm:"not null" example:"Aetna"`
+	InsuranceID       string             `json:"insurance_id" gorm:"not null" example:"123456789"`
+	OrganizationID    *uint              `json:"organization_id" gorm:"null" example:"1"`
+	Organization      Organization       `json:"organization" gorm:"foreignKey:OrganizationID"`
+	Provider          string             `json:"provider,omitempty" example:"Test Provider"`
+	Device            []Device           `gorm:"-"`
+	PatientDiagnosis  []PatientDiagnosis `gorm:"-"`
+	Interaction       []Interaction      `gorm:"-"`
+	CreatedAt         time.Time          `json:"created_at" example:"2021-01-01T00:00:00Z"`
+	UpdatedAt         time.Time          `json:"updated_at" example:"2021-01-01T00:00:00Z"`
 }
 
 type DeviceTelemetryDataResponse struct {
@@ -118,8 +118,6 @@ type UserResponse struct {
 	UpdatedAt         time.Time                `json:"updated_at"`
 }
 
-var userResponses []UserResponse
-
 func (u *User) CreateUser() error {
 	if err := database.DB.Create(&u).Error; err != nil {
 		return err
@@ -140,13 +138,15 @@ func GetUsers() ([]User, error) {
 	return users, nil
 }
 
-func GetAllUsers() ([]UserResponse, error) {
+func GetAllPatients() ([]UserResponse, error) {
+	var userResponses []UserResponse
 	var users []User
 	// Set the date range for the current month
 	startDate := time.Date(2023, time.October, 1, 0, 0, 0, 0, time.UTC) // First day of the current month
 	endDate := time.Now()
 
 	if err := database.DB.
+		Where("role = 'patient'").
 		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
 		Preload("Device", func(db *gorm.DB) *gorm.DB {
@@ -154,11 +154,87 @@ func GetAllUsers() ([]UserResponse, error) {
 				Preload("DeviceTelemetryData", func(db *gorm.DB) *gorm.DB {
 					return db.Order("created_at desc").Limit(2)
 				}) // Specify the fields you want from the Devices table
-		}).Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Diagnosis")
-	}).Preload("Interaction", func(db *gorm.DB) *gorm.DB {
-		return db.Where("created_at BETWEEN ? AND ?", startDate, endDate)
-	}).Find(&users).Error; err != nil {
+		}).
+		Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("Diagnosis")
+		}).
+		Preload("Interaction", func(db *gorm.DB) *gorm.DB {
+			return db.Where("created_at BETWEEN ? AND ?", startDate, endDate)
+		}).
+		Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	for _, user := range users {
+		userResponses = append(userResponses, user.SanitizedUserResponse())
+	}
+
+	return userResponses, nil
+}
+
+func GetPatient(id uint) (*UserResponse, error) {
+	var userResponses UserResponse
+	var users *User
+	// Set the date range for the current month
+	startDate := time.Date(2023, time.October, 1, 0, 0, 0, 0, time.UTC) // First day of the current month
+	endDate := time.Now()
+
+	if err := database.DB.
+		Where("id = ?", id).
+		Where("role = 'patient'").
+		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
+		Preload("Organization").
+		Preload("Device", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
+				Preload("DeviceTelemetryData", func(db *gorm.DB) *gorm.DB {
+					return db.Order("created_at desc").Limit(2)
+				}) // Specify the fields you want from the Devices table
+		}).
+		Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("Diagnosis")
+		}).
+		Preload("Interaction", func(db *gorm.DB) *gorm.DB {
+			return db.Where("created_at BETWEEN ? AND ?", startDate, endDate)
+		}).
+		Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	if users.ID == nil {
+		return nil, errors.New("User Not Found")
+	} else {
+		userResponses = users.SanitizedUserResponse()
+
+		return &userResponses, nil
+	}
+
+}
+
+func GetAllPatientsWithOrg(orgId uint64) ([]UserResponse, error) {
+	var userResponses []UserResponse
+	var users []User
+	// Set the date range for the current month
+	startDate := time.Date(2023, time.October, 1, 0, 0, 0, 0, time.UTC) // First day of the current month
+	endDate := time.Now()
+
+	if err := database.DB.
+		Where("role = 'patient'").
+		Where("organization_id = ?", orgId).
+		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
+		Preload("Organization").
+		Preload("Device", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
+				Preload("DeviceTelemetryData", func(db *gorm.DB) *gorm.DB {
+					return db.Order("created_at desc").Limit(2)
+				}) // Specify the fields you want from the Devices table
+		}).
+		Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("Diagnosis")
+		}).
+		Preload("Interaction", func(db *gorm.DB) *gorm.DB {
+			return db.Where("created_at BETWEEN ? AND ?", startDate, endDate)
+		}).
+		Find(&users).Error; err != nil {
 		return nil, err
 	}
 
@@ -390,8 +466,8 @@ func (user *User) SanitizedUserResponse() UserResponse {
 		} else {
 			devices[index].DeviceTelemetryData = nil
 		}
-
 	}
+
 	var Dignoses []DignosesResponse
 	for _, dignoses := range user.PatientDiagnosis {
 		Dignoses = append(Dignoses, DignosesResponse{
@@ -401,6 +477,7 @@ func (user *User) SanitizedUserResponse() UserResponse {
 			CreatedAt:   dignoses.CreatedAt,
 		})
 	}
+
 	var duration uint = 0
 	for _, interaction := range user.Interaction {
 		interactions = append(interactions, InteractionResponse{

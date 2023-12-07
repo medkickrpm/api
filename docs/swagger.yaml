@@ -253,6 +253,10 @@ definitions:
       created_at:
         example: "2021-01-01T00:00:00Z"
         type: string
+      deviceTelemetryData:
+        items:
+          $ref: '#/definitions/models.DeviceTelemetryData'
+        type: array
       firmware_version:
         example: 1.0.0
         type: string
@@ -281,6 +285,33 @@ definitions:
         $ref: '#/definitions/models.User'
       user_id:
         example: 1
+        type: integer
+    type: object
+  models.DeviceResponse:
+    properties:
+      battery_level:
+        type: integer
+      created_at:
+        type: string
+      deviceTelemetryData:
+        $ref: '#/definitions/models.DeviceTelemetryDataResponse'
+      firmware_version:
+        type: string
+      id:
+        type: integer
+      imei:
+        type: string
+      model_number:
+        type: string
+      name:
+        type: string
+      serial_number:
+        type: string
+      signal_strength:
+        type: string
+      updated_at:
+        type: string
+      user_id:
         type: integer
     type: object
   models.DeviceStatusData:
@@ -387,6 +418,50 @@ definitions:
         example: 5
         type: integer
     type: object
+  models.DeviceTelemetryDataResponse:
+    properties:
+      blood_glucose:
+        description: Blood Glucose Meter
+        type: integer
+      created_at:
+        type: string
+      device_id:
+        type: integer
+      diastolic_bp:
+        type: integer
+      hand_shaking:
+        type: boolean
+      id:
+        type: integer
+      irregular_heartbeat:
+        type: boolean
+      meal:
+        type: string
+      measured_at:
+        type: string
+      pulse:
+        type: integer
+      sample_type:
+        type: string
+      systolic_bp:
+        description: Sphygmomanometer
+        type: integer
+      test_paper:
+        type: string
+      triple_measurement:
+        type: boolean
+      unit:
+        type: string
+      updated_at:
+        type: string
+      weight:
+        description: Weight Scale
+        type: integer
+      weight_lock_count:
+        type: integer
+      weight_stable_time:
+        type: integer
+    type: object
   models.DeviceType:
     enum:
     - BloodPressure
@@ -408,6 +483,18 @@ definitions:
       short_mnemonic:
         example: Essential (primary) hypertension
         type: string
+    type: object
+  models.DignosesResponse:
+    properties:
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      diagnosis:
+        $ref: '#/definitions/models.Diagnosis'
+      diagnosis_id:
+        type: integer
+      user_id:
+        type: integer
     type: object
   models.Interaction:
     properties:
@@ -449,6 +536,15 @@ definitions:
     type: string
     x-enum-varnames:
     - ColorThreshold
+  models.MainInterActionsResponse:
+    properties:
+      readingDate:
+        type: string
+      readings:
+        type: integer
+      totalDuration:
+        type: integer
+    type: object
   models.MeasurementType:
     enum:
     - Systolic
@@ -497,6 +593,20 @@ definitions:
         example: "12345"
         type: string
     type: object
+  models.PatientDiagnosis:
+    properties:
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      diagnosis:
+        $ref: '#/definitions/models.Diagnosis'
+      diagnosis_id:
+        type: integer
+      patient:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: integer
+    type: object
   models.Service:
     properties:
       created_at:
@@ -532,6 +642,10 @@ definitions:
       created_at:
         example: "2021-01-01T00:00:00Z"
         type: string
+      device:
+        items:
+          $ref: '#/definitions/models.Device'
+        type: array
       dob:
         example: "2000-01-01"
         type: string
@@ -549,6 +663,10 @@ definitions:
       insurance_provider:
         example: Aetna
         type: string
+      interaction:
+        items:
+          $ref: '#/definitions/models.Interaction'
+        type: array
       last_name:
         example: Doe
         type: string
@@ -560,6 +678,10 @@ definitions:
       password:
         example: "123456"
         type: string
+      patientDiagnosis:
+        items:
+          $ref: '#/definitions/models.PatientDiagnosis'
+        type: array
       phone:
         example: "08123456789"
         type: string
@@ -571,6 +693,45 @@ definitions:
         type: string
       updated_at:
         example: "2021-01-01T00:00:00Z"
+        type: string
+    type: object
+  models.UserResponse:
+    properties:
+      avatar_src:
+        type: string
+      created_at:
+        type: string
+      devices:
+        items:
+          $ref: '#/definitions/models.DeviceResponse'
+        type: array
+      dob:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      insurance_id:
+        type: string
+      insurance_provider:
+        type: string
+      interactions:
+        $ref: '#/definitions/models.MainInterActionsResponse'
+      last_name:
+        type: string
+      location:
+        type: string
+      organization:
+        $ref: '#/definitions/models.Organization'
+      patient_diagnosis:
+        items:
+          $ref: '#/definitions/models.DignosesResponse'
+        type: array
+      role:
+        type: string
+      updated_at:
         type: string
     type: object
   organization.BillingRecordBody:
@@ -2226,6 +2387,49 @@ paths:
       summary: Resolve Telemetry Alert
       tags:
       - Organization
+  /patient/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Gets patients, if ID is specified, gets specific patient, if ID
+        is "all", gets all patients
+      parameters:
+      - description: Patient ID
+        in: path
+        name: id
+        type: string
+      - description: Org Filter
+        in: query
+        name: org
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.UserResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Patients(s)
+      tags:
+      - User
   /services:
     get:
       consumes:

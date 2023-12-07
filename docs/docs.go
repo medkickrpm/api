@@ -1966,6 +1966,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/patient/{id}": {
+            "get": {
+                "description": "Gets patients, if ID is specified, gets specific patient, if ID is \"all\", gets all patients",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get Patients(s)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Patient ID",
+                        "name": "id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Org Filter",
+                        "name": "org",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.UserResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/services": {
             "get": {
                 "description": "List Services",
@@ -3439,6 +3503,12 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
                 },
+                "deviceTelemetryData": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DeviceTelemetryData"
+                    }
+                },
                 "firmware_version": {
                     "type": "string",
                     "example": "1.0.0"
@@ -3477,6 +3547,47 @@ const docTemplate = `{
                 "user_id": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "models.DeviceResponse": {
+            "type": "object",
+            "properties": {
+                "battery_level": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deviceTelemetryData": {
+                    "$ref": "#/definitions/models.DeviceTelemetryDataResponse"
+                },
+                "firmware_version": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imei": {
+                    "type": "string"
+                },
+                "model_number": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "serial_number": {
+                    "type": "string"
+                },
+                "signal_strength": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -3620,6 +3731,71 @@ const docTemplate = `{
                 }
             }
         },
+        "models.DeviceTelemetryDataResponse": {
+            "type": "object",
+            "properties": {
+                "blood_glucose": {
+                    "description": "Blood Glucose Meter",
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "device_id": {
+                    "type": "integer"
+                },
+                "diastolic_bp": {
+                    "type": "integer"
+                },
+                "hand_shaking": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "irregular_heartbeat": {
+                    "type": "boolean"
+                },
+                "meal": {
+                    "type": "string"
+                },
+                "measured_at": {
+                    "type": "string"
+                },
+                "pulse": {
+                    "type": "integer"
+                },
+                "sample_type": {
+                    "type": "string"
+                },
+                "systolic_bp": {
+                    "description": "Sphygmomanometer",
+                    "type": "integer"
+                },
+                "test_paper": {
+                    "type": "string"
+                },
+                "triple_measurement": {
+                    "type": "boolean"
+                },
+                "unit": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "weight": {
+                    "description": "Weight Scale",
+                    "type": "integer"
+                },
+                "weight_lock_count": {
+                    "type": "integer"
+                },
+                "weight_stable_time": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.DeviceType": {
             "type": "string",
             "enum": [
@@ -3647,6 +3823,24 @@ const docTemplate = `{
                 "short_mnemonic": {
                     "type": "string",
                     "example": "Essential (primary) hypertension"
+                }
+            }
+        },
+        "models.DignosesResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "diagnosis": {
+                    "$ref": "#/definitions/models.Diagnosis"
+                },
+                "diagnosis_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -3705,6 +3899,20 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "ColorThreshold"
             ]
+        },
+        "models.MainInterActionsResponse": {
+            "type": "object",
+            "properties": {
+                "readingDate": {
+                    "type": "string"
+                },
+                "readings": {
+                    "type": "integer"
+                },
+                "totalDuration": {
+                    "type": "integer"
+                }
+            }
         },
         "models.MeasurementType": {
             "type": "string",
@@ -3770,6 +3978,27 @@ const docTemplate = `{
                 }
             }
         },
+        "models.PatientDiagnosis": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "diagnosis": {
+                    "$ref": "#/definitions/models.Diagnosis"
+                },
+                "diagnosis_id": {
+                    "type": "integer"
+                },
+                "patient": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Service": {
             "type": "object",
             "properties": {
@@ -3818,6 +4047,12 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
                 },
+                "device": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Device"
+                    }
+                },
                 "dob": {
                     "type": "string",
                     "example": "2000-01-01"
@@ -3841,6 +4076,12 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Aetna"
                 },
+                "interaction": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Interaction"
+                    }
+                },
                 "last_name": {
                     "type": "string",
                     "example": "Doe"
@@ -3855,6 +4096,12 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "123456"
+                },
+                "patientDiagnosis": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PatientDiagnosis"
+                    }
                 },
                 "phone": {
                     "type": "string",
@@ -3871,6 +4118,65 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
+                }
+            }
+        },
+        "models.UserResponse": {
+            "type": "object",
+            "properties": {
+                "avatar_src": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DeviceResponse"
+                    }
+                },
+                "dob": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "insurance_id": {
+                    "type": "string"
+                },
+                "insurance_provider": {
+                    "type": "string"
+                },
+                "interactions": {
+                    "$ref": "#/definitions/models.MainInterActionsResponse"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "organization": {
+                    "$ref": "#/definitions/models.Organization"
+                },
+                "patient_diagnosis": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DignosesResponse"
+                    }
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
