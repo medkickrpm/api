@@ -10,26 +10,26 @@ import (
 )
 
 type User struct {
-	ID                *uint              `json:"id" gorm:"primary_key;auto_increment" example:"1"`
-	FirstName         string             `json:"first_name" gorm:"not null" example:"John"`
-	LastName          string             `json:"last_name" gorm:"not null" example:"Doe"`
-	Email             string             `json:"email" gorm:"not null;unique"`
-	Phone             string             `json:"phone" gorm:"not null;unique" example:"08123456789"`
-	Password          string             `json:"password" gorm:"not null" example:"123456"`
-	Role              string             `json:"role" gorm:"not null" example:"admin"`
-	DOB               string             `json:"dob" gorm:"not null" example:"2000-01-01"`
-	Location          string             `json:"Location" gorm:"not null" example:"Dallas, TX"`
-	AvatarSRC         string             `json:"avatar_src" gorm:"not null" example:"https://cdn.med-kick.com/xxx.jpg"`
-	InsuranceProvider string             `json:"insurance_provider" gorm:"not null" example:"Aetna"`
-	InsuranceID       string             `json:"insurance_id" gorm:"not null" example:"123456789"`
-	OrganizationID    *uint              `json:"organization_id" gorm:"null" example:"1"`
-	Organization      Organization       `json:"organization" gorm:"foreignKey:OrganizationID"`
-	Provider          string             `json:"provider,omitempty" example:"Test Provider"`
-	Device            []Device           `gorm:"-"`
-	PatientDiagnosis  []PatientDiagnosis `gorm:"-"`
-	Interaction       []Interaction      `gorm:"-"`
-	CreatedAt         time.Time          `json:"created_at" example:"2021-01-01T00:00:00Z"`
-	UpdatedAt         time.Time          `json:"updated_at" example:"2021-01-01T00:00:00Z"`
+	ID                *uint        `json:"id" gorm:"primary_key;auto_increment" example:"1"`
+	FirstName         string       `json:"first_name" gorm:"not null" example:"John"`
+	LastName          string       `json:"last_name" gorm:"not null" example:"Doe"`
+	Email             string       `json:"email" gorm:"not null;unique"`
+	Phone             string       `json:"phone" gorm:"not null;unique" example:"08123456789"`
+	Password          string       `json:"password" gorm:"not null" example:"123456"`
+	Role              string       `json:"role" gorm:"not null" example:"admin"`
+	DOB               string       `json:"dob" gorm:"not null" example:"2000-01-01"`
+	Location          string       `json:"Location" gorm:"not null" example:"Dallas, TX"`
+	AvatarSRC         string       `json:"avatar_src" gorm:"not null" example:"https://cdn.med-kick.com/xxx.jpg"`
+	InsuranceProvider string       `json:"insurance_provider" gorm:"not null" example:"Aetna"`
+	InsuranceID       string       `json:"insurance_id" gorm:"not null" example:"123456789"`
+	OrganizationID    *uint        `json:"organization_id" gorm:"null" example:"1"`
+	Organization      Organization `json:"organization" gorm:"foreignKey:OrganizationID"`
+	Provider          string       `json:"provider,omitempty" example:"Test Provider"`
+	Device            []Device
+	PatientDiagnosis  []PatientDiagnosis
+	Interaction       []Interaction
+	CreatedAt         time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
+	UpdatedAt         time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
 }
 
 type DeviceTelemetryDataResponse struct {
