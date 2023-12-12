@@ -293,7 +293,7 @@ func CountUsersWithRoleInOrg(orgId uint, role string) (int64, error) {
 
 func GetUsersInOrg(orgId *uint) ([]User, error) {
 	var users []User
-	if err := database.DB.Where("organization_id = ?", orgId).Preload("Organization").Find(&users).Error; err != nil {
+	if err := database.DB.Where("organization_id = ? AND role !='patient'", orgId).Preload("Organization").Find(&users).Error; err != nil {
 		return nil, err
 	}
 
