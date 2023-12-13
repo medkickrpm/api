@@ -32,6 +32,21 @@ type CreateRequest struct {
 	Provider          string `json:"provider"`
 }
 
+func isValidRole(role string) bool {
+	validRoles := map[string]bool{
+		"admin":        true,
+		"doctor":       true,
+		"nurse":        true,
+		"patient":      true,
+		"doctornv":     true,
+		"nursenv":      true,
+		"patientnv":    true,
+		"care_manager": true,
+		"org_admin":    true,
+	}
+	return validRoles[role]
+}
+
 // createUser godoc
 // @Summary Create User
 // @Description ADMIN ONLY - Create User
@@ -59,9 +74,9 @@ func createUser(c echo.Context) error {
 		})
 	}
 
-	if request.Role != "admin" && request.Role != "doctor" && request.Role != "nurse" && request.Role != "patient" && request.Role != "doctornv" && request.Role != "nursenv" && request.Role != "patientnv" {
+	if !isValidRole(request.Role) {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-			Error: "Invalid role, must be 'admin', 'doctor', 'nurse', 'patient', 'doctornv', 'nursenv', or 'patientnv'.",
+			Error: "Invalid role, must be 'admin', 'doctor', 'nurse', 'patient', 'doctornv', 'nursenv', 'care_manager', 'org_admin', or 'patientnv'.",
 		})
 	}
 
@@ -830,9 +845,9 @@ func updateUser(c echo.Context) error {
 		})
 	}
 
-	if request.Role != "admin" && request.Role != "doctor" && request.Role != "nurse" && request.Role != "patient" && request.Role != "doctornv" && request.Role != "nursenv" && request.Role != "patientnv" {
+	if !isValidRole(request.Role) {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-			Error: "Invalid role, must be 'admin', 'doctor', 'nurse', 'patient', 'doctornv', 'nursenv', or 'patientnv'.",
+			Error: "Invalid role, must be 'admin', 'doctor', 'nurse', 'patient', 'doctornv', 'nursenv', 'care_manager', 'org_admin', or 'patientnv'.",
 		})
 	}
 
