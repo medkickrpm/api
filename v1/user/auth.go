@@ -148,11 +148,23 @@ func register(c echo.Context) error {
 	// Check if user already exists
 	existingUser := models.User{
 		Email: request.Email,
+		Phone: request.Phone,
 	}
 	if err := existingUser.GetUser(); err == nil {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-			Error: "User already exists",
-		})
+		if request.Email == existingUser.Email {
+			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Error: "Email already exists",
+			})
+
+		}
+	}
+
+	if err := existingUser.GetUserByPhone(); err == nil {
+		if request.Phone == existingUser.Phone {
+			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Error: "Phone already exists",
+			})
+		}
 	}
 
 	u := models.User{
