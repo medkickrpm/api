@@ -366,7 +366,7 @@ func getUsersInOrg(c echo.Context) error {
 	filter := c.QueryParam("filter")
 	status := c.QueryParam("status")
 
-	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "nurse" && filter != "doctornv" && filter != "nursenv" && filter != "patientnv" && filter != "org_admin" {
+	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "nurse" && filter != "doctornv" && filter != "nursenv" && filter != "patientnv" && filter != "org_admin" && filter != "care_manager" {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Invalid filter",
 		})
