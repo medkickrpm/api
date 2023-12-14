@@ -1,6 +1,7 @@
 package user
 
 import (
+	gsheet "MedKick-backend/pkg/GSheet"
 	"MedKick-backend/pkg/database/models"
 	"MedKick-backend/pkg/echo/dto"
 	"MedKick-backend/pkg/echo/middleware"
@@ -9,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -790,60 +792,72 @@ func getTotalInteractionDuration(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int false "User ID"
-// @Success 200 {object} []models.CarePlan
+// @Success 200 {object} dto.CareplanSheetResponse
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 401 {object} dto.ErrorResponse
 // @Failure 403 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /user/{id}/careplans [get]
 func getCarePlansInUser(c echo.Context) error {
-	id := c.Param("id")
-	self := middleware.GetSelf(c)
+	idInt, err := strconv.Atoi(c.Param("id"))
 
-	if id == "" {
-		carePlans, err := models.GetCarePlansByUserID(*self.ID)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-				Error: "Failed to get care plans",
-			})
-		}
+	idUint := uint(idInt)
 
-		return c.JSON(http.StatusOK, carePlans)
-	} else {
-		idInt, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-				Error: "Failed to convert id to uint",
-			})
-		}
+	user := models.User{
+		ID: &idUint,
+	}
 
-		idUint := uint(idInt)
+	if err := user.GetUser(); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get user with this id",
+		})
+	}
 
-		u := models.User{
-			ID: &idUint,
-		}
+	spreadsheetID := "1ZMmc0Sv74GVg6PRKLhAmlqbVE02rPfw7s8IXDGOrtPI"
+	spreadsheet, err := gsheet.Service.FetchSpreadsheet(spreadsheetID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to fetch spreadsheet",
+		})
+	}
 
-		if err := u.GetUser(); err != nil {
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-				Error: "Failed to get user",
-			})
-		}
+	sheet, err := spreadsheet.SheetByTitle("Careplans")
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get sheet",
+		})
+	}
 
-		if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
-			carePlans, err := models.GetCarePlansByUserID(idUint)
-			if err != nil {
-				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-					Error: "Failed to get care plans",
-				})
+	// get all the rows
+	sheet.Rows = sheet.Rows[1:]
+
+	// check if user exists in sheet
+	for _, row := range sheet.Rows {
+		if row[3].Value == user.FirstName && row[4].Value == user.LastName && row[5].Value == user.DOB {
+
+			// map row to CareplanSheetResponse
+			var response dto.CareplanSheetResponse
+			val := reflect.ValueOf(&response).Elem()
+
+			for i := 0; i < val.NumField(); i++ {
+				field := val.Field(i)
+
+				if field.CanSet() && i < len(row) {
+					switch field.Kind() {
+					case reflect.String:
+						field.SetString(row[i].Value)
+					}
+				}
 			}
 
-			return c.JSON(http.StatusOK, carePlans)
+			return c.JSON(http.StatusOK, response)
 		}
 	}
 
-	return c.JSON(http.StatusForbidden, dto.ErrorResponse{
-		Error: "Unauthorized",
+	return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+		Error: "Found no record for this user in GSheet",
 	})
+
 }
 
 type UpdateRequest struct {
