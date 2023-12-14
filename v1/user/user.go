@@ -800,6 +800,11 @@ func getTotalInteractionDuration(c echo.Context) error {
 // @Router /user/{id}/careplans [get]
 func getCarePlansInUser(c echo.Context) error {
 	idInt, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid ID",
+		})
+	}
 
 	idUint := uint(idInt)
 
