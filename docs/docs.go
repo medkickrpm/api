@@ -3900,20 +3900,6 @@ const docTemplate = `{
                 "ColorThreshold"
             ]
         },
-        "models.MainInterActionsResponse": {
-            "type": "object",
-            "properties": {
-                "readingDate": {
-                    "type": "string"
-                },
-                "readings": {
-                    "type": "integer"
-                },
-                "totalDuration": {
-                    "type": "integer"
-                }
-            }
-        },
         "models.MeasurementType": {
             "type": "string",
             "enum": [
@@ -4154,9 +4140,6 @@ const docTemplate = `{
                 "insurance_provider": {
                     "type": "string"
                 },
-                "interactions": {
-                    "$ref": "#/definitions/models.MainInterActionsResponse"
-                },
                 "last_name": {
                     "type": "string"
                 },
@@ -4172,8 +4155,21 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.DignosesResponse"
                     }
                 },
+                "reading_date": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "readings": {
+                    "type": "integer",
+                    "example": 1
+                },
                 "role": {
                     "type": "string"
+                },
+                "total_duration": {
+                    "description": "Interactions      MainInterActionsResponse ` + "`" + `json:\"interactions,omitempty\"` + "`" + `",
+                    "type": "integer",
+                    "example": 30
                 },
                 "updated_at": {
                     "type": "string"
