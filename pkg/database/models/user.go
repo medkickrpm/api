@@ -100,22 +100,25 @@ type MainInterActionsResponse struct {
 }
 
 type UserResponse struct {
-	ID                uint                      `json:"id"`
-	FirstName         string                    `json:"first_name"`
-	LastName          string                    `json:"last_name"`
-	Email             string                    `json:"email"`
-	Role              string                    `json:"role"`
-	DOB               string                    `json:"dob"`
-	Location          string                    `json:"location"`
-	AvatarSrc         string                    `json:"avatar_src"`
-	InsuranceProvider string                    `json:"insurance_provider"`
-	InsuranceID       string                    `json:"insurance_id"`
-	Organization      Organization              `json:"organization"`
-	PatientDiagnosis  []DignosesResponse        `json:"patient_diagnosis"`
-	Devices           []DeviceResponse          `json:"devices"`
-	Interactions      *MainInterActionsResponse `json:"interactions,omitempty"`
-	CreatedAt         time.Time                 `json:"created_at"`
-	UpdatedAt         time.Time                 `json:"updated_at"`
+	ID                uint               `json:"id"`
+	FirstName         string             `json:"first_name"`
+	LastName          string             `json:"last_name"`
+	Email             string             `json:"email"`
+	Role              string             `json:"role"`
+	DOB               string             `json:"dob"`
+	Location          string             `json:"location"`
+	AvatarSrc         string             `json:"avatar_src"`
+	InsuranceProvider string             `json:"insurance_provider"`
+	InsuranceID       string             `json:"insurance_id"`
+	Organization      Organization       `json:"organization"`
+	PatientDiagnosis  []DignosesResponse `json:"patient_diagnosis"`
+	Devices           []DeviceResponse   `json:"devices"`
+	// Interactions      MainInterActionsResponse `json:"interactions,omitempty"`
+	TotalDuration uint      `json:"total_duration" example:"30"`
+	Readings      int       `json:"readings" example:"1"`
+	ReadingDate   time.Time `json:"reading_date" example:"2021-01-01T00:00:00Z"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 func (u *User) CreateUser() error {
@@ -239,10 +242,6 @@ func GetAllPatientsWithOrg(orgId uint64) ([]UserResponse, error) {
 	}
 
 	for _, user := range users {
-		if user.Interaction == nil {
-			user.Interaction = nil
-
-		}
 		userResponses = append(userResponses, user.SanitizedUserResponse())
 	}
 
@@ -333,6 +332,15 @@ func (u *User) GetUser() error {
 		return err
 	}
 	u.SanitizeUser()
+	return nil
+}
+
+// check if a user already exist with the same phone number
+func (u *User) GetUserByPhone() error {
+	var user User
+	if err := database.DB.Where("phone = ?", u.Phone).First(&user).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -499,16 +507,6 @@ func (user *User) SanitizedUserResponse() UserResponse {
 		duration += interaction.Duration
 	}
 
-	// if interaction does not exist return nil which will be omitted from the response
-	var interactionsResponse *MainInterActionsResponse
-	if len(interactions) != 0 {
-		interactionsResponse = &MainInterActionsResponse{
-			TotalDuration: duration,
-			Readings:      len(interactions),
-			ReadingDate:   reading,
-		}
-	}
-
 	response := UserResponse{
 		ID:                *user.ID,
 		FirstName:         user.FirstName,
@@ -534,7 +532,9 @@ func (user *User) SanitizedUserResponse() UserResponse {
 			UpdatedAt: user.Organization.UpdatedAt,
 		},
 		PatientDiagnosis: Dignoses,
-		Interactions:     interactionsResponse,
+		TotalDuration:    duration,
+		Readings:         len(interactions),
+		ReadingDate:      reading,
 		Devices:          devices,
 		CreatedAt:        user.CreatedAt,
 		UpdatedAt:        user.UpdatedAt,

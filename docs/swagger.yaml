@@ -536,15 +536,6 @@ definitions:
     type: string
     x-enum-varnames:
     - ColorThreshold
-  models.MainInterActionsResponse:
-    properties:
-      readingDate:
-        type: string
-      readings:
-        type: integer
-      totalDuration:
-        type: integer
-    type: object
   models.MeasurementType:
     enum:
     - Systolic
@@ -717,8 +708,6 @@ definitions:
         type: string
       insurance_provider:
         type: string
-      interactions:
-        $ref: '#/definitions/models.MainInterActionsResponse'
       last_name:
         type: string
       location:
@@ -729,8 +718,18 @@ definitions:
         items:
           $ref: '#/definitions/models.DignosesResponse'
         type: array
+      reading_date:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      readings:
+        example: 1
+        type: integer
       role:
         type: string
+      total_duration:
+        description: Interactions      MainInterActionsResponse `json:"interactions,omitempty"`
+        example: 30
+        type: integer
       updated_at:
         type: string
     type: object
