@@ -156,6 +156,207 @@ definitions:
       user_id:
         type: integer
     type: object
+  dto.CareplanSheetResponse:
+    properties:
+      a-fib_goals:
+        type: string
+      a-fib_improvement_plan:
+        type: string
+      activities_of_daily_living_improvement_goals:
+        type: string
+      adl_nutrition_plan:
+        type: string
+      ambulation_walking_and_using_stairs:
+        type: string
+      anemia_goals:
+        type: string
+      anemia_improvement_plan:
+        type: string
+      bathing_showering:
+        type: string
+      bone_health_goals:
+        type: string
+      bone_health_plan:
+        type: string
+      bowel_regularity_plan:
+        type: string
+      care_coordinator:
+        type: string
+      chf_goals:
+        type: string
+      chf_improvement_plan:
+        type: string
+      cholesterol_goals:
+        type: string
+      cholesterol_improvement_plan:
+        type: string
+      chronic_conditions:
+        type: string
+      chronic_headache_migraine_goals:
+        type: string
+      chronic_headache_migraine_improvement_plan:
+        type: string
+      cleaning:
+        type: string
+      coronary_artery_disease_goals:
+        type: string
+      coronary_artery_disease_plan:
+        type: string
+      date:
+        type: string
+      diabetes_goals:
+        type: string
+      diabetes_improvement_plan:
+        type: string
+      diet_goals:
+        type: string
+      diet_improvement_plan:
+        type: string
+      dob:
+        type: string
+      dressing:
+        type: string
+      energy_improvement_plan:
+        type: string
+      exercise:
+        type: string
+      exercise_activity_plan:
+        type: string
+      exercise_goals:
+        type: string
+      eye_health_goals:
+        type: string
+      eye_health_improvement_plan:
+        type: string
+      fall_prevention_goals:
+        type: string
+      fall_prevention_plan:
+        type: string
+      first_name:
+        type: string
+      food_preparation_ideas:
+        type: string
+      gerd_goals:
+        type: string
+      gerd_plan:
+        type: string
+      goals_areas:
+        type: string
+      hobbies:
+        type: string
+      hydration_goals:
+        type: string
+      hydration_improvement_plan:
+        type: string
+      hypertension_goals:
+        type: string
+      hypertension_plan:
+        type: string
+      improving_hair_and_skin_plan:
+        type: string
+      input153_goals:
+        type: string
+      input153_plan:
+        type: string
+      kidney_health_goals:
+        type: string
+      kidney_health_plan:
+        type: string
+      last_name:
+        type: string
+      low_blood_pressure_avoidance_plan:
+        type: string
+      low_blood_pressure_improvement_goals:
+        type: string
+      managing_finances:
+        type: string
+      medication_management:
+        type: string
+      medication_reconciliation:
+        type: string
+      memory_care_goals:
+        type: string
+      memory_care_plan:
+        type: string
+      mental_health_goals:
+        type: string
+      mental_health_improvement_plan:
+        type: string
+      no_label:
+        type: string
+      no_label_2:
+        type: string
+      obstacles:
+        type: string
+      office_email:
+        type: string
+      other_diagnosis_not_listed:
+        type: string
+      oxygen_safety_goals:
+        type: string
+      oxygen_safety_plan:
+        type: string
+      pain_goals:
+        type: string
+      pain_reduction_plan:
+        type: string
+      pet_care:
+        type: string
+      post_heart_attack_goals:
+        type: string
+      post_heart_attack_plan:
+        type: string
+      post_stroke_tia_goals:
+        type: string
+      post_stroke_tia_plan:
+        type: string
+      preventatives_due:
+        type: string
+      respiratory_challenges_and_breathing_improvement_plan:
+        type: string
+      respiratory_goals:
+        type: string
+      running_errands_transportation:
+        type: string
+      self_care_goals:
+        type: string
+      self_care_plan:
+        type: string
+      sleep_goals:
+        type: string
+      sleep_improvement_plan:
+        type: string
+      social_activities:
+        type: string
+      sodium_reduction_plan:
+        type: string
+      standing_getting_out_of_chair_balance:
+        type: string
+      stress_goals:
+        type: string
+      stress_reduction_plan:
+        type: string
+      submission_date:
+        type: string
+      submission_id:
+        type: string
+      thyroid_health_goals:
+        type: string
+      thyroid_health_improvement_plan:
+        type: string
+      tobacco_use_goals:
+        type: string
+      tobacco_use_plan:
+        type: string
+      toileting:
+        type: string
+      using_phone_technology:
+        type: string
+      weight_loss_goals:
+        type: string
+      weight_loss_plan:
+        type: string
+    type: object
   dto.ErrorResponse:
     properties:
       error:
@@ -2700,9 +2901,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.CarePlan'
-            type: array
+            $ref: '#/definitions/dto.CareplanSheetResponse'
         "400":
           description: Bad Request
           schema:

@@ -1,6 +1,7 @@
 package main
 
 import (
+	gsheet "MedKick-backend/pkg/GSheet"
 	"MedKick-backend/pkg/database"
 	"MedKick-backend/pkg/echo"
 	"MedKick-backend/pkg/echo/middleware"
@@ -60,6 +61,9 @@ func main() {
 
 	// Add Swagger
 	echo.Swagger(e)
+
+	// Add GSheet
+	gsheet.Setup()
 
 	// Add Auth
 	// TODO - Performance task for Raaj later
