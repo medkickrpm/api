@@ -704,6 +704,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/device/available-devices": {
+            "get": {
+                "description": "Get Available Devices",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Get Available Devices",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Device"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/device/{id}": {
             "get": {
                 "description": "Get devices by id, set id to 'all' to get all devices",
@@ -3794,6 +3829,12 @@ const docTemplate = `{
         "models.Device": {
             "type": "object",
             "properties": {
+                "DeviceTelemetryData": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DeviceTelemetryData"
+                    }
+                },
                 "battery_level": {
                     "type": "integer",
                     "example": 100
@@ -3801,12 +3842,6 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
-                },
-                "deviceTelemetryData": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.DeviceTelemetryData"
-                    }
                 },
                 "firmware_version": {
                     "type": "string",
@@ -3839,9 +3874,6 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.User"
                 },
                 "user_id": {
                     "type": "integer",
