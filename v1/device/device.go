@@ -77,6 +77,26 @@ func getDevice(c echo.Context) error {
 	return c.JSON(http.StatusOK, device)
 }
 
+// GetAvailableDevices godoc
+// @Summary Get Available Devices
+// @Description Get Available Devices
+// @Tags Devices
+// @Produce json
+// @Success 200 {object} []models.Device
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /device/available-devices [get]
+func GetAvailableDevices(c echo.Context) error {
+	device := &models.Device{}
+	devices, err := device.GetAvailableDevices()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get available devices",
+		})
+	}
+	return c.JSON(http.StatusOK, devices)
+}
+
 type UpdateRequest struct {
 	Name            string `json:"name"`
 	ModelNumber     string `json:"model_number"`
