@@ -14,11 +14,24 @@ type Device struct {
 	BatteryLevel        uint   `json:"battery_level" gorm:"not null" example:"100"`
 	SignalStrength      string `json:"signal_strength" gorm:"not null" example:"100"`
 	FirmwareVersion     string `json:"firmware_version" gorm:"not null" example:"1.0.0"`
-	UserID              uint   `json:"user_id" gorm:"not null" example:"1"`
+	UserID              uint   `json:"user_id" example:"1"`
 	User                User   `json:"user" gorm:"foreignKey:UserID"`
 	DeviceTelemetryData []DeviceTelemetryData
 	CreatedAt           time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
 	UpdatedAt           time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
+}
+
+type DeviceDTO struct {
+	ID              uint      `json:"id" gorm:"primary_key;auto_increment" example:"1"`
+	Name            string    `json:"name" gorm:"not null" example:"Sphygmomanometer/Weight Scale/Blood Glucose Meter"`
+	ModelNumber     string    `json:"model_number" gorm:"not null" example:"123456"`
+	IMEI            string    `json:"imei" gorm:"not null" example:"123456789"`
+	SerialNumber    string    `json:"serial_number" gorm:"not null" example:"123456789"`
+	BatteryLevel    uint      `json:"battery_level" gorm:"not null" example:"100"`
+	SignalStrength  string    `json:"signal_strength" gorm:"not null" example:"100"`
+	FirmwareVersion string    `json:"firmware_version" gorm:"not null" example:"1.0.0"`
+	CreatedAt       time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
+	UpdatedAt       time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
 }
 
 func (d *Device) CreateDevice() error {
@@ -86,6 +99,23 @@ func (d *Device) DeleteDevice() error {
 
 func (d *Device) UpdateBattery(batteryLevel uint) error {
 	if err := database.DB.Model(&Device{}).Where("id = ?", d.ID).Update("battery_level", batteryLevel).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *Device) GetAvailableDevices() ([]DeviceDTO, error) {
+	var devices []DeviceDTO
+
+	if err := database.DB.Table("devices").Where("user_id IS NULL").Find(&devices).Error; err != nil {
+		return nil, err
+	}
+
+	return devices, nil
+}
+
+func (d *Device) AssignDeviceToUser(deviceId uint, userId uint) error {
+	if err := database.DB.Model(&Device{}).Where("id = ?", deviceId).Update("user_id", userId).Error; err != nil {
 		return err
 	}
 	return nil

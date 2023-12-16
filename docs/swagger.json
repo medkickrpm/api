@@ -701,6 +701,87 @@
                 }
             }
         },
+        "/device/assign-device": {
+            "patch": {
+                "description": "Assign Device",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Assign Device",
+                "parameters": [
+                    {
+                        "description": "Assign Device",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/device.DeviceAssignRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/device/available-devices": {
+            "get": {
+                "description": "Get Available Devices",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Get Available Devices",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DeviceDTO"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/device/{id}": {
             "get": {
                 "description": "Get devices by id, set id to 'all' to get all devices",
@@ -3151,6 +3232,21 @@
                 }
             }
         },
+        "device.DeviceAssignRequest": {
+            "type": "object",
+            "required": [
+                "device_id",
+                "user_id"
+            ],
+            "properties": {
+                "device_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "device.MioData": {
             "type": "object",
             "required": [
@@ -3843,6 +3939,51 @@
                 "user_id": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "models.DeviceDTO": {
+            "type": "object",
+            "properties": {
+                "battery_level": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "firmware_version": {
+                    "type": "string",
+                    "example": "1.0.0"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "imei": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "model_number": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Sphygmomanometer/Weight Scale/Blood Glucose Meter"
+                },
+                "serial_number": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "signal_strength": {
+                    "type": "string",
+                    "example": "100"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 }
             }
         },

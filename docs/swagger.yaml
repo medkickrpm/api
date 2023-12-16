@@ -16,6 +16,16 @@ definitions:
     required:
     - token
     type: object
+  device.DeviceAssignRequest:
+    properties:
+      device_id:
+        type: integer
+      user_id:
+        type: integer
+    required:
+    - device_id
+    - user_id
+    type: object
   device.MioData:
     properties:
       bat:
@@ -487,6 +497,39 @@ definitions:
       user_id:
         example: 1
         type: integer
+    type: object
+  models.DeviceDTO:
+    properties:
+      battery_level:
+        example: 100
+        type: integer
+      created_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      firmware_version:
+        example: 1.0.0
+        type: string
+      id:
+        example: 1
+        type: integer
+      imei:
+        example: "123456789"
+        type: string
+      model_number:
+        example: "123456"
+        type: string
+      name:
+        example: Sphygmomanometer/Weight Scale/Blood Glucose Meter
+        type: string
+      serial_number:
+        example: "123456789"
+        type: string
+      signal_strength:
+        example: "100"
+        type: string
+      updated_at:
+        example: "2021-01-01T00:00:00Z"
+        type: string
     type: object
   models.DeviceResponse:
     properties:
@@ -1860,6 +1903,59 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Update Device
+      tags:
+      - Devices
+  /device/assign-device:
+    patch:
+      consumes:
+      - application/json
+      description: Assign Device
+      parameters:
+      - description: Assign Device
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/device.DeviceAssignRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Assign Device
+      tags:
+      - Devices
+  /device/available-devices:
+    get:
+      description: Get Available Devices
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DeviceDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Available Devices
       tags:
       - Devices
   /diagnoses:
