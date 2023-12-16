@@ -17,6 +17,7 @@ func Routes(r *echo.Group) {
 	r.GET("/mio/status/:id", getStatus, middleware.NotGuest)
 
 	r.GET("/device/available-devices", GetAvailableDevices, middleware.NotGuest)
+	r.PATCH("/device/assign-device", AssignDevice, middleware.NotGuest, middleware.HasRole("admin"))
 
 	r.GET("/device/:id", getDevice, middleware.NotGuest)
 	r.PATCH("/device/:id", updateDevice, middleware.NotGuest)

@@ -113,3 +113,10 @@ func (d *Device) GetAvailableDevices() ([]DeviceDTO, error) {
 
 	return devices, nil
 }
+
+func (d *Device) AssignDeviceToUser(deviceId uint, userId uint) error {
+	if err := database.DB.Model(&Device{}).Where("id = ?", deviceId).Update("user_id", userId).Error; err != nil {
+		return err
+	}
+	return nil
+}

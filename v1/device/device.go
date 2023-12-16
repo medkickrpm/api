@@ -4,11 +4,17 @@ import (
 	"MedKick-backend/pkg/database/models"
 	"MedKick-backend/pkg/echo/dto"
 	"MedKick-backend/pkg/echo/middleware"
+	"MedKick-backend/pkg/validator"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
+
+type DeviceAssignRequest struct {
+	DeviceID uint `json:"device_id" validate:"required"`
+	UserID   uint `json:"user_id" validate:"required"`
+}
 
 // getDevice godoc
 // @Summary Get Devices
@@ -95,6 +101,65 @@ func GetAvailableDevices(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, devices)
+}
+
+// AssignDevice godoc
+// @Summary Assign Device
+// @Description Assign Device
+// @Tags Devices
+// @Accept json
+// @Produce json
+// @Param request body DeviceAssignRequest true "Assign Device"
+// @Success 200 {object} dto.MessageResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /device/assign-device [patch]
+func AssignDevice(c echo.Context) error {
+	var request DeviceAssignRequest
+	if err := c.Bind(&request); err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: err.Error(),
+		})
+	}
+
+	if err := validator.Validate.Struct(request); err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: err.Error(),
+		})
+	}
+
+	// Check if device id is valid
+	device := &models.Device{
+		ID: request.DeviceID,
+	}
+	if err := device.GetDevice(); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get device by device id",
+		})
+	}
+
+	// Check if user id is valid
+	user := &models.User{
+		ID: &request.UserID,
+	}
+	if err := user.GetUser(); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get user by user id",
+		})
+	}
+
+	// Assign device to user
+	device = &models.Device{}
+
+	if err := device.AssignDeviceToUser(request.DeviceID, request.UserID); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to assign device to user",
+		})
+	}
+
+	return c.JSON(http.StatusOK, dto.MessageResponse{
+		Message: "Successfully assigned device to user",
+	})
 }
 
 type UpdateRequest struct {

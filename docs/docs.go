@@ -704,6 +704,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/device/assign-device": {
+            "patch": {
+                "description": "Assign Device",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Assign Device",
+                "parameters": [
+                    {
+                        "description": "Assign Device",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/device.DeviceAssignRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/device/available-devices": {
             "get": {
                 "description": "Get Available Devices",
@@ -3186,6 +3232,21 @@ const docTemplate = `{
             "properties": {
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "device.DeviceAssignRequest": {
+            "type": "object",
+            "required": [
+                "device_id",
+                "user_id"
+            ],
+            "properties": {
+                "device_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
