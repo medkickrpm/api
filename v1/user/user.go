@@ -7,6 +7,7 @@ import (
 	"MedKick-backend/pkg/echo/middleware"
 	"MedKick-backend/pkg/sendgrid"
 	"MedKick-backend/pkg/validator"
+	"MedKick-backend/utils"
 	"errors"
 	"fmt"
 	"net/http"
@@ -836,9 +837,19 @@ func getCarePlansInUser(c echo.Context) error {
 	// get all the rows
 	sheet.Rows = sheet.Rows[1:]
 
+	formatedUserDOB, err := utils.ConvertDateFormat(user.DOB, "01-02-2006")
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to convert date format for comparison",
+		})
+	}
+
+	userFirstName := strings.ToLower(user.FirstName)
+	userLastName := strings.ToLower(user.LastName)
+
 	// check if user exists in sheet
 	for _, row := range sheet.Rows {
-		if row[3].Value == user.FirstName && row[4].Value == user.LastName && row[5].Value == user.DOB {
+		if strings.ToLower(row[3].Value) == userFirstName && strings.ToLower(row[4].Value) == userLastName && row[5].Value == formatedUserDOB {
 
 			// map row to CareplanSheetResponse
 			var response dto.CareplanSheetResponse
