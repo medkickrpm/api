@@ -82,7 +82,7 @@ func getDevice(c echo.Context) error {
 // @Description Get Available Devices
 // @Tags Devices
 // @Produce json
-// @Success 200 {object} []models.Device
+// @Success 200 {object} []models.DeviceDTO
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /device/available-devices [get]

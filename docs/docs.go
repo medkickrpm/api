@@ -720,7 +720,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Device"
+                                "$ref": "#/definitions/models.DeviceDTO"
                             }
                         }
                     },
@@ -3829,12 +3829,64 @@ const docTemplate = `{
         "models.Device": {
             "type": "object",
             "properties": {
-                "DeviceTelemetryData": {
+                "battery_level": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "deviceTelemetryData": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.DeviceTelemetryData"
                     }
                 },
+                "firmware_version": {
+                    "type": "string",
+                    "example": "1.0.0"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "imei": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "model_number": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Sphygmomanometer/Weight Scale/Blood Glucose Meter"
+                },
+                "serial_number": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "signal_strength": {
+                    "type": "string",
+                    "example": "100"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "models.DeviceDTO": {
+            "type": "object",
+            "properties": {
                 "battery_level": {
                     "type": "integer",
                     "example": 100
@@ -3874,10 +3926,6 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
-                },
-                "user_id": {
-                    "type": "integer",
-                    "example": 1
                 }
             }
         },
