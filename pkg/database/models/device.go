@@ -91,7 +91,7 @@ func (d *Device) UpdateDevice() error {
 }
 
 func (d *Device) DeleteDevice() error {
-	if err := database.DB.Delete(&d).Error; err != nil {
+	if err := database.DB.Model(&Device{}).Where("id = ?", d.ID).UpdateColumn("user_id", nil).Error; err != nil {
 		return err
 	}
 	return nil
