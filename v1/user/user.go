@@ -846,10 +846,12 @@ func getCarePlansInUser(c echo.Context) error {
 
 	userFirstName := strings.ToLower(user.FirstName)
 	userLastName := strings.ToLower(user.LastName)
+	userFirstName = strings.Trim(userFirstName, " ")
+	userLastName = strings.Trim(userLastName, " ")
 
 	// check if user exists in sheet
 	for _, row := range sheet.Rows {
-		if strings.ToLower(row[3].Value) == userFirstName && strings.ToLower(row[4].Value) == userLastName && row[5].Value == formatedUserDOB {
+		if strings.Trim(strings.ToLower(row[3].Value), " ") == userFirstName && strings.Trim(strings.ToLower(row[4].Value), " ") == userLastName && row[5].Value == formatedUserDOB {
 
 			// map row to CareplanSheetResponse
 			var response dto.CareplanSheetResponse
