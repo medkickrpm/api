@@ -86,12 +86,12 @@ type RequestStatus struct {
 // @Router /mio/forwardtelemetry [post]
 func ingestTelemetry(c echo.Context) error {
 	//Verify API Key from header
-	// apiKey := c.Request().Header.Get("X-MIO-KEY")
-	// if apiKey != os.Getenv("MIO_API_KEY") {
-	// 	return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
-	// 		Error: "Unauthorized",
-	// 	})
-	// }
+	apiKey := c.Request().Header.Get("X-MIO-KEY")
+	if apiKey != os.Getenv("MIO_API_KEY") {
+		return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Error: "Unauthorized",
+		})
+	}
 
 	var req RequestTelemetry
 	if err := c.Bind(&req); err != nil {
