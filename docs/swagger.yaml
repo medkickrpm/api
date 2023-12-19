@@ -651,6 +651,11 @@ definitions:
       updated_at:
         example: "2021-01-01T00:00:00Z"
         type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        example: 1
+        type: integer
       weight:
         description: Weight Scale
         example: 80

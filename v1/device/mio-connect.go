@@ -86,12 +86,12 @@ type RequestStatus struct {
 // @Router /mio/forwardtelemetry [post]
 func ingestTelemetry(c echo.Context) error {
 	//Verify API Key from header
-	apiKey := c.Request().Header.Get("X-MIO-KEY")
-	if apiKey != os.Getenv("MIO_API_KEY") {
-		return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
-			Error: "Unauthorized",
-		})
-	}
+	// apiKey := c.Request().Header.Get("X-MIO-KEY")
+	// if apiKey != os.Getenv("MIO_API_KEY") {
+	// 	return c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+	// 		Error: "Unauthorized",
+	// 	})
+	// }
 
 	var req RequestTelemetry
 	if err := c.Bind(&req); err != nil {
@@ -174,8 +174,12 @@ func ingestTelemetry(c echo.Context) error {
 			HandShaking:        req.Data.HandShaking,
 			TripleMeasurement:  req.Data.TripleMeasure,
 			DeviceID:           device.ID,
+			UserID:             device.UserID,
 			MeasuredAt:         currentTime,
 		}
+
+		fmt.Println("After bpm_gen2_measure")
+
 		if err := dtd.CreateDeviceTelemetryData(); err != nil {
 			log.Errorf("Failed to create device telemetry data: %s", err)
 			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -197,6 +201,7 @@ func ingestTelemetry(c echo.Context) error {
 			WeightStableTime: req.Data.WeightStableTime,
 			WeightLockCount:  req.Data.WeightLockCount,
 			DeviceID:         device.ID,
+			UserID:           device.UserID,
 			MeasuredAt:       currentTime,
 		}
 		if err := dtd.CreateDeviceTelemetryData(); err != nil {
@@ -249,6 +254,7 @@ func ingestTelemetry(c echo.Context) error {
 			SampleType:   sampleType,
 			Meal:         meal,
 			DeviceID:     device.ID,
+			UserID:       device.UserID,
 			MeasuredAt:   currentTime,
 		}
 

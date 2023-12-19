@@ -91,7 +91,7 @@ func getTelemetry(c echo.Context) error {
 		})
 	}
 
-	telemetry, err := models.GetDeviceTelemetryDataByDeviceBetweenDates(device.ID, startDate, endDate)
+	telemetry, err := models.GetDeviceTelemetryDataByDeviceBetweenDates(device.ID, device.UserID, startDate, endDate)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to get device telemetry data by device id",

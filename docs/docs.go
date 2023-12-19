@@ -4156,6 +4156,13 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
                 },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                },
                 "weight": {
                     "description": "Weight Scale",
                     "type": "integer",

@@ -25,6 +25,8 @@ type DeviceTelemetryData struct {
 	SampleType   string `json:"sample_type" gorm:"null" example:"1. Blood or Resistance; 2. Quality Control Liquid; 3. Sample is invalid"`
 	Meal         string `json:"meal" gorm:"null" example:"1. Before Meal; 2. After Meal"`
 
+	UserID     uint      `json:"user_id" example:"1"`
+	User       User      `json:"user" gorm:"foreignKey:UserID"`
 	DeviceID   uint      `json:"device_id" gorm:"not null" example:"1"`
 	Device     Device    `json:"device" gorm:"foreignKey:DeviceID"`
 	MeasuredAt time.Time `json:"measured_at" example:"2021-01-01T00:00:00Z"`
@@ -57,9 +59,9 @@ func GetDeviceTelemetryDataByDevice(deviceId uint) ([]DeviceTelemetryData, error
 	return deviceTelemetryData, nil
 }
 
-func GetDeviceTelemetryDataByDeviceBetweenDates(deviceId uint, startDate, endDate time.Time) ([]DeviceTelemetryData, error) {
+func GetDeviceTelemetryDataByDeviceBetweenDates(deviceId, userID uint, startDate, endDate time.Time) ([]DeviceTelemetryData, error) {
 	var deviceTelemetryData []DeviceTelemetryData
-	if err := database.DB.Preload("Device").Where("device_id = ? AND measured_at BETWEEN ? AND ?", deviceId, startDate, endDate).Find(&deviceTelemetryData).Error; err != nil {
+	if err := database.DB.Preload("Device").Where("device_id = ? AND user_id=? AND date(measured_at) BETWEEN ? AND ?", deviceId, userID, startDate, endDate).Find(&deviceTelemetryData).Error; err != nil {
 		return nil, err
 	}
 
