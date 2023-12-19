@@ -14,7 +14,7 @@ require (
 	github.com/sendgrid/sendgrid-go v3.14.0+incompatible
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.2
-	golang.org/x/crypto v0.16.0
+	golang.org/x/crypto v0.17.0
 	golang.org/x/oauth2 v0.15.0
 	gopkg.in/Iwark/spreadsheet.v2 v2.0.0-20230915040305-7677e8164883
 	gorm.io/datatypes v1.2.0
