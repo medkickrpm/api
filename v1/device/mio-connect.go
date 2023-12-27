@@ -174,8 +174,12 @@ func ingestTelemetry(c echo.Context) error {
 			HandShaking:        req.Data.HandShaking,
 			TripleMeasurement:  req.Data.TripleMeasure,
 			DeviceID:           device.ID,
+			UserID:             device.UserID,
 			MeasuredAt:         currentTime,
 		}
+
+		fmt.Println("After bpm_gen2_measure")
+
 		if err := dtd.CreateDeviceTelemetryData(); err != nil {
 			log.Errorf("Failed to create device telemetry data: %s", err)
 			return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -197,6 +201,7 @@ func ingestTelemetry(c echo.Context) error {
 			WeightStableTime: req.Data.WeightStableTime,
 			WeightLockCount:  req.Data.WeightLockCount,
 			DeviceID:         device.ID,
+			UserID:           device.UserID,
 			MeasuredAt:       currentTime,
 		}
 		if err := dtd.CreateDeviceTelemetryData(); err != nil {
@@ -249,6 +254,7 @@ func ingestTelemetry(c echo.Context) error {
 			SampleType:   sampleType,
 			Meal:         meal,
 			DeviceID:     device.ID,
+			UserID:       device.UserID,
 			MeasuredAt:   currentTime,
 		}
 

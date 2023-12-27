@@ -10,7 +10,7 @@ func Routes(r *echo.Group) {
 	r.POST("/mio/forwardtelemetry", ingestTelemetry)
 	r.POST("/mio/forwardstatus", ingestStatus)
 
-	r.GET("/mio/telemetry/:id", getTelemetry, middleware.NotGuest)
+	r.GET("/mio/telemetry/:id", getTelemetry, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager", "patient"))
 	r.GET("/mio/telemetry/:id/latest", getLatestTelemetry, middleware.NotGuest)
 	r.GET("/mio/telemetry/:id/count", getNumberOfTelemetryEntriesThisWeek, middleware.NotGuest)
 
@@ -21,5 +21,5 @@ func Routes(r *echo.Group) {
 
 	r.GET("/device/:id", getDevice, middleware.NotGuest)
 	r.PATCH("/device/:id", updateDevice, middleware.NotGuest)
-	r.DELETE("/device/:id", deleteDevice, middleware.NotGuest, middleware.HasRole("admin"))
+	r.DELETE("/device/:id", deleteDevice, middleware.NotGuest, middleware.HasRole("admin", "org_admin"))
 }

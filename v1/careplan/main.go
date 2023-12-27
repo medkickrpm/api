@@ -7,7 +7,7 @@ import (
 )
 
 func Routes(r *echo.Group) {
-	r.POST("/careplan", createCareplan, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
+	r.POST("/careplan", createCareplan, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager"))
 	r.GET("/careplan/:id", getCareplan, middleware.NotGuest)
 	r.GET("/careplan/:id/file", downloadCareplan, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
 	r.PUT("/careplan/:id", uploadCareplan, middleware.NotGuest, middleware.HasRole("nurse", "doctor", "admin"))
