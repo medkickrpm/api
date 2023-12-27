@@ -282,13 +282,13 @@ func getPatients(c echo.Context) error {
 	self := middleware.GetSelf(c)
 
 	if id == "all" {
-		if self.Role != "admin" {
+		if self.Role != "admin" && org == "" {
 			return c.JSON(http.StatusForbidden, dto.ErrorResponse{
 				Error: "Unauthorized",
 			})
 		}
 
-		if org == "" {
+		if self.Role == "admin" && org == "" {
 			users, err := models.GetAllPatients()
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
