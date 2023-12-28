@@ -130,7 +130,7 @@ func createUser(c echo.Context) error {
 		Location:          request.Location,
 		City:			   request.City,
 		ZipCode: 		   request.ZipCode,
-		State:			   request.state,
+		State:			   request.State,
 		Country:		   request.Country,
 		InsuranceProvider: request.InsuranceProvider,
 		InsuranceID:       request.InsuranceID,
