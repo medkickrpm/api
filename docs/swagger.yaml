@@ -879,6 +879,12 @@ definitions:
       avatar_src:
         example: https://cdn.med-kick.com/xxx.jpg
         type: string
+      city:
+        example: Dallas
+        type: string
+      country:
+        example: USA
+        type: string
       created_at:
         example: "2021-01-01T00:00:00Z"
         type: string
@@ -931,13 +937,23 @@ definitions:
       role:
         example: admin
         type: string
+      state:
+        example: TX
+        type: string
       updated_at:
         example: "2021-01-01T00:00:00Z"
+        type: string
+      zipcode:
+        example: "32343"
         type: string
     type: object
   models.UserResponse:
     properties:
       avatar_src:
+        type: string
+      city:
+        type: string
+      country:
         type: string
       created_at:
         type: string
@@ -975,11 +991,15 @@ definitions:
         type: integer
       role:
         type: string
+      state:
+        type: string
       total_duration:
         description: Interactions      MainInterActionsResponse `json:"interactions,omitempty"`
         example: 30
         type: integer
       updated_at:
+        type: string
+      zipcode:
         type: string
     type: object
   organization.BillingRecordBody:
@@ -1147,6 +1167,10 @@ definitions:
     type: object
   user.CreateRequest:
     properties:
+      city:
+        type: string
+      country:
+        type: string
       dob:
         type: string
       email:
@@ -1172,6 +1196,10 @@ definitions:
       role:
         description: 'Roles: admin, doctor, patient, doctornv, patientnv (nv = not
           verified email)'
+        type: string
+      state:
+        type: string
+      zipcode:
         type: string
     required:
     - dob
@@ -1299,6 +1327,10 @@ definitions:
     type: object
   user.UpdateRequest:
     properties:
+      city:
+        type: string
+      country:
+        type: string
       dob:
         type: string
       email:
@@ -1322,6 +1354,10 @@ definitions:
       provider:
         type: string
       role:
+        type: string
+      state:
+        type: string
+      zipcode:
         type: string
     type: object
   user.VerifyResetPasswordRequest:

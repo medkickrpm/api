@@ -4476,6 +4476,14 @@ const docTemplate = `{
                     "type": "string",
                     "example": "https://cdn.med-kick.com/xxx.jpg"
                 },
+                "city": {
+                    "type": "string",
+                    "example": "Dallas"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "USA"
+                },
                 "created_at": {
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
@@ -4548,9 +4556,17 @@ const docTemplate = `{
                     "type": "string",
                     "example": "admin"
                 },
+                "state": {
+                    "type": "string",
+                    "example": "TX"
+                },
                 "updated_at": {
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
+                },
+                "zipcode": {
+                    "type": "string",
+                    "example": "32343"
                 }
             }
         },
@@ -4558,6 +4574,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "avatar_src": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
                     "type": "string"
                 },
                 "created_at": {
@@ -4613,12 +4635,18 @@ const docTemplate = `{
                 "role": {
                     "type": "string"
                 },
+                "state": {
+                    "type": "string"
+                },
                 "total_duration": {
                     "description": "Interactions      MainInterActionsResponse ` + "`" + `json:\"interactions,omitempty\"` + "`" + `",
                     "type": "integer",
                     "example": 30
                 },
                 "updated_at": {
+                    "type": "string"
+                },
+                "zipcode": {
                     "type": "string"
                 }
             }
@@ -4876,6 +4904,12 @@ const docTemplate = `{
                 "role"
             ],
             "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
                 "dob": {
                     "type": "string"
                 },
@@ -4911,6 +4945,12 @@ const docTemplate = `{
                 },
                 "role": {
                     "description": "Roles: admin, doctor, patient, doctornv, patientnv (nv = not verified email)",
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "zipcode": {
                     "type": "string"
                 }
             }
@@ -5081,6 +5121,12 @@ const docTemplate = `{
         "user.UpdateRequest": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
                 "dob": {
                     "type": "string"
                 },
@@ -5115,6 +5161,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "zipcode": {
                     "type": "string"
                 }
             }
