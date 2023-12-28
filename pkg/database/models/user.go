@@ -525,7 +525,7 @@ func (user *User) SanitizedUserResponse() UserResponse {
 		Location:          user.Location,
 		City:			   user.City,
 		ZipCode: 		   user.ZipCode,
-		State:			   user.state,
+		State:			   user.State,
 		Country:		   user.Country,
 		AvatarSrc:         user.AvatarSRC,
 		InsuranceProvider: user.InsuranceProvider,
