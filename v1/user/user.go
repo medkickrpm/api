@@ -29,9 +29,9 @@ type CreateRequest struct {
 	Role              string `json:"role" validate:"required"` // Roles: admin, doctor, patient, doctornv, patientnv (nv = not verified email)
 	DOB               string `json:"dob" validate:"required"`
 	Location          string `json:"location" validate:"required"`
-	City			  string `json:"city"`
+	City              string `json:"city"`
 	ZipCode           string `json:"zipcode"`
-	State          	  string `json:"state"`
+	State             string `json:"state"`
 	Country           string `json:"country"`
 	InsuranceProvider string `json:"insurance_provider" validate:"required"`
 	InsuranceID       string `json:"insurance_id" validate:"required"`
@@ -128,10 +128,10 @@ func createUser(c echo.Context) error {
 		Role:              request.Role,
 		DOB:               request.DOB,
 		Location:          request.Location,
-		City:			   request.City,
-		ZipCode: 		   request.ZipCode,
-		State:			   request.State,
-		Country:		   request.Country,
+		City:              request.City,
+		ZipCode:           request.ZipCode,
+		State:             request.State,
+		Country:           request.Country,
 		InsuranceProvider: request.InsuranceProvider,
 		InsuranceID:       request.InsuranceID,
 		OrganizationID:    &request.OrganizationID,
@@ -469,12 +469,12 @@ func getUsersInOrg(c echo.Context) error {
 	}
 	orgUint := uint(orgInt)
 	/*
-	Temperary disabing htis condition to verify the endpoint working
-	if self.OrganizationID != &orgUint && self.Role != "admin" {
-		return c.JSON(http.StatusForbidden, dto.ErrorResponse{
-			Error: "Unauthorized",
-		})
-	}
+		Temperary disabing htis condition to verify the endpoint working
+		if self.OrganizationID != &orgUint && self.Role != "admin" {
+			return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+				Error: "Unauthorized",
+			})
+		}
 	*/
 
 	if filter == "" {
@@ -898,9 +898,9 @@ type UpdateRequest struct {
 	Role              string `json:"role"`
 	DOB               string `json:"dob"`
 	Location          string `json:"location"`
-	City			  string `json:"city"`
+	City              string `json:"city"`
 	ZipCode           string `json:"zipcode"`
-	State          	  string `json:"state"`
+	State             string `json:"state"`
 	Country           string `json:"country"`
 	InsuranceProvider string `json:"insurance_provider"`
 	InsuranceID       string `json:"insurance_id"`
@@ -970,18 +970,18 @@ func updateUser(c echo.Context) error {
 		if request.Location != "" {
 			self.Location = request.Location
 		}
-		if request.City!=""{
-			self.City=request.City
+		if request.City != "" {
+			self.City = request.City
 		}
-		if request.ZipCode!=""{
-			self.ZipCode=request.ZipCode
+		if request.ZipCode != "" {
+			self.ZipCode = request.ZipCode
 		}
-		if request.State!=""{
-			self.State=request.State
+		if request.State != "" {
+			self.State = request.State
 		}
-		if request.Country!=""{
-			self.Country=request.Country
-		} 
+		if request.Country != "" {
+			self.Country = request.Country
+		}
 		if request.InsuranceProvider != "" {
 			self.InsuranceProvider = request.InsuranceProvider
 		}
@@ -1045,18 +1045,18 @@ func updateUser(c echo.Context) error {
 		if request.Location != "" {
 			u.Location = request.Location
 		}
-		if request.City!=""{
-			u.City=request.City
+		if request.City != "" {
+			u.City = request.City
 		}
-		if request.ZipCode!=""{
-			u.ZipCode=request.ZipCode
+		if request.ZipCode != "" {
+			u.ZipCode = request.ZipCode
 		}
-		if request.State!=""{
-			u.State=request.State
+		if request.State != "" {
+			u.State = request.State
 		}
-		if request.Country!=""{
-			u.Country=request.Country
-		} 
+		if request.Country != "" {
+			u.Country = request.Country
+		}
 		if request.InsuranceProvider != "" {
 			u.InsuranceProvider = request.InsuranceProvider
 		}
