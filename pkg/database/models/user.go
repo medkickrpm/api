@@ -19,9 +19,9 @@ type User struct {
 	Role              string       `json:"role" gorm:"not null" example:"admin"`
 	DOB               string       `json:"dob" gorm:"not null" example:"2000-01-01"`
 	Location          string       `json:"Location" gorm:"not null" example:"Dallas, TX"`
-	City			  string       `json:"city" gorm:"null" example:"Dallas"`
+	City              string       `json:"city" gorm:"null" example:"Dallas"`
 	ZipCode           string       `json:"zipcode" gorm:"null" example:"32343"`
-	State          	  string       `json:"state" gorm:"null" example:"TX"`
+	State             string       `json:"state" gorm:"null" example:"TX"`
 	Country           string       `json:"country" gorm:"null" example:"USA"`
 	AvatarSRC         string       `json:"avatar_src" gorm:"not null" example:"https://cdn.med-kick.com/xxx.jpg"`
 	InsuranceProvider string       `json:"insurance_provider" gorm:"not null" example:"Aetna"`
@@ -111,10 +111,10 @@ type UserResponse struct {
 	Role              string             `json:"role"`
 	DOB               string             `json:"dob"`
 	Location          string             `json:"location"`
-	City			  string       		 `json:"city"`
-	ZipCode           string       		 `json:"zipcode"`
-	State          	  string       		 `json:"state"`
-	Country           string       		 `json:"country"`
+	City              string             `json:"city"`
+	ZipCode           string             `json:"zipcode"`
+	State             string             `json:"state"`
+	Country           string             `json:"country"`
 	AvatarSrc         string             `json:"avatar_src"`
 	InsuranceProvider string             `json:"insurance_provider"`
 	InsuranceID       string             `json:"insurance_id"`
@@ -158,7 +158,7 @@ func GetAllPatients() ([]UserResponse, error) {
 
 	if err := database.DB.
 		Where("role = 'patient'").
-		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location","city", "zipcode", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
+		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
 		Preload("Device", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
@@ -193,7 +193,7 @@ func GetPatient(id uint) (*UserResponse, error) {
 	if err := database.DB.
 		Where("id = ?", id).
 		Where("role = 'patient'").
-		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location","city", "zipcode", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
+		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
 		Preload("Device", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
@@ -231,7 +231,7 @@ func GetAllPatientsWithOrg(orgId uint64) ([]UserResponse, error) {
 	if err := database.DB.
 		Where("role = 'patient'").
 		Where("organization_id = ?", orgId).
-		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location","city", "zipcode", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
+		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
 		Preload("Device", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
@@ -523,10 +523,10 @@ func (user *User) SanitizedUserResponse() UserResponse {
 		Role:              user.Role,
 		DOB:               user.DOB,
 		Location:          user.Location,
-		City:			   user.City,
-		ZipCode: 		   user.ZipCode,
-		State:			   user.State,
-		Country:		   user.Country,
+		City:              user.City,
+		ZipCode:           user.ZipCode,
+		State:             user.State,
+		Country:           user.Country,
 		AvatarSrc:         user.AvatarSRC,
 		InsuranceProvider: user.InsuranceProvider,
 		InsuranceID:       user.InsuranceID,
