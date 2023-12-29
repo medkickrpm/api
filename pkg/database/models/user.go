@@ -18,7 +18,7 @@ type User struct {
 	Password          string       `json:"password" gorm:"not null" example:"123456"`
 	Role              string       `json:"role" gorm:"not null" example:"admin"`
 	DOB               string       `json:"dob" gorm:"not null" example:"2000-01-01"`
-	Location          string       `json:"Location" gorm:"not null" example:"Dallas, TX"`
+	Location          string       `json:"location" gorm:"not null" example:"Dallas, TX"`
 	City              string       `json:"city" gorm:"null" example:"Dallas"`
 	ZipCode           string       `json:"zipcode" gorm:"null" example:"32343"`
 	State             string       `json:"state" gorm:"null" example:"TX"`
@@ -193,7 +193,7 @@ func GetPatient(id uint) (*UserResponse, error) {
 	if err := database.DB.
 		Where("id = ?", id).
 		Where("role = 'patient'").
-		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
+		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
 		Preload("Device", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
@@ -231,7 +231,7 @@ func GetAllPatientsWithOrg(orgId uint64) ([]UserResponse, error) {
 	if err := database.DB.
 		Where("role = 'patient'").
 		Where("organization_id = ?", orgId).
-		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
+		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
 		Preload("Device", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
