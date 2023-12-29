@@ -4468,10 +4468,6 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "properties": {
-                "Location": {
-                    "type": "string",
-                    "example": "Dallas, TX"
-                },
                 "avatar_src": {
                     "type": "string",
                     "example": "https://cdn.med-kick.com/xxx.jpg"
@@ -4526,6 +4522,10 @@ const docTemplate = `{
                 "last_name": {
                     "type": "string",
                     "example": "Doe"
+                },
+                "location": {
+                    "type": "string",
+                    "example": "Dallas, TX"
                 },
                 "organization": {
                     "$ref": "#/definitions/models.Organization"
