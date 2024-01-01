@@ -22,7 +22,7 @@ func Routes(r *echo.Group) {
 	r.GET("/user/count", countUser, middleware.NotGuest)
 	r.GET("/user/org/:id", getUsersInOrg, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager"))
 	r.GET("/user/org/:id/count", countUserInOrg, middleware.NotGuest, middleware.HasRole("admin", "doctor", "nurse"))
-	r.PATCH("/user/:id", updateUser, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager"))
+	r.PATCH("/user/:id", updateUser, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager", "patient"))
 	r.DELETE("/user/:id", deleteUser, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager"))
 
 	r.GET("/user/:id/devices", getDevicesInUser, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager", "patient"))

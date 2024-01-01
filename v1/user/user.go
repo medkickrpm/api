@@ -1014,7 +1014,7 @@ func updateUser(c echo.Context) error {
 		})
 	}
 
-	if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) {
+	if self.Role == "admin" || self.Role == "org_admin" || (self.Role == "care_manager" && self.OrganizationID == u.OrganizationID) {
 		if request.FirstName != "" {
 			u.FirstName = request.FirstName
 		}
