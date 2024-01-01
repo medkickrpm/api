@@ -940,7 +940,16 @@ func updateUser(c echo.Context) error {
 	}
 
 	self := middleware.GetSelf(c)
-	if id == "" {
+
+	idInt, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid ID",
+		})
+	}
+	idUint := uint(idInt)
+
+	if id == "" || idUint == *self.ID {
 		if request.FirstName != "" {
 			self.FirstName = request.FirstName
 		}
@@ -997,15 +1006,10 @@ func updateUser(c echo.Context) error {
 				Error: "Failed to update user",
 			})
 		}
+
+		return c.JSON(http.StatusOK, self)
 	}
 
-	idInt, err := strconv.ParseUint(id, 10, 32)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-			Error: "Invalid ID",
-		})
-	}
-	idUint := uint(idInt)
 	u := models.User{
 		ID: &idUint,
 	}
