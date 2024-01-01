@@ -25,6 +25,10 @@ func Routes(r *echo.Group) {
 	r.PATCH("/user/:id", updateUser, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager", "patient"))
 	r.DELETE("/user/:id", deleteUser, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager"))
 
+	// user avatar
+	r.POST("/user/avatar", uploadUserAvatar, middleware.NotGuest)
+	r.GET("/user/avatar/:avatarPath", getUserAvatar, middleware.NotGuest)
+
 	r.GET("/user/:id/devices", getDevicesInUser, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager", "patient"))
 	r.GET("/user/:id/interactions", getInteractionsInUser, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager", "patient"))
 	r.GET("/user/:id/interactions/duration", getTotalInteractionDuration, middleware.NotGuest)
