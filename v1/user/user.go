@@ -1487,7 +1487,7 @@ func uploadUserAvatar(c echo.Context) error {
 // @Tags User
 // @Accept json
 // @Produce json
-// @Param avatarPath string true "Avatar Path"
+// @Param avatarPath path string true "Avatar Path"
 // @Success 200
 // @Failure 400 {object} dto.ErrorResponse
 // @Router /user/avatar/{avatarPath} [get]
