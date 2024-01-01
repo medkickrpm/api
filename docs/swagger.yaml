@@ -377,6 +377,11 @@ definitions:
       message:
         type: string
     type: object
+  dto.VerifyUserFieldResponse:
+    properties:
+      is_available:
+        type: boolean
+    type: object
   interaction.CreateRequest:
     properties:
       cost_category:
@@ -3506,6 +3511,39 @@ paths:
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Count Users in Organization
+      tags:
+      - User
+  /user/verifyUserField:
+    get:
+      consumes:
+      - application/json
+      description: Verify if field already exists
+      parameters:
+      - description: Field
+        enum:
+        - email
+        - phone
+        in: query
+        name: field
+        required: true
+        type: string
+      - description: Value
+        in: query
+        name: value
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.VerifyUserFieldResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Verify if field already exists Field
       tags:
       - User
 schemes:

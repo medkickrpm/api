@@ -109,3 +109,7 @@ type CareplanSheetResponse struct {
 	Preventatives_Due                                     string `json:"preventatives_due"`
 	Submission_ID                                         string `json:"submission_id"`
 }
+
+type VerifyUserFieldResponse struct {
+	IsAvailable bool `json:"is_available"`
+}

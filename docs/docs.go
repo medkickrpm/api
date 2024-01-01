@@ -2445,6 +2445,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/verifyUserField": {
+            "get": {
+                "description": "Verify if field already exists",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Verify if field already exists Field",
+                "parameters": [
+                    {
+                        "enum": [
+                            "email",
+                            "phone"
+                        ],
+                        "type": "string",
+                        "description": "Field",
+                        "name": "field",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Value",
+                        "name": "value",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.VerifyUserFieldResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/{id}": {
             "get": {
                 "description": "Gets users, if ID is specified, gets specific user, if ID is \"all\", gets all users",
@@ -3774,6 +3823,14 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.VerifyUserFieldResponse": {
+            "type": "object",
+            "properties": {
+                "is_available": {
+                    "type": "boolean"
                 }
             }
         },

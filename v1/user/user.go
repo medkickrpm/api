@@ -18,6 +18,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type CreateRequest struct {
@@ -1357,4 +1358,49 @@ func filterCriticalPatient(users []models.User, status string) (filteredPatients
 	}
 
 	return filteredPatients, nil
+}
+
+// verifyField godoc
+// @Summary Verify if field already exists Field
+// @Description Verify if field already exists
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param field query string true "Field" Enums(email, phone)
+// @Param value query string true "Value"
+// @Success 200 {object} dto.VerifyUserFieldResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Router /user/verifyUserField [get]
+func verifyUserField(c echo.Context) error {
+	field := c.QueryParam("field")
+	value := c.QueryParam("value")
+
+	if field != "email" && field != "phone" {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid field",
+		})
+	}
+
+	if value == "" {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid value",
+		})
+	}
+
+	exists, err := models.VerifyUserField(field, value)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to verify field",
+		})
+	}
+
+	if !exists {
+		return c.JSON(http.StatusOK, dto.VerifyUserFieldResponse{
+			IsAvailable: true,
+		})
+	}
+
+	return c.JSON(http.StatusOK, dto.VerifyUserFieldResponse{
+		IsAvailable: false,
+	})
 }
