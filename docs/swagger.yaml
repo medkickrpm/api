@@ -3344,6 +3344,54 @@ paths:
       summary: Upsert Patient Services
       tags:
       - User
+  /user/avatar:
+    post:
+      consumes:
+      - application/json
+      description: Upload User Avatar
+      parameters:
+      - description: Avatar
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Upload User Avatar
+      tags:
+      - User
+  /user/avatar/{avatarPath}:
+    get:
+      consumes:
+      - application/json
+      description: Get User Avatar
+      parameters:
+      - description: Avatar Path
+        in: path
+        name: avatarPath
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get User Avatar
+      tags:
+      - User
   /user/count:
     get:
       consumes:
@@ -3517,7 +3565,9 @@ paths:
     get:
       consumes:
       - application/json
-      description: Verify if field already exists
+      description: |-
+        Verify if field already exists
+        when is_available is true that means the phone/email does not already exist in the DB and can be used and If the response is false that means the value already exists
       parameters:
       - description: Field
         enum:

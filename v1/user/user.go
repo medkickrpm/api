@@ -5,12 +5,15 @@ import (
 	"MedKick-backend/pkg/database/models"
 	"MedKick-backend/pkg/echo/dto"
 	"MedKick-backend/pkg/echo/middleware"
+	"MedKick-backend/pkg/s3"
 	"MedKick-backend/pkg/sendgrid"
 	"MedKick-backend/pkg/validator"
 	"MedKick-backend/utils"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
@@ -1367,6 +1370,7 @@ func filterCriticalPatient(users []models.User, status string) (filteredPatients
 // verifyField godoc
 // @Summary Verify if field already exists Field
 // @Description Verify if field already exists
+// @Description when is_available is true that means the phone/email does not already exist in the DB and can be used and If the response is false that means the value already exists
 // @Tags User
 // @Accept json
 // @Produce json
@@ -1407,4 +1411,118 @@ func verifyUserField(c echo.Context) error {
 	return c.JSON(http.StatusOK, dto.VerifyUserFieldResponse{
 		IsAvailable: false,
 	})
+}
+
+// uploadUserAvatar godoc
+// @Summary Upload User Avatar
+// @Description Upload User Avatar
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param avatar formData file true "Avatar"
+// @Success 200 {object} string
+// @Failure 400 {object} dto.ErrorResponse
+// @Router /user/avatar [post]
+func uploadUserAvatar(c echo.Context) error {
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to get file",
+		})
+	}
+
+	// Get the file extension
+	extension := filepath.Ext(file.Filename)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to get file",
+		})
+	}
+
+	// Check if file extension is valid
+	if extension != ".png" && extension != ".jpg" && extension != ".jpeg" {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid file type",
+		})
+	}
+
+	// Source
+	src, err := file.Open()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to open file",
+		})
+	}
+	defer src.Close()
+
+	// get current user
+	self := middleware.GetSelf(c)
+
+	// make file name with user first name _ last name _ timestamp
+	fileName := strings.TrimSpace(self.FirstName) + "_" + strings.TrimSpace(self.LastName) + "_" + strconv.FormatInt(time.Now().Unix(), 10) + extension
+	uploadLocation := s3.AvatarFolder + fileName
+
+	// upload to s3
+	if err := s3.UploadFile(uploadLocation, src); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to upload file",
+		})
+	}
+
+	// update user avatar src
+	self.AvatarSRC = fileName
+	if err := self.UpdateUser(); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to update user",
+		})
+	}
+
+	return c.JSON(http.StatusOK, self.AvatarSRC)
+
+}
+
+// getUserAvatar godoc
+// @Summary Get User Avatar
+// @Description Get User Avatar
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param avatarPath path string true "Avatar Path"
+// @Success 200
+// @Failure 400 {object} dto.ErrorResponse
+// @Router /user/avatar/{avatarPath} [get]
+func getUserAvatar(c echo.Context) error {
+	avatarPath := c.Param("avatarPath")
+
+	// get avatar from s3
+	file, err := s3.DownloadFile(s3.AvatarFolder + avatarPath)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get avatar",
+		})
+	}
+
+	defer file.Body.Close()
+
+	// get file extension
+	extension := filepath.Ext(avatarPath)
+
+	// set content type
+	switch extension {
+	case ".png":
+		c.Response().Header().Set("Content-Type", "image/png")
+	case ".jpg":
+		c.Response().Header().Set("Content-Type", "image/jpg")
+	case ".jpeg":
+		c.Response().Header().Set("Content-Type", "image/jpeg")
+	}
+
+	// copy file to response
+	if _, err := io.Copy(c.Response(), file.Body); err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to get avatar",
+		})
+	}
+
+	return nil
 }

@@ -2201,6 +2201,79 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/avatar": {
+            "post": {
+                "description": "Upload User Avatar",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Upload User Avatar",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Avatar",
+                        "name": "avatar",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/avatar/{avatarPath}": {
+            "get": {
+                "description": "Get User Avatar",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get User Avatar",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Avatar Path",
+                        "name": "avatarPath",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/count": {
             "get": {
                 "description": "ADMIN ONLY - Count Users",
@@ -2447,7 +2520,7 @@ const docTemplate = `{
         },
         "/user/verifyUserField": {
             "get": {
-                "description": "Verify if field already exists",
+                "description": "Verify if field already exists\nwhen is_available is true that means the phone/email does not already exist in the DB and can be used and If the response is false that means the value already exists",
                 "consumes": [
                     "application/json"
                 ],

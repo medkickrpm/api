@@ -10,6 +10,9 @@ import (
 
 var sess *session.Session
 
+// avatar folder
+const AvatarFolder = "avatar_src/"
+
 func Setup() {
 	awsConfig := &aws.Config{
 		Region:      aws.String("us-east-2"),
