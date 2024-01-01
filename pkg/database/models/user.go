@@ -554,3 +554,11 @@ func (user *User) SanitizedUserResponse() UserResponse {
 
 	return response
 }
+
+func VerifyUserField(field string, value string) (bool, error) {
+	var user User
+	if err := database.DB.Where(field+" = ?", value).First(&user).Error; err != nil {
+		return false, err
+	}
+	return true, nil
+}

@@ -37,4 +37,7 @@ func Routes(r *echo.Group) {
 	r.GET("/user/:id/diagnoses", getDiagnoses, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager", "patient"))
 	r.PUT("/user/:id/patient-service", upsertPatientServices, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager", "patient"))
 	r.GET("/user/:id/patient-service", listPatientServices, middleware.NotGuest, middleware.HasRole("admin", "org_admin", "care_manager", "patient"))
+
+	// create endpoint to verify if email or phone number is already in use
+	r.GET("/user/verifyUserField", verifyUserField, middleware.NotGuest)
 }
