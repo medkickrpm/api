@@ -3,6 +3,7 @@ package models
 import (
 	"MedKick-backend/pkg/database"
 	"errors"
+	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -72,7 +73,7 @@ type DeviceResponse struct {
 	SignalStrength      string `json:"signal_strength"`
 	FirmwareVersion     string `json:"firmware_version"`
 	UserID              uint   `json:"user_id"`
-	DeviceTelemetryData *DeviceTelemetryDataResponse
+	DeviceTelemetryData *[]DeviceTelemetryDataResponse
 	CreatedAt           time.Time `json:"created_at"`
 	UpdatedAt           time.Time `json:"updated_at"`
 }
@@ -185,36 +186,56 @@ func GetAllPatients() ([]UserResponse, error) {
 
 func GetPatient(id uint) (*UserResponse, error) {
 	var userResponses UserResponse
-	var users *User
 	// Set the date range for the current month
-	startDate := time.Date(2023, time.October, 1, 0, 0, 0, 0, time.UTC) // First day of the current month
-	endDate := time.Now()
+	now := time.Now()                                                                // get the current date and time
+	startDate := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())   // set to the first day of the current month
+	nextMonth := time.Date(now.Year(), now.Month()+1, 1, 0, 0, 0, 0, now.Location()) // set to the first day of the next month
+	endDate := nextMonth.Add(-time.Second)                                           // subtract one second to get the last moment of the current month
 
+	fmt.Println("startDate: ", startDate)
+	fmt.Println("endDate: ", endDate)
+	var user User
 	if err := database.DB.
 		Where("id = ?", id).
 		Where("role = 'patient'").
 		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
-		Preload("Device", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
-				Preload("DeviceTelemetryData", func(db *gorm.DB) *gorm.DB {
-					return db.Order("created_at desc").Limit(2)
-				}) // Specify the fields you want from the Devices table
-		}).
 		Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("Diagnosis")
 		}).
 		Preload("Interaction", func(db *gorm.DB) *gorm.DB {
-			return db.Where("created_at BETWEEN ? AND ?", startDate, endDate)
+			return db.Where("updated_at BETWEEN ? AND ?", startDate, endDate)
 		}).
-		Find(&users).Error; err != nil {
+		First(&user).Error; err != nil {
 		return nil, err
 	}
 
-	if users.ID == nil {
+	var devices []Device
+	if err := database.DB.Model(&user).Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").Association("Device").Find(&devices); err != nil {
+		return nil, err
+	}
+
+	// fmt.Println("devices: ", devices[0])
+	fmt.Println("devices length: ", len(devices))
+
+	for i := range devices {
+		fmt.Println("devices: ", i, devices[i])
+
+		var deviceTelemetryData []DeviceTelemetryData
+		if err := database.DB.Model(&devices[i]).Order("measured_at desc").Limit(2).Association("DeviceTelemetryData").Find(&deviceTelemetryData); err != nil {
+			return nil, err
+		}
+		devices[i].DeviceTelemetryData = deviceTelemetryData
+
+		fmt.Println("deviceTelemetryData: ", i, len(deviceTelemetryData))
+	}
+
+	user.Device = devices
+
+	if user.ID == nil {
 		return nil, errors.New("User Not Found")
 	} else {
-		userResponses = users.SanitizedUserResponse()
+		userResponses = user.SanitizedUserResponse()
 
 		return &userResponses, nil
 	}
@@ -438,32 +459,34 @@ func (user *User) SanitizedUserResponse() UserResponse {
 	var reading time.Time
 	for index, device := range user.Device {
 		dataExists := false // Set your condition here
-		var DeviceTelemetries DeviceTelemetryDataResponse
+		// var DeviceTelemetries DeviceTelemetryDataResponse
+		var DeviceTelemetries []DeviceTelemetryDataResponse
 		if len(device.DeviceTelemetryData) > 0 {
 			dataExists = true
-			telemetry := device.DeviceTelemetryData[0]
-			DeviceTelemetries = DeviceTelemetryDataResponse{
-				ID:                 telemetry.ID,
-				SystolicBP:         telemetry.SystolicBP,
-				DiastolicBP:        telemetry.DiastolicBP,
-				Pulse:              telemetry.Pulse,
-				IrregularHeartBeat: telemetry.IrregularHeartBeat,
-				HandShaking:        telemetry.HandShaking,
-				TripleMeasurement:  telemetry.TripleMeasurement,
-				Weight:             telemetry.Weight,
-				WeightStableTime:   telemetry.WeightStableTime,
-				WeightLockCount:    telemetry.WeightLockCount,
-				BloodGlucose:       telemetry.BloodGlucose,
-				Unit:               telemetry.Unit,
-				TestPaper:          telemetry.TestPaper,
-				SampleType:         telemetry.SampleType,
-				Meal:               telemetry.Meal,
-				DeviceID:           telemetry.DeviceID,
-				MeasuredAt:         telemetry.MeasuredAt,
-				CreatedAt:          telemetry.CreatedAt,
-				UpdatedAt:          telemetry.UpdatedAt,
+			for _, telemetry := range device.DeviceTelemetryData {
+				DeviceTelemetries = append(DeviceTelemetries, DeviceTelemetryDataResponse{
+					ID:                 telemetry.ID,
+					SystolicBP:         telemetry.SystolicBP,
+					DiastolicBP:        telemetry.DiastolicBP,
+					Pulse:              telemetry.Pulse,
+					IrregularHeartBeat: telemetry.IrregularHeartBeat,
+					HandShaking:        telemetry.HandShaking,
+					TripleMeasurement:  telemetry.TripleMeasurement,
+					Weight:             telemetry.Weight,
+					WeightStableTime:   telemetry.WeightStableTime,
+					WeightLockCount:    telemetry.WeightLockCount,
+					BloodGlucose:       telemetry.BloodGlucose,
+					Unit:               telemetry.Unit,
+					TestPaper:          telemetry.TestPaper,
+					SampleType:         telemetry.SampleType,
+					Meal:               telemetry.Meal,
+					DeviceID:           telemetry.DeviceID,
+					MeasuredAt:         telemetry.MeasuredAt,
+					CreatedAt:          telemetry.CreatedAt,
+					UpdatedAt:          telemetry.UpdatedAt,
+				})
 			}
-			reading = telemetry.MeasuredAt
+			reading = device.DeviceTelemetryData[0].MeasuredAt
 		}
 
 		devices = append(devices, DeviceResponse{
@@ -545,8 +568,8 @@ func (user *User) SanitizedUserResponse() UserResponse {
 		},
 		PatientDiagnosis: Dignoses,
 		TotalDuration:    duration,
-		Readings:         len(interactions),
-		ReadingDate:      reading,
+		Readings:         len(interactions), // telemetry readings count for current month
+		ReadingDate:      reading,           // latest telemetry reading date of any device of the user
 		Devices:          devices,
 		CreatedAt:        user.CreatedAt,
 		UpdatedAt:        user.UpdatedAt,
