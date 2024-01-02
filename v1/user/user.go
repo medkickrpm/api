@@ -1470,14 +1470,13 @@ func uploadUserAvatar(c echo.Context) error {
 	}
 
 	// update user avatar src
-	self.AvatarSRC = fileName
-	if err := self.UpdateUser(); err != nil {
+	if err := models.UpdateUserAvatar(*self.ID, fileName); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to update user",
+			Error: "Failed to update user avatar src",
 		})
 	}
 
-	return c.JSON(http.StatusOK, self.AvatarSRC)
+	return c.JSON(http.StatusOK, fileName)
 
 }
 
