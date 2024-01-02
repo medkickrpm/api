@@ -258,23 +258,32 @@ func GetAllPatientsWithOrg(orgId uint64) ([]UserResponse, error) {
 		Where("organization_id = ?", orgId).
 		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
-		Preload("Device", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
-				Preload("DeviceTelemetryData", func(db *gorm.DB) *gorm.DB {
-					return db.Order("created_at desc").Limit(2)
-				}) // Specify the fields you want from the Devices table
-		}).
 		Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("Diagnosis")
 		}).
 		Preload("Interaction", func(db *gorm.DB) *gorm.DB {
-			return db.Where("created_at BETWEEN ? AND ?", startDate, endDate)
+			return db.Where("updated_at BETWEEN ? AND ?", startDate, endDate)
 		}).
 		Find(&users).Error; err != nil {
 		return nil, err
 	}
 
 	for _, user := range users {
+		var devices []Device
+		if err := database.DB.Model(&user).Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").Association("Device").Find(&devices); err != nil {
+			return nil, err
+		}
+
+		for i := range devices {
+			var deviceTelemetryData []DeviceTelemetryData
+			if err := database.DB.Model(&devices[i]).Order("measured_at desc").Where("measured_at BETWEEN ? AND ?", startDate, endDate).Association("DeviceTelemetryData").Find(&deviceTelemetryData); err != nil {
+				return nil, err
+			}
+			devices[i].DeviceTelemetryData = deviceTelemetryData
+
+		}
+
+		user.Device = devices
 		userResponses = append(userResponses, user.SanitizedUserResponse())
 	}
 
