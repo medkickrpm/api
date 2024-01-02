@@ -562,3 +562,10 @@ func VerifyUserField(field string, value string) (bool, error) {
 	}
 	return true, nil
 }
+
+func UpdateUserAvatar(id uint, avatarSrc string) error {
+	if err := database.DB.Model(&User{}).Where("id = ?", id).Update("avatar_src", avatarSrc).Error; err != nil {
+		return err
+	}
+	return nil
+}
