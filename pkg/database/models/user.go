@@ -468,7 +468,7 @@ func (u *User) UpdatePassword(newPassword string) error {
 
 func (user *User) SanitizedUserResponse() UserResponse {
 	var devices []DeviceResponse
-	var interactions []InteractionResponse
+	// var interactions []InteractionResponse
 	var latestReadingDate time.Time
 	var totalReadings int = 0
 	for index, device := range user.Device {
@@ -538,18 +538,18 @@ func (user *User) SanitizedUserResponse() UserResponse {
 
 	var duration uint = 0
 	for _, interaction := range user.Interaction {
-		interactions = append(interactions, InteractionResponse{
-			ID:           interaction.ID,
-			UserID:       interaction.UserID,
-			DoctorID:     interaction.DoctorID,
-			Doctor:       interaction.Doctor,
-			Duration:     interaction.Duration,
-			Notes:        interaction.Notes,
-			CostCategory: interaction.CostCategory,
-			SessionDate:  interaction.SessionDate,
-			CreatedAt:    interaction.CreatedAt,
-			UpdatedAt:    interaction.UpdatedAt,
-		})
+		// interactions = append(interactions, InteractionResponse{
+		// 	ID:           interaction.ID,
+		// 	UserID:       interaction.UserID,
+		// 	DoctorID:     interaction.DoctorID,
+		// 	Doctor:       interaction.Doctor,
+		// 	Duration:     interaction.Duration,
+		// 	Notes:        interaction.Notes,
+		// 	CostCategory: interaction.CostCategory,
+		// 	SessionDate:  interaction.SessionDate,
+		// 	CreatedAt:    interaction.CreatedAt,
+		// 	UpdatedAt:    interaction.UpdatedAt,
+		// })
 		duration += interaction.Duration
 	}
 
