@@ -915,6 +915,9 @@ definitions:
         items:
           $ref: '#/definitions/models.Interaction'
         type: array
+      is_deleted:
+        example: false
+        type: boolean
       last_name:
         example: Doe
         type: string
