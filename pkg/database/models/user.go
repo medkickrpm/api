@@ -153,30 +153,41 @@ func GetAllPatients() ([]UserResponse, error) {
 	var userResponses []UserResponse
 	var users []User
 	// Set the date range for the current month
-	startDate := time.Date(2023, time.October, 1, 0, 0, 0, 0, time.UTC) // First day of the current month
-	endDate := time.Now()
+	now := time.Now()                                                                // get the current date and time
+	startDate := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())   // set to the first day of the current month
+	nextMonth := time.Date(now.Year(), now.Month()+1, 1, 0, 0, 0, 0, now.Location()) // set to the first day of the next month
+	endDate := nextMonth.Add(-time.Second)
 
 	if err := database.DB.
 		Where("role = 'patient'").
-		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "Location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
+		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
-		Preload("Device", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
-				Preload("DeviceTelemetryData", func(db *gorm.DB) *gorm.DB {
-					return db.Order("created_at desc").Limit(2)
-				}) // Specify the fields you want from the Devices table
-		}).
 		Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("Diagnosis")
 		}).
 		Preload("Interaction", func(db *gorm.DB) *gorm.DB {
-			return db.Where("created_at BETWEEN ? AND ?", startDate, endDate)
+			return db.Where("updated_at BETWEEN ? AND ?", startDate, endDate)
 		}).
 		Find(&users).Error; err != nil {
 		return nil, err
 	}
 
 	for _, user := range users {
+		var devices []Device
+		if err := database.DB.Model(&user).Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").Association("Device").Find(&devices); err != nil {
+			return nil, err
+		}
+
+		for i := range devices {
+			var deviceTelemetryData []DeviceTelemetryData
+			if err := database.DB.Model(&devices[i]).Order("measured_at desc").Where("measured_at BETWEEN ? AND ?", startDate, endDate).Association("DeviceTelemetryData").Find(&deviceTelemetryData); err != nil {
+				return nil, err
+			}
+			devices[i].DeviceTelemetryData = deviceTelemetryData
+
+		}
+
+		user.Device = devices
 		userResponses = append(userResponses, user.SanitizedUserResponse())
 	}
 
@@ -185,36 +196,48 @@ func GetAllPatients() ([]UserResponse, error) {
 
 func GetPatient(id uint) (*UserResponse, error) {
 	var userResponses UserResponse
-	var users *User
 	// Set the date range for the current month
-	startDate := time.Date(2023, time.October, 1, 0, 0, 0, 0, time.UTC) // First day of the current month
-	endDate := time.Now()
+	now := time.Now()                                                                // get the current date and time
+	startDate := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())   // set to the first day of the current month
+	nextMonth := time.Date(now.Year(), now.Month()+1, 1, 0, 0, 0, 0, now.Location()) // set to the first day of the next month
+	endDate := nextMonth.Add(-time.Second)                                           // subtract one second to get the last moment of the current month
 
+	var user User
 	if err := database.DB.
 		Where("id = ?", id).
 		Where("role = 'patient'").
 		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
-		Preload("Device", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
-				Preload("DeviceTelemetryData", func(db *gorm.DB) *gorm.DB {
-					return db.Order("created_at desc").Limit(2)
-				}) // Specify the fields you want from the Devices table
-		}).
 		Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("Diagnosis")
 		}).
 		Preload("Interaction", func(db *gorm.DB) *gorm.DB {
-			return db.Where("created_at BETWEEN ? AND ?", startDate, endDate)
+			return db.Where("updated_at BETWEEN ? AND ?", startDate, endDate)
 		}).
-		Find(&users).Error; err != nil {
+		First(&user).Error; err != nil {
 		return nil, err
 	}
 
-	if users.ID == nil {
+	var devices []Device
+	if err := database.DB.Model(&user).Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").Association("Device").Find(&devices); err != nil {
+		return nil, err
+	}
+
+	for i := range devices {
+		var deviceTelemetryData []DeviceTelemetryData
+		if err := database.DB.Model(&devices[i]).Order("measured_at desc").Where("measured_at BETWEEN ? AND ?", startDate, endDate).Association("DeviceTelemetryData").Find(&deviceTelemetryData); err != nil {
+			return nil, err
+		}
+		devices[i].DeviceTelemetryData = deviceTelemetryData
+
+	}
+
+	user.Device = devices
+
+	if user.ID == nil {
 		return nil, errors.New("User Not Found")
 	} else {
-		userResponses = users.SanitizedUserResponse()
+		userResponses = user.SanitizedUserResponse()
 
 		return &userResponses, nil
 	}
@@ -225,31 +248,42 @@ func GetAllPatientsWithOrg(orgId uint64) ([]UserResponse, error) {
 	var userResponses []UserResponse
 	var users []User
 	// Set the date range for the current month
-	startDate := time.Date(2023, time.October, 1, 0, 0, 0, 0, time.UTC) // First day of the current month
-	endDate := time.Now()
+	now := time.Now()                                                                // get the current date and time
+	startDate := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())   // set to the first day of the current month
+	nextMonth := time.Date(now.Year(), now.Month()+1, 1, 0, 0, 0, 0, now.Location()) // set to the first day of the next month
+	endDate := nextMonth.Add(-time.Second)
 
 	if err := database.DB.
 		Where("role = 'patient'").
 		Where("organization_id = ?", orgId).
 		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
-		Preload("Device", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").
-				Preload("DeviceTelemetryData", func(db *gorm.DB) *gorm.DB {
-					return db.Order("created_at desc").Limit(2)
-				}) // Specify the fields you want from the Devices table
-		}).
 		Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("Diagnosis")
 		}).
 		Preload("Interaction", func(db *gorm.DB) *gorm.DB {
-			return db.Where("created_at BETWEEN ? AND ?", startDate, endDate)
+			return db.Where("updated_at BETWEEN ? AND ?", startDate, endDate)
 		}).
 		Find(&users).Error; err != nil {
 		return nil, err
 	}
 
 	for _, user := range users {
+		var devices []Device
+		if err := database.DB.Model(&user).Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id").Association("Device").Find(&devices); err != nil {
+			return nil, err
+		}
+
+		for i := range devices {
+			var deviceTelemetryData []DeviceTelemetryData
+			if err := database.DB.Model(&devices[i]).Order("measured_at desc").Where("measured_at BETWEEN ? AND ?", startDate, endDate).Association("DeviceTelemetryData").Find(&deviceTelemetryData); err != nil {
+				return nil, err
+			}
+			devices[i].DeviceTelemetryData = deviceTelemetryData
+
+		}
+
+		user.Device = devices
 		userResponses = append(userResponses, user.SanitizedUserResponse())
 	}
 
@@ -434,12 +468,14 @@ func (u *User) UpdatePassword(newPassword string) error {
 
 func (user *User) SanitizedUserResponse() UserResponse {
 	var devices []DeviceResponse
-	var interactions []InteractionResponse
-	var reading time.Time
+	// var interactions []InteractionResponse
+	var latestReadingDate time.Time
+	var totalReadings int = 0
 	for index, device := range user.Device {
 		dataExists := false // Set your condition here
 		var DeviceTelemetries DeviceTelemetryDataResponse
 		if len(device.DeviceTelemetryData) > 0 {
+			totalReadings += len(device.DeviceTelemetryData)
 			dataExists = true
 			telemetry := device.DeviceTelemetryData[0]
 			DeviceTelemetries = DeviceTelemetryDataResponse{
@@ -463,7 +499,9 @@ func (user *User) SanitizedUserResponse() UserResponse {
 				CreatedAt:          telemetry.CreatedAt,
 				UpdatedAt:          telemetry.UpdatedAt,
 			}
-			reading = telemetry.MeasuredAt
+			if telemetry.MeasuredAt.After(latestReadingDate) {
+				latestReadingDate = telemetry.MeasuredAt
+			}
 		}
 
 		devices = append(devices, DeviceResponse{
@@ -500,18 +538,18 @@ func (user *User) SanitizedUserResponse() UserResponse {
 
 	var duration uint = 0
 	for _, interaction := range user.Interaction {
-		interactions = append(interactions, InteractionResponse{
-			ID:           interaction.ID,
-			UserID:       interaction.UserID,
-			DoctorID:     interaction.DoctorID,
-			Doctor:       interaction.Doctor,
-			Duration:     interaction.Duration,
-			Notes:        interaction.Notes,
-			CostCategory: interaction.CostCategory,
-			SessionDate:  interaction.SessionDate,
-			CreatedAt:    interaction.CreatedAt,
-			UpdatedAt:    interaction.UpdatedAt,
-		})
+		// interactions = append(interactions, InteractionResponse{
+		// 	ID:           interaction.ID,
+		// 	UserID:       interaction.UserID,
+		// 	DoctorID:     interaction.DoctorID,
+		// 	Doctor:       interaction.Doctor,
+		// 	Duration:     interaction.Duration,
+		// 	Notes:        interaction.Notes,
+		// 	CostCategory: interaction.CostCategory,
+		// 	SessionDate:  interaction.SessionDate,
+		// 	CreatedAt:    interaction.CreatedAt,
+		// 	UpdatedAt:    interaction.UpdatedAt,
+		// })
 		duration += interaction.Duration
 	}
 
@@ -545,8 +583,8 @@ func (user *User) SanitizedUserResponse() UserResponse {
 		},
 		PatientDiagnosis: Dignoses,
 		TotalDuration:    duration,
-		Readings:         len(interactions),
-		ReadingDate:      reading,
+		Readings:         totalReadings,
+		ReadingDate:      latestReadingDate,
 		Devices:          devices,
 		CreatedAt:        user.CreatedAt,
 		UpdatedAt:        user.UpdatedAt,

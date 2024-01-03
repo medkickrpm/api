@@ -309,18 +309,28 @@ func getPatients(c echo.Context) error {
 			}
 			return c.JSON(http.StatusOK, users)
 		} else {
+
 			idInt, err := strconv.ParseUint(org, 10, 32)
 			if err != nil {
 				return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 					Error: "Invalid ID",
 				})
 			}
+
 			users, err := models.GetAllPatientsWithOrg(idInt)
+
+			if (self.Role != "org_admin" && self.Role != "care_manager") || uint64(*self.OrganizationID) != idInt {
+				return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+					Error: "Unauthorized",
+				})
+			}
+
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 					Error: "Failed to get users",
 				})
 			}
+
 			if len(users) > 0 {
 				return c.JSON(http.StatusOK, users)
 			} else {
