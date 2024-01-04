@@ -957,7 +957,7 @@ func updateUser(c echo.Context) error {
 
 	if !isValidRole(request.Role) {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-			Error: "Invalid role, must be 'admin', 'doctor', 'nurse', 'patient', 'doctornv', 'nursenv', 'care_manager', 'org_admin', or 'patientnv'.",
+			Error: "Invalid role, must be 'admin', 'car_manager', 'patient', 'org_admin'.",
 		})
 	}
 
@@ -1041,7 +1041,8 @@ func updateUser(c echo.Context) error {
 		})
 	}
 
-	if self.Role == "admin" || self.Role == "org_admin" || (self.Role == "care_manager" && *self.OrganizationID == *u.OrganizationID) {
+	if self.Role == "admin" || (self.Role == "org_admin" && *self.OrganizationID == *u.OrganizationID) || (self.Role == "care_manager" && *self.OrganizationID == *u.OrganizationID) {
+
 		if request.FirstName != "" {
 			u.FirstName = request.FirstName
 		}
@@ -1094,10 +1095,6 @@ func updateUser(c echo.Context) error {
 		if request.OrganizationID != nil {
 			if self.Role == "admin" {
 				u.OrganizationID = request.OrganizationID
-			} else {
-				return c.JSON(http.StatusForbidden, dto.ErrorResponse{
-					Error: "Forbidden",
-				})
 			}
 		}
 
