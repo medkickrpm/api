@@ -620,7 +620,7 @@ func getInteractionsInUser(c echo.Context) error {
 	endDateRaw := c.QueryParam("end_date")
 
 	//convert start_date and end_date to time.Time
-	startDate, err := time.Parse("2006-01-02", startDateRaw)
+	startDate, err := time.Parse("01-02-2006", startDateRaw)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Failed to parse start_date",
@@ -635,7 +635,7 @@ func getInteractionsInUser(c echo.Context) error {
 
 		// Adjust endDate to the end of the day
 
-		endDate, err = time.Parse("2006-01-02", endDateRaw)
+		endDate, err = time.Parse("01-02-2006", endDateRaw)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 				Error: "Failed to parse end_date",
@@ -644,8 +644,6 @@ func getInteractionsInUser(c echo.Context) error {
 		endDate = endDate.Add(24 * time.Hour).Add(-time.Second)
 
 	}
-	fmt.Println("startDate: ", startDate)
-	fmt.Println("endDate: ", endDate)
 
 	// Make sure startDate is before endDate
 	if startDate.After(endDate) {
@@ -752,7 +750,7 @@ func getTotalInteractionDuration(c echo.Context) error {
 	endDateRaw := c.QueryParam("end_date")
 
 	//convert start_date and end_date to time.Time
-	startDate, err := time.Parse("2006-01-02", startDateRaw)
+	startDate, err := time.Parse("01-02-2006", startDateRaw)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Failed to parse start_date",
@@ -764,7 +762,7 @@ func getTotalInteractionDuration(c echo.Context) error {
 	if endDateRaw == "" {
 		endDate = time.Now()
 	} else {
-		endDate, err = time.Parse("2006-01-02", endDateRaw)
+		endDate, err = time.Parse("01-02-2006", endDateRaw)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 				Error: "Failed to parse end_date",
