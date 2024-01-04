@@ -51,12 +51,7 @@ type CreateRequest struct {
 func isValidRole(role string) bool {
 	validRoles := map[string]bool{
 		"admin":        true,
-		"doctor":       true,
-		"nurse":        true,
 		"patient":      true,
-		"doctornv":     true,
-		"nursenv":      true,
-		"patientnv":    true,
 		"care_manager": true,
 		"org_admin":    true,
 	}
@@ -205,7 +200,7 @@ func getUser(c echo.Context) error {
 	filter := c.QueryParam("filter")
 	status := c.QueryParam("status")
 
-	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "nurse" && filter != "doctornv" && filter != "nursenv" && filter != "patientnv" {
+	if !isValidRole(filter) {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Invalid filter",
 		})
@@ -268,11 +263,12 @@ func getUser(c echo.Context) error {
 		})
 	}
 
-	if self.Role == "admin" || (self.Role == "care_manager" && self.OrganizationID == u.OrganizationID) || (self.Role == "org_admin" && self.OrganizationID == u.OrganizationID) {
+	if self.Role == "admin" || (self.Role == "care_manager" && *self.OrganizationID == *u.OrganizationID) || (self.Role == "org_admin" && *self.OrganizationID == *u.OrganizationID) {
+		fmt.Println("I am admin or something")
 		return c.JSON(http.StatusOK, u)
 	}
 
-	if self.ID == u.ID {
+	if *self.ID == *u.ID {
 		return c.JSON(http.StatusOK, u)
 	}
 
@@ -400,7 +396,7 @@ func getUsersInOrg(c echo.Context) error {
 	filter := c.QueryParam("filter")
 	status := c.QueryParam("status")
 
-	if filter != "" && filter != "admin" && filter != "doctor" && filter != "patient" && filter != "nurse" && filter != "doctornv" && filter != "nursenv" && filter != "patientnv" && filter != "org_admin" && filter != "care_manager" {
+	if !isValidRole(filter) {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Invalid filter",
 		})
@@ -585,7 +581,7 @@ func getDevicesInUser(c echo.Context) error {
 			})
 		}
 
-		if self.Role == "admin" || (self.Role == "org_admin" && self.OrganizationID == u.OrganizationID) || (self.Role == "care_manager" && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+		if self.Role == "admin" || (self.Role == "org_admin" && *self.OrganizationID == *u.OrganizationID) || (self.Role == "care_manager" && *self.OrganizationID == *u.OrganizationID) || *self.ID == idUint {
 			devices, err := models.GetDevicesByUser(idUint)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -624,7 +620,7 @@ func getInteractionsInUser(c echo.Context) error {
 	endDateRaw := c.QueryParam("end_date")
 
 	//convert start_date and end_date to time.Time
-	startDate, err := time.Parse("2006-01-02", startDateRaw)
+	startDate, err := time.Parse("01-02-2006", startDateRaw)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Failed to parse start_date",
@@ -639,7 +635,7 @@ func getInteractionsInUser(c echo.Context) error {
 
 		// Adjust endDate to the end of the day
 
-		endDate, err = time.Parse("2006-01-02", endDateRaw)
+		endDate, err = time.Parse("01-02-2006", endDateRaw)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 				Error: "Failed to parse end_date",
@@ -648,8 +644,6 @@ func getInteractionsInUser(c echo.Context) error {
 		endDate = endDate.Add(24 * time.Hour).Add(-time.Second)
 
 	}
-	fmt.Println("startDate: ", startDate)
-	fmt.Println("endDate: ", endDate)
 
 	// Make sure startDate is before endDate
 	if startDate.After(endDate) {
@@ -684,7 +678,7 @@ func getInteractionsInUser(c echo.Context) error {
 		})
 	}
 
-	if self.Role == "admin" || ((self.Role == "care_manager" || self.Role == "org_admin") && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+	if self.Role == "admin" || ((self.Role == "care_manager" || self.Role == "org_admin") && *self.OrganizationID == *u.OrganizationID) || *self.ID == idUint {
 		if startDateRaw != "" {
 			interactions, err := models.GetInteractionsByUserBetweenDates(idUint, startDate, endDate)
 			if err != nil {
@@ -756,7 +750,7 @@ func getTotalInteractionDuration(c echo.Context) error {
 	endDateRaw := c.QueryParam("end_date")
 
 	//convert start_date and end_date to time.Time
-	startDate, err := time.Parse("2006-01-02", startDateRaw)
+	startDate, err := time.Parse("01-02-2006", startDateRaw)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Failed to parse start_date",
@@ -768,7 +762,7 @@ func getTotalInteractionDuration(c echo.Context) error {
 	if endDateRaw == "" {
 		endDate = time.Now()
 	} else {
-		endDate, err = time.Parse("2006-01-02", endDateRaw)
+		endDate, err = time.Parse("01-02-2006", endDateRaw)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 				Error: "Failed to parse end_date",
@@ -790,7 +784,7 @@ func getTotalInteractionDuration(c echo.Context) error {
 		})
 	}
 
-	if self.Role == "admin" || ((self.Role == "doctor" || self.Role == "nurse") && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+	if self.Role == "admin" || ((self.Role == "doctor" || self.Role == "nurse") && *self.OrganizationID == *u.OrganizationID) || *self.ID == idUint {
 		if startDateRaw != "" {
 			interactions, err := models.GetInteractionsByUser(idUint)
 			if err != nil {
@@ -1048,7 +1042,7 @@ func updateUser(c echo.Context) error {
 		})
 	}
 
-	if self.Role == "admin" || self.Role == "org_admin" || (self.Role == "care_manager" && self.OrganizationID == u.OrganizationID) {
+	if self.Role == "admin" || self.Role == "org_admin" || (self.Role == "care_manager" && *self.OrganizationID == *u.OrganizationID) {
 		if request.FirstName != "" {
 			u.FirstName = request.FirstName
 		}

@@ -56,14 +56,14 @@ func getBillingReport(c echo.Context) error {
 			Error: "Failed to load location",
 		})
 	}
-	startDate, err := time.ParseInLocation("2006-01-02", param.StartDate, loc)
+	startDate, err := time.ParseInLocation("01-02-2006", param.StartDate, loc)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Failed to parse start date",
 		})
 	}
 
-	endDate, err := time.ParseInLocation("2006-01-02", param.EndDate, loc)
+	endDate, err := time.ParseInLocation("01-02-2006", param.EndDate, loc)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Failed to parse end date",
@@ -118,7 +118,7 @@ func getBillingReport(c echo.Context) error {
 				codes = append(codes, fmt.Sprintf("%d", bill.CPTCode))
 				once.Do(func() {
 					dob := bill.Patient.DOB
-					if d, err2 := time.Parse("2006-01-02", dob); err2 == nil {
+					if d, err2 := time.Parse("01-02-2006", dob); err2 == nil {
 						dob = d.Format("02/01/2006")
 					}
 					record = BillingRecordBody{
