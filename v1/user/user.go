@@ -268,7 +268,11 @@ func getUser(c echo.Context) error {
 		})
 	}
 
-	if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) {
+	if self.Role == "admin" || (self.Role == "care_manager" && self.OrganizationID == u.OrganizationID) || (self.Role == "org_admin" && self.OrganizationID == u.OrganizationID) {
+		return c.JSON(http.StatusOK, u)
+	}
+
+	if self.ID == u.ID {
 		return c.JSON(http.StatusOK, u)
 	}
 
@@ -581,7 +585,7 @@ func getDevicesInUser(c echo.Context) error {
 			})
 		}
 
-		if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+		if self.Role == "admin" || (self.Role == "org_admin" && self.OrganizationID == u.OrganizationID) || (self.Role == "care_manager" && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
 			devices, err := models.GetDevicesByUser(idUint)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -680,7 +684,7 @@ func getInteractionsInUser(c echo.Context) error {
 		})
 	}
 
-	if self.Role == "admin" || ((self.Role == "doctor" || self.Role == "nurse") && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+	if self.Role == "admin" || ((self.Role == "care_manager" || self.Role == "org_admin") && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
 		if startDateRaw != "" {
 			interactions, err := models.GetInteractionsByUserBetweenDates(idUint, startDate, endDate)
 			if err != nil {
