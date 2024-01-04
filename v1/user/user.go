@@ -268,7 +268,11 @@ func getUser(c echo.Context) error {
 		})
 	}
 
-	if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) {
+	if self.Role == "admin" || (self.Role == "care_manager" && self.OrganizationID == u.OrganizationID) || (self.Role == "org_admin" && self.OrganizationID == u.OrganizationID) {
+		return c.JSON(http.StatusOK, u)
+	}
+
+	if self.ID == u.ID {
 		return c.JSON(http.StatusOK, u)
 	}
 
