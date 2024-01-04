@@ -11,8 +11,12 @@ import (
 	"MedKick-backend/utils"
 	"errors"
 	"fmt"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strconv"
@@ -21,6 +25,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/nfnt/resize"
 	"gorm.io/gorm"
 )
 
@@ -627,13 +632,20 @@ func getInteractionsInUser(c echo.Context) error {
 	if endDateRaw == "" {
 		endDate = time.Now()
 	} else {
+
+		// Adjust endDate to the end of the day
+
 		endDate, err = time.Parse("2006-01-02", endDateRaw)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 				Error: "Failed to parse end_date",
 			})
 		}
+		endDate = endDate.Add(24 * time.Hour).Add(-time.Second)
+
 	}
+	fmt.Println("startDate: ", startDate)
+	fmt.Println("endDate: ", endDate)
 
 	// Make sure startDate is before endDate
 	if startDate.After(endDate) {
@@ -1441,22 +1453,15 @@ func uploadUserAvatar(c echo.Context) error {
 		})
 	}
 
-	// Get the file extension
-	extension := filepath.Ext(file.Filename)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
-			Error: "Failed to get file",
-		})
-	}
-
 	// Check if file extension is valid
+	extension := filepath.Ext(file.Filename)
 	if extension != ".png" && extension != ".jpg" && extension != ".jpeg" {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Invalid file type",
 		})
 	}
 
-	// Source
+	// Open the file
 	src, err := file.Open()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
@@ -1465,21 +1470,65 @@ func uploadUserAvatar(c echo.Context) error {
 	}
 	defer src.Close()
 
-	// get current user
+	// Decode the image
+	img, _, err := image.Decode(src)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Failed to decode image",
+		})
+	}
+
+	// Get current user
 	self := middleware.GetSelf(c)
 
-	// make file name with user first name _ last name _ timestamp
-	fileName := strings.TrimSpace(self.FirstName) + "_" + strings.TrimSpace(self.LastName) + "_" + strconv.FormatInt(time.Now().Unix(), 10) + extension
+	// Generate file name with user first name, last name, and timestamp
+	fileName := fmt.Sprintf("%s_%s_%d%s", strings.TrimSpace(self.FirstName), strings.TrimSpace(self.LastName), time.Now().Unix(), extension)
 	uploadLocation := s3.AvatarFolder + fileName
 
-	// upload to s3
-	if err := s3.UploadFile(uploadLocation, src); err != nil {
+	// Resize the image
+	resizedImg := resize.Resize(200, 0, img, resize.Lanczos3)
+
+	// Create a new file
+	thumbnailPath := "/tmp/" + fileName
+	thumbnail, err := os.Create(thumbnailPath)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to create new file",
+		})
+	}
+	defer os.Remove(thumbnailPath)
+	defer thumbnail.Close()
+
+	// Encode the image to the new file
+	var encodeErr error
+	switch extension {
+	case ".png":
+		encodeErr = png.Encode(thumbnail, resizedImg)
+	case ".jpg", ".jpeg":
+		encodeErr = jpeg.Encode(thumbnail, resizedImg, &jpeg.Options{Quality: 75})
+	}
+	if encodeErr != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to encode image",
+		})
+	}
+
+	// Open the thumbnail file
+	thumbnailFile, err := os.Open(thumbnailPath)
+	if err != nil {
+		return err
+	}
+	defer thumbnailFile.Close()
+
+	// Upload to S3
+	if err := s3.UploadFile(uploadLocation, thumbnailFile); err != nil {
+		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to upload file",
 		})
 	}
 
-	// update user avatar src
+	// Update user avatar src
 	if err := models.UpdateUserAvatar(*self.ID, fileName); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to update user avatar src",
@@ -1487,7 +1536,6 @@ func uploadUserAvatar(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, fileName)
-
 }
 
 // getUserAvatar godoc

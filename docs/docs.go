@@ -4649,6 +4649,10 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.Interaction"
                     }
                 },
+                "is_deleted": {
+                    "type": "boolean",
+                    "example": false
+                },
                 "last_name": {
                     "type": "string",
                     "example": "Doe"

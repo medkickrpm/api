@@ -34,6 +34,7 @@ type User struct {
 	Interaction       []Interaction
 	CreatedAt         time.Time `json:"created_at" example:"2021-01-01T00:00:00Z"`
 	UpdatedAt         time.Time `json:"updated_at" example:"2021-01-01T00:00:00Z"`
+	IsDeleted         bool      `json:"is_deleted,omitempty" gorm:"default:false" example:"false"`
 }
 
 type DeviceTelemetryDataResponse struct {
@@ -138,7 +139,7 @@ func (u *User) CreateUser() error {
 
 func GetUsers() ([]User, error) {
 	var users []User
-	if err := database.DB.Preload("Organization").Find(&users).Error; err != nil {
+	if err := database.DB.Preload("Organization").Where("is_deleted = ?", false).Find(&users).Error; err != nil {
 		return nil, err
 	}
 
@@ -159,7 +160,7 @@ func GetAllPatients() ([]UserResponse, error) {
 	endDate := nextMonth.Add(-time.Second)
 
 	if err := database.DB.
-		Where("role = 'patient'").
+		Where("role = 'patient' AND is_deleted = ?", false).
 		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
 		Preload("PatientDiagnosis", func(db *gorm.DB) *gorm.DB {
@@ -204,7 +205,7 @@ func GetPatient(id uint) (*UserResponse, error) {
 
 	var user User
 	if err := database.DB.
-		Where("id = ?", id).
+		Where("id = ? AND is_deleted = ?", id, false).
 		Where("role = 'patient'").
 		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
@@ -254,7 +255,7 @@ func GetAllPatientsWithOrg(orgId uint64) ([]UserResponse, error) {
 	endDate := nextMonth.Add(-time.Second)
 
 	if err := database.DB.
-		Where("role = 'patient'").
+		Where("role = 'patient' AND is_deleted = ?", false).
 		Where("organization_id = ?", orgId).
 		Select("id", "first_name", "last_name", "email", "phone", "password", "role", "dob", "location", "city", "zip_code", "state", "country", "avatar_src", "insurance_provider", "insurance_id", "organization_id", "created_at", "updated_at").
 		Preload("Organization").
@@ -292,7 +293,7 @@ func GetAllPatientsWithOrg(orgId uint64) ([]UserResponse, error) {
 
 func CountUsers() (int64, error) {
 	var count int64
-	if err := database.DB.Model(&User{}).Count(&count).Error; err != nil {
+	if err := database.DB.Model(&User{}).Where("is_deleted = ?", false).Count(&count).Error; err != nil {
 		return 0, err
 	}
 	return count, nil
@@ -300,7 +301,7 @@ func CountUsers() (int64, error) {
 
 func CountUsersInOrg(orgId uint) (int64, error) {
 	var count int64
-	if err := database.DB.Model(&User{}).Where("organization_id = ?", orgId).Count(&count).Error; err != nil {
+	if err := database.DB.Model(&User{}).Where("organization_id = ? AND is_deleted = ?", orgId, false).Count(&count).Error; err != nil {
 		return 0, err
 	}
 	return count, nil
@@ -308,7 +309,7 @@ func CountUsersInOrg(orgId uint) (int64, error) {
 
 func GetUsersWithRole(role string) ([]User, error) {
 	var users []User
-	if err := database.DB.Where("role = ?", role).Preload("Organization").Find(&users).Error; err != nil {
+	if err := database.DB.Where("role = ? AND is_deleted = ?", role, false).Preload("Organization").Find(&users).Error; err != nil {
 		return nil, err
 	}
 
@@ -321,7 +322,7 @@ func GetUsersWithRole(role string) ([]User, error) {
 
 func CountUsersWithRole(role string) (int64, error) {
 	var count int64
-	if err := database.DB.Model(&User{}).Where("role = ?", role).Count(&count).Error; err != nil {
+	if err := database.DB.Model(&User{}).Where("role = ? AND is_deleted = ?", role, false).Count(&count).Error; err != nil {
 		return 0, err
 	}
 	return count, nil
@@ -329,7 +330,7 @@ func CountUsersWithRole(role string) (int64, error) {
 
 func CountUsersWithRoleInOrg(orgId uint, role string) (int64, error) {
 	var count int64
-	if err := database.DB.Model(&User{}).Where("organization_id = ? AND role = ?", orgId, role).Count(&count).Error; err != nil {
+	if err := database.DB.Model(&User{}).Where("organization_id = ? AND role = ? AND is_deleted = ?", orgId, role, false).Count(&count).Error; err != nil {
 		return 0, err
 	}
 
@@ -338,7 +339,7 @@ func CountUsersWithRoleInOrg(orgId uint, role string) (int64, error) {
 
 func GetUsersInOrg(orgId *uint) ([]User, error) {
 	var users []User
-	if err := database.DB.Where("organization_id = ? AND role !='patient'", orgId).Preload("Organization").Find(&users).Error; err != nil {
+	if err := database.DB.Where("organization_id = ? AND role !='patient' AND is_deleted = ?", orgId, false).Preload("Organization").Find(&users).Error; err != nil {
 		return nil, err
 	}
 
@@ -351,7 +352,7 @@ func GetUsersInOrg(orgId *uint) ([]User, error) {
 
 func GetUsersInOrgWithRole(orgId *uint, role string) ([]User, error) {
 	var users []User
-	if err := database.DB.Where("organization_id = ? AND role = ?", orgId, role).Preload("Organization").Find(&users).Error; err != nil {
+	if err := database.DB.Where("organization_id = ? AND role = ? AND is_deleted = ?", orgId, role, false).Preload("Organization").Find(&users).Error; err != nil {
 		return nil, err
 	}
 
@@ -364,13 +365,13 @@ func GetUsersInOrgWithRole(orgId *uint, role string) ([]User, error) {
 
 func (u *User) GetUser() error {
 	if u.Email != "" {
-		if err := database.DB.Where("email = ?", u.Email).Preload("Organization").First(&u).Error; err != nil {
+		if err := database.DB.Where("email = ? AND is_deleted = ?", u.Email, false).Preload("Organization").First(&u).Error; err != nil {
 			return err
 		}
 		u.SanitizeUser()
 		return nil
 	}
-	if err := database.DB.Where("id = ?", u.ID).Preload("Organization").First(&u).Error; err != nil {
+	if err := database.DB.Where("id = ? AND is_deleted = ?", u.ID, false).Preload("Organization").First(&u).Error; err != nil {
 		return err
 	}
 	u.SanitizeUser()
@@ -380,7 +381,7 @@ func (u *User) GetUser() error {
 // check if a user already exist with the same phone number
 func (u *User) GetUserByPhone() error {
 	var user User
-	if err := database.DB.Where("phone = ?", u.Phone).First(&user).Error; err != nil {
+	if err := database.DB.Where("phone = ? AND is_deleted = ?", u.Phone, false).First(&user).Error; err != nil {
 		return err
 	}
 	return nil
@@ -389,13 +390,13 @@ func (u *User) GetUserByPhone() error {
 func (u *User) GetUserV2() (*UserResponse, error) {
 	var user User
 	if u.Email != "" {
-		if err := database.DB.Where("email = ?", u.Email).Preload("Organization").First(&user).Error; err != nil {
+		if err := database.DB.Where("email = ? AND is_deleted = ?", u.Email, false).Preload("Organization").First(&user).Error; err != nil {
 			return nil, err
 		}
 		userResponse := user.SanitizedUserResponse()
 		return &userResponse, nil
 	}
-	if err := database.DB.Where("id = ?", u.ID).Preload("Organization").Preload("Device", func(db *gorm.DB) *gorm.DB {
+	if err := database.DB.Where("id = ? AND is_deleted = ?", u.ID, false).Preload("Organization").Preload("Device", func(db *gorm.DB) *gorm.DB {
 		return db.Select("id", "name", "model_number", "imei", "serial_number", "battery_level", "signal_strength", "firmware_version", "user_id") // Specify the fields you want from the Devices table
 	}).First(&user).Error; err != nil {
 		return nil, err
@@ -407,12 +408,12 @@ func (u *User) GetUserV2() (*UserResponse, error) {
 
 func (u *User) GetUserRaw() error {
 	if u.Email != "" {
-		if err := database.DB.Where("email = ?", u.Email).Preload("Organization").First(&u).Error; err != nil {
+		if err := database.DB.Where("email = ? AND is_deleted = ?", u.Email, false).Preload("Organization").First(&u).Error; err != nil {
 			return err
 		}
 		return nil
 	}
-	if err := database.DB.Where("id = ?", u.ID).Preload("Organization").First(&u).Error; err != nil {
+	if err := database.DB.Where("id = ? AND is_deleted = ?", u.ID, false).Preload("Organization").First(&u).Error; err != nil {
 		return err
 	}
 	return nil
@@ -428,9 +429,14 @@ func (u *User) UpdateUser() error {
 }
 
 func (u *User) DeleteUser() error {
-	if err := database.DB.Delete(&u).Error; err != nil {
+	u.IsDeleted = true
+	u.Email = "deleted_" + u.Email
+	u.Phone = "deleted_" + u.Phone
+
+	if err := database.DB.Save(&u).Error; err != nil {
 		return err
 	}
+
 	return nil
 }
 
