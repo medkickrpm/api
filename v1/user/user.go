@@ -200,7 +200,7 @@ func getUser(c echo.Context) error {
 	filter := c.QueryParam("filter")
 	status := c.QueryParam("status")
 
-	if !isValidRole(filter) {
+	if filter != "" && !isValidRole(filter) {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Invalid filter",
 		})
@@ -264,7 +264,6 @@ func getUser(c echo.Context) error {
 	}
 
 	if self.Role == "admin" || (self.Role == "care_manager" && *self.OrganizationID == *u.OrganizationID) || (self.Role == "org_admin" && *self.OrganizationID == *u.OrganizationID) {
-		fmt.Println("I am admin or something")
 		return c.JSON(http.StatusOK, u)
 	}
 
@@ -396,7 +395,7 @@ func getUsersInOrg(c echo.Context) error {
 	filter := c.QueryParam("filter")
 	status := c.QueryParam("status")
 
-	if !isValidRole(filter) {
+	if filter != "" && !isValidRole(filter) {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Error: "Invalid filter",
 		})
