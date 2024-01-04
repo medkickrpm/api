@@ -585,7 +585,7 @@ func getDevicesInUser(c echo.Context) error {
 			})
 		}
 
-		if self.Role == "admin" || (self.Role == "doctor" && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+		if self.Role == "admin" || (self.Role == "org_admin" && self.OrganizationID == u.OrganizationID) || (self.Role == "care_manager" && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
 			devices, err := models.GetDevicesByUser(idUint)
 			if err != nil {
 				return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
