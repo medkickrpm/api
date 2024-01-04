@@ -10,6 +10,7 @@ func ConvertDateFormat(inputDateString, outputFormat string) (string, error) {
 	layoutList := []string{
 		"2006-01-02",
 		"2/1/2006",
+		"05-01-2006",
 		// Add more layouts as needed
 	}
 
