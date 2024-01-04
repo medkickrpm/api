@@ -684,7 +684,7 @@ func getInteractionsInUser(c echo.Context) error {
 		})
 	}
 
-	if self.Role == "admin" || ((self.Role == "doctor" || self.Role == "nurse") && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
+	if self.Role == "admin" || ((self.Role == "care_manager" || self.Role == "org_admin") && self.OrganizationID == u.OrganizationID) || *self.ID == idUint {
 		if startDateRaw != "" {
 			interactions, err := models.GetInteractionsByUserBetweenDates(idUint, startDate, endDate)
 			if err != nil {
