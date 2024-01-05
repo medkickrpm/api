@@ -2,11 +2,12 @@ package middleware
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gorilla/sessions"
 )
 
-var Store = sessions.NewCookieStore([]byte("test"))
+var Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))
 
 func Setup() {
 	Store.Options = &sessions.Options{
