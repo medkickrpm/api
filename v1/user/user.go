@@ -324,9 +324,11 @@ func getPatients(c echo.Context) error {
 			users, err := models.GetAllPatientsWithOrg(idInt)
 
 			if (self.Role != "org_admin" && self.Role != "care_manager") || uint64(*self.OrganizationID) != idInt {
-				return c.JSON(http.StatusForbidden, dto.ErrorResponse{
-					Error: "Unauthorized",
-				})
+				if self.Role != "admin" {
+					return c.JSON(http.StatusForbidden, dto.ErrorResponse{
+						Error: "Unauthorized",
+					})
+				}
 			}
 
 			if err != nil {
