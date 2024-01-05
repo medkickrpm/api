@@ -1035,7 +1035,7 @@ func updateUser(c echo.Context) error {
 	u := models.User{
 		ID: &idUint,
 	}
-	if err := u.GetUser(); err != nil {
+	if err := u.GetUserRaw(); err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to get user",
 		})
